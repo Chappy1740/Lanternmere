@@ -27,7 +27,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <nav
         id="primary-navigation"
         aria-label="Primary"
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-surface transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-background
+           transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
