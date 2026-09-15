@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { MainCharacterControl } from './main-character-control';
+import { LodgeSharingControl } from './lodge-sharing-control';
 const characterSchema = z.object({
   id: z.uuid(),
   profile_id: z.uuid(),
@@ -91,7 +92,50 @@ export default async function CharacterDetailPage({
   const realm = profile?.realm?.name || character.realm_slug;
   const specialization = profile?.active_spec?.name;
   const isOwner = character.profile_id === user.id;
+  let availableLodges: { id: string; name: string }[] = [];
+  let selectedLodgeIds: string[] = [];
 
+  if (isOwner) {
+    const [membershipResult, sharingResult] = await Promise.all([
+      supabase
+        .from('lodge_members')
+        .select('lodge_id')
+        .eq('profile_id', user.id),
+      supabase
+        .from('character_lodges')
+        .select('lodge_id')
+        .eq('character_id', character.id),
+    ]);
+
+    if (membershipResult.error || sharingResult.error) {
+      throw new Error('Unable to load Lodge sharing settings.');
+    }
+
+    const lodgeIdRows = z.array(z.object({ lodge_id: z.uuid() }));
+
+    const memberships = lodgeIdRows.parse(membershipResult.data ?? []);
+    const sharing = lodgeIdRows.parse(sharingResult.data ?? []);
+
+    selectedLodgeIds = sharing.map((row) => row.lodge_id);
+
+    const membershipIds = memberships.map((row) => row.lodge_id);
+
+    if (membershipIds.length > 0) {
+      const { data: lodgeData, error: lodgeError } = await supabase
+        .from('lodges')
+        .select('id, name')
+        .in('id', membershipIds)
+        .order('name');
+
+      if (lodgeError) {
+        throw new Error('Unable to load your Lodges.');
+      }
+
+      availableLodges = z
+        .array(z.object({ id: z.uuid(), name: z.string() }))
+        .parse(lodgeData ?? []);
+    }
+  }
   return (
     <div className="max-w-2xl">
       <p className="text-sm text-text-muted">
@@ -171,6 +215,14 @@ export default async function CharacterDetailPage({
         <MainCharacterControl
           characterId={character.id}
           isMain={character.is_main}
+        />
+      )}
+            {isOwner && (
+        <LodgeSharingControl
+          key={character.id}
+          characterId={character.id}
+          lodges={availableLodges}
+          selectedLodgeIds={selectedLodgeIds}
         />
       )}
       <Link
