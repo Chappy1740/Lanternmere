@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
-
+import { MainCharacterControl } from './main-character-control';
 const characterSchema = z.object({
   id: z.uuid(),
   profile_id: z.uuid(),
@@ -167,7 +167,12 @@ export default async function CharacterDetailPage({
           </p>
         )}
       </div>
-
+      {isOwner && (
+        <MainCharacterControl
+          characterId={character.id}
+          isMain={character.is_main}
+        />
+      )}
       <Link
         href="/travelers/new"
         className="mt-6 inline-block text-accent hover:text-accent-hover"
