@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchCharacterProfile } from '@/lib/wow/character-profile';
 
 export type AddCharacterState = {
@@ -17,6 +18,7 @@ export async function addCharacter(
   let characterId: string;
 
   try {
+    // Verify the user's session with the ordinary, cookie-based client.
     const supabase = await createClient();
     const {
       data: { user },
@@ -27,6 +29,7 @@ export async function addCharacter(
       return { error: 'Please sign in before adding a character.' };
     }
 
+    // The form supplies identifiers only, never profile data or an owner ID.
     const result = await fetchCharacterProfile({
       region: formData.get('region'),
       realm: formData.get('realm'),
@@ -37,11 +40,18 @@ export async function addCharacter(
       return { error: result.message };
     }
 
-    const { data, error } = await supabase.rpc('save_wow_character', {
-      p_region: result.region,
-      p_profile: result.profile,
-      p_fetched_at: result.fetchedAt,
-    });
+    // Write the official response using the server-only client.
+    // Ownership comes exclusively from the verified session above.
+    const admin = createAdminClient();
+    const { data, error } = await admin.rpc(
+      'save_verified_wow_character',
+      {
+        p_profile_id: user.id,
+        p_region: result.region,
+        p_profile: result.profile,
+        p_fetched_at: result.fetchedAt,
+      },
+    );
 
     if (error) {
       return {
