@@ -17,7 +17,7 @@ These are historical baseline observations. Check Git for current branch and wor
 | 0         | Complete per user handoff; early history contains setup, formatting, environment validation, and design tokens. | Repository history; no separate acceptance checklist is preserved.                                                    |
 | 1         | Front door and Lodge onboarding complete.                                                                       | Commit `82b4d70`.                                                                                                     |
 | 2         | Travelers and Characters complete, with recorded verification and limitations.                                  | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
-| 3         | The Hearth: welcome and Lodge context implemented; remaining sections pending.                                  | See the Hearth welcome and Lodge context checkpoint below.                                                            |
+| 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                    | Hearth checkpoints below; implementation commit `2896833`.                                                           |
 
 ## Character-data enhancement checkpoint — September 16, 2026
 
@@ -129,3 +129,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Authenticated browser verification confirmed populated event title/date/time/type/difficulty, achievement title/description/achievement date, and Chronicle title/body/date. At a 390px viewport, all three summary titles remained present and document client/scroll width both measured 375px.
 - Deleted only those three uniquely marked records using the same Lodge/profile guard; the database confirmed one deletion from each table. Reloading the browser restored all three empty states. No persistent test data remains.
 - This closes populated and empty activity-summary browser coverage. The Hearth now has recorded desktop/phone, keyboard-entry, populated/empty, mocked failure, lint, TypeScript, and production-build evidence. Broader multi-member/multi-Lodge browser privacy coverage remains represented by mocks and prior query/RLS checks rather than altered live accounts.
+
+## Milestone 3 completion checkpoint — September 17, 2026
+
+- The approved Hearth scope is complete on `milestone-3-the-hearth`: personalized welcome, verified page-local Lodge context, Main character highlight, Lodge-scoped roster, and read-only events, achievements, and Chronicle summaries with empty/error states.
+- Current final regression run passed all 70 preserved and Milestone 3 mocked checks: 13 profile, 20 character-enhancement, 11 Hearth-context, 9 Main-character, 8 roster, and 9 activity checks. Full lint and production build passed in the preceding checkpoint.
+- `npm run format:check` currently fails on 30 pre-existing files across the repository, including documentation and unrelated application files. No broad formatting rewrite was made as part of this milestone.
+- The working tree is clean. The local branch contains the implementation, verification handoffs, and skip-link fix; it has not been pushed in this session.
