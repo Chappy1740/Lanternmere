@@ -134,5 +134,5 @@ After a milestone, record the delivered scope, verification actually performed, 
 
 - The approved Hearth scope is complete on `milestone-3-the-hearth`: personalized welcome, verified page-local Lodge context, Main character highlight, Lodge-scoped roster, and read-only events, achievements, and Chronicle summaries with empty/error states.
 - Current final regression run passed all 70 preserved and Milestone 3 mocked checks: 13 profile, 20 character-enhancement, 11 Hearth-context, 9 Main-character, 8 roster, and 9 activity checks. Full lint and production build passed in the preceding checkpoint.
-- `npm run format:check` currently fails on 30 pre-existing files across the repository, including documentation and unrelated application files. No broad formatting rewrite was made as part of this milestone.
+- The former 30-file formatting baseline was corrected in maintenance commit `a7a9fc3`; `npm run format:check` now passes.
 - The working tree is clean. The local branch contains the implementation, verification handoffs, and skip-link fix; it has not been pushed in this session.
