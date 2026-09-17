@@ -116,3 +116,9 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Phone-width validation at a 390px viewport measured equal document client and scroll widths (375px). The viewport was reset after testing.
 - Fixed the shell skip link so its fragment target receives focus by adding `tabIndex={-1}` to `main#main-content`. Browser verification confirmed the skip link focuses the main landmark, and Tab then reaches the Travelers link. No events, achievements, Chronicles, memberships, characters, or other live data were changed.
 - Current-session checks passed: targeted ESLint, TypeScript, diff whitespace validation, and the authenticated browser checks above. Next step: populated activity-summary browser coverage if representative live Lodge data becomes available; empty-state, desktop/phone layout, and keyboard entry are verified.
+
+## Hearth populated-activity checkpoint — September 17, 2026
+
+- Rechecked the authenticated live Hearth with repaired Supabase connectivity. The current Lodge has no upcoming events, recorded achievements, or Chronicle entries; all three activity sections correctly rendered their empty states.
+- The repository has no authoring route or server action for events, achievements, or Chronicles. No test records were inserted into the shared database, and no live Lodge data was changed.
+- Populated activity-summary browser verification remains pending representative live data or explicit authorization to create and later remove scoped test records. Existing mocked activity checks cover populated rows, nullable-field fallbacks, ordering, output escaping, and isolated failures.
