@@ -101,3 +101,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Added 9 mocked loader/server-render checks and fixed the Chronicle empty-state apostrophe reported by ESLint. Current-session validation: activity checks (9), Hearth context checks (11), TypeScript, targeted ESLint, and diff whitespace checks passed.
 - Live activity queries/RLS execution, authenticated browser rendering, and responsive/accessibility review were not run this session. Supabase documentation fetching was unavailable; review used the checked-in schema and existing query conventions. No production build was run for this test/documentation and JSX-escaping step.
 - Next unfinished checkpoint: authenticated activity-summary browser verification and broader Hearth accessibility/regression review. Product work remains uncommitted.
+
+## Hearth regression checkpoint — September 17, 2026
+
+- Committed the completed Hearth dashboard and character-data enhancement work as `2896833` (`feat: build Hearth dashboard`). The branch is five commits ahead of `origin/milestone-3-the-hearth`.
+- Current-session regression checks passed: 13 preserved Milestone 2 profile checks; 20 character-enhancement checks; 11 Hearth-context checks; 9 Main-character checks; 8 roster checks; 9 activity-summary checks; full lint; TypeScript through the production build; and diff whitespace validation.
+- Browser verification could not run. The previous local dev server had stopped; after restarting it, the in-app browser had no authenticated session and its automation backend timed out while attaching to local tabs. The server received unauthenticated `/hearth` and `/sign-in` requests but logged Supabase authentication fetch failures, so no populated Hearth state was observed. No authentication attempt, account change, or live data change was made.
+- The next concrete step is to restore a working authenticated browser/Supabase connection, then verify populated and empty activity summaries at desktop and 390px, keyboard navigation through all Hearth sections, and horizontal overflow. No product changes remain uncommitted.
