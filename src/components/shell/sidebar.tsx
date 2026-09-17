@@ -27,18 +27,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <nav
         id="primary-navigation"
         aria-label="Primary"
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-background
-           transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${
+        className={`border-border bg-background fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex items-center justify-between px-5 py-5">
-          <span className="font-display text-xl font-bold text-accent">
-            Lanternmere
-          </span>
+          <span className="font-display text-accent text-xl font-bold">Lanternmere</span>
           <button
             onClick={onClose}
-            className="rounded p-1 text-text-muted hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent lg:hidden"
+            className="text-text-muted hover:text-text-primary focus-visible:outline-accent rounded p-1 focus-visible:outline-2 lg:hidden"
             aria-label="Close navigation"
           >
             <X size={20} />
@@ -55,7 +52,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
                   onClick={onClose}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-accent ${
+                  className={`focus-visible:outline-accent flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors focus-visible:outline-2 ${
                     isActive
                       ? 'bg-accent/15 text-accent'
                       : 'text-text-muted hover:bg-surface-raised hover:text-text-primary'
@@ -64,7 +61,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <Icon size={18} className="shrink-0" aria-hidden="true" />
                   <span className="flex flex-col">
                     <span className="font-medium">{item.label}</span>
-                    <span className="text-xs text-text-muted">{item.subtitle}</span>
+                    <span className="text-text-muted text-xs">{item.subtitle}</span>
                   </span>
                 </Link>
               </li>

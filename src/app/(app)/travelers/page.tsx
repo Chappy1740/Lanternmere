@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { displayProfileSchema } from '@/lib/wow/character-display';
+import { loadRefreshFailures } from '@/lib/wow/refresh-status';
+import { CharacterPortrait } from '@/components/character-portrait';
+import { CharacterFreshness } from '@/components/character-freshness';
 
 const characterSchema = z.object({
   id: z.uuid(),
@@ -21,12 +25,6 @@ const characterSchema = z.object({
   ),
 });
 
-const displayProfileSchema = z.object({
-  name: z.string().optional(),
-  realm: z.object({ name: z.string().optional() }).optional(),
-  active_spec: z.object({ name: z.string().optional() }).optional(),
-});
-
 export default async function TravelersPage() {
   const supabase = await createClient();
   const {
@@ -39,7 +37,8 @@ export default async function TravelersPage() {
 
   const { data, error } = await supabase
     .from('characters')
-    .select(`
+    .select(
+      `
       id,
       character_name,
       realm_slug,
@@ -53,7 +52,8 @@ export default async function TravelersPage() {
         last_refreshed_at,
         snapshot_data
       )
-    `)
+    `,
+    )
     .eq('profile_id', user.id)
     .order('is_main', { ascending: false })
     .order('character_name', { ascending: true })
@@ -72,44 +72,39 @@ export default async function TravelersPage() {
   }
 
   const characters = z.array(characterSchema).parse(data ?? []);
+  const failures = await loadRefreshFailures(
+    supabase,
+    characters.map((character) => character.id),
+  );
 
   return (
     <div className="max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold text-text-primary">
-            Travelers
-          </h1>
-          <p className="mt-2 text-text-muted">
-            Your saved World of Warcraft characters.
-          </p>
+          <h1 className="font-display text-text-primary text-3xl font-bold">Travelers</h1>
+          <p className="text-text-muted mt-2">Your saved World of Warcraft characters.</p>
         </div>
 
         <Link
           href="/travelers/new"
-          className="rounded-md bg-accent px-5 py-2.5 font-medium text-background hover:bg-accent-hover"
+          className="bg-accent text-background hover:bg-accent-hover rounded-md px-5 py-2.5 font-medium"
         >
           Add Character
         </Link>
       </div>
 
       {characters.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-border bg-surface p-8">
-          <h2 className="font-display text-xl text-text-primary">
-            Your journey starts here
-          </h2>
-          <p className="mt-2 text-text-muted">
-            Add a character to bring their public Blizzard profile into
-            Lanternmere.
+        <div className="border-border bg-surface mt-8 rounded-lg border p-8">
+          <h2 className="font-display text-text-primary text-xl">Your journey starts here</h2>
+          <p className="text-text-muted mt-2">
+            Add a character to bring their public Blizzard profile into Lanternmere.
           </p>
         </div>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {characters.map((character) => {
             const snapshot = character.character_snapshots[0];
-            const parsed = displayProfileSchema.safeParse(
-              snapshot?.snapshot_data,
-            );
+            const parsed = displayProfileSchema.safeParse(snapshot?.snapshot_data);
             const profile = parsed.success ? parsed.data : null;
 
             const name = profile?.name || character.character_name;
@@ -120,39 +115,50 @@ export default async function TravelersPage() {
               <Link
                 key={character.id}
                 href={`/travelers/${character.id}`}
-                className="rounded-lg border border-border bg-surface p-6 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-accent"
+                className="border-border bg-surface hover:border-accent focus-visible:outline-accent rounded-lg border p-6 transition-colors focus-visible:outline-2"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-display text-2xl font-bold text-text-primary">
+                <div className="flex flex-wrap items-start gap-3">
+                  <CharacterPortrait src={profile?.portrait_url} name={name} />
+                  <h2 className="font-display text-text-primary min-w-0 flex-1 text-2xl font-bold break-words">
                     {name}
                   </h2>
-                  <span className="rounded-full bg-background px-2 py-1 text-xs text-accent">
+                  <span className="bg-background text-accent rounded-full px-2 py-1 text-xs">
                     {character.is_main ? 'Main' : 'Alternate'}
                   </span>
                 </div>
 
-                <p className="mt-2 text-sm text-text-muted">
+                <p className="text-text-muted mt-2 text-sm">
                   {realm} · {character.region.toUpperCase()}
                 </p>
 
-                <p className="mt-4 text-text-primary">
-                  Level {character.level ?? '?'} ·{' '}
-                  {character.class ?? 'Unknown class'}
+                <p className="text-text-primary mt-4">
+                  Level {character.level ?? '?'} · {character.class ?? 'Unknown class'}
                 </p>
 
-                <p className="mt-1 text-sm text-text-muted">
-                  {[specialization, character.faction]
-                    .filter(Boolean)
-                    .join(' · ') || 'Details unavailable'}
+                <p className="text-text-muted mt-1 text-sm">
+                  {[specialization, character.faction].filter(Boolean).join(' · ') ||
+                    'Details unavailable'}
                 </p>
 
-                <div className="mt-6 border-t border-border pt-4 text-xs text-text-muted">
+                {profile?.equipped_item_level !== undefined && (
+                  <p className="text-text-primary mt-2 text-sm">
+                    Equipped item level {profile.equipped_item_level}
+                  </p>
+                )}
+
+                <div className="border-border text-text-muted mt-6 border-t pt-4 text-xs">
                   <p>
                     Source:{' '}
                     {snapshot?.source === 'blizzard'
                       ? 'Blizzard'
-                      : snapshot?.source ?? 'Unavailable'}
+                      : (snapshot?.source ?? 'Unavailable')}
                   </p>
+
+                  <CharacterFreshness
+                    refreshedAt={snapshot?.last_refreshed_at}
+                    failedAt={failures.latest.get(character.id)}
+                    statusUnavailable={failures.unavailable}
+                  />
 
                   {snapshot && (
                     <p className="mt-1">

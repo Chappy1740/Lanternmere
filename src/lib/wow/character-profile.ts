@@ -3,6 +3,7 @@ import 'server-only';
 import { z } from 'zod';
 import { characterInputSchema } from './character-input';
 import { getBlizzardToken } from './blizzard-token';
+import { isBlizzardPortrait } from './portrait';
 
 const namedRecordSchema = z.object({
   id: z.number().int().positive(),
@@ -23,9 +24,16 @@ const profileSchema = z.object({
     name: z.string().min(1),
   }),
   active_spec: namedRecordSchema.optional(),
+  equipped_item_level: z.number().int().nonnegative().optional().catch(undefined),
+  average_item_level: z.number().int().nonnegative().optional().catch(undefined),
 });
 
-export type CharacterProfile = z.infer<typeof profileSchema>;
+export type CharacterProfile = z.infer<typeof profileSchema> & { portrait_url?: string };
+
+const mediaSchema = z.object({
+  character: z.object({ id: z.number().int().positive() }),
+  assets: z.array(z.object({ key: z.string(), value: z.string() })),
+});
 
 export type ProfileResult =
   | {
@@ -37,18 +45,11 @@ export type ProfileResult =
     }
   | {
       ok: false;
-      code:
-        | 'invalid_input'
-        | 'authentication'
-        | 'unavailable'
-        | 'throttled'
-        | 'integration';
+      code: 'invalid_input' | 'authentication' | 'unavailable' | 'throttled' | 'integration';
       message: string;
     };
 
-export async function fetchCharacterProfile(
-  input: unknown,
-): Promise<ProfileResult> {
+export async function fetchCharacterProfile(input: unknown): Promise<ProfileResult> {
   const parsed = characterInputSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -140,9 +141,31 @@ export async function fetchCharacterProfile(
     };
   }
 
+  // Media is optional: a missing portrait must not discard a valid profile.
+  let portraitUrl: string | undefined;
+  try {
+    const mediaUrl = new URL(url);
+    mediaUrl.pathname += '/character-media';
+    const mediaResponse = await fetch(mediaUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (mediaResponse.ok) {
+      const media = mediaSchema.safeParse(await mediaResponse.json());
+      if (media.success && media.data.character.id === profile.data.id) {
+        portraitUrl = media.data.assets.find(
+          (asset) => asset.key === 'avatar' && isBlizzardPortrait(asset.value),
+        )?.value;
+      }
+    }
+  } catch {
+    // Keep the successful profile when media is unavailable or malformed.
+  }
+
   return {
     ok: true,
-    profile: profile.data,
+    profile: { ...profile.data, ...(portraitUrl ? { portrait_url: portraitUrl } : {}) },
     region,
     source: 'blizzard',
     fetchedAt: new Date().toISOString(),

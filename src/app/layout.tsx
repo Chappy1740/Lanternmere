@@ -28,4 +28,5 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${cinzel.variable} antialiased`}>{children}</body>
     </html>
-  )}
+  );
+}

@@ -1,10 +1,7 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import {
-  updateLodgeSharing,
-  type LodgeSharingState,
-} from './sharing-actions';
+import { updateLodgeSharing, type LodgeSharingState } from './sharing-actions';
 
 const initialState: LodgeSharingState = {
   error: null,
@@ -25,10 +22,7 @@ export function LodgeSharingControl({
   lodges: Lodge[];
   selectedLodgeIds: string[];
 }) {
-  const [state, formAction, isPending] = useActionState(
-    updateLodgeSharing,
-    initialState,
-  );
+  const [state, formAction, isPending] = useActionState(updateLodgeSharing, initialState);
 
   const [selected, setSelected] = useState(selectedLodgeIds);
   const [showMessage, setShowMessage] = useState(false);
@@ -36,21 +30,17 @@ export function LodgeSharingControl({
   function toggleLodge(lodgeId: string, checked: boolean) {
     setShowMessage(false);
     setSelected((previous) =>
-      checked
-        ? [...new Set([...previous, lodgeId])]
-        : previous.filter((id) => id !== lodgeId),
+      checked ? [...new Set([...previous, lodgeId])] : previous.filter((id) => id !== lodgeId),
     );
   }
 
   return (
-    <section className="mt-6 rounded-lg border border-border bg-surface p-6">
-      <h2 className="font-display text-xl text-text-primary">
-        Lodge Sharing
-      </h2>
+    <section className="border-border bg-surface mt-6 rounded-lg border p-6">
+      <h2 className="font-display text-text-primary text-xl">Lodge Sharing</h2>
 
-      <p className="mt-2 text-sm text-text-muted">
-        Members of selected Lodges can view this character and its
-        saved profile. Leave every box unchecked to remove all sharing.
+      <p className="text-text-muted mt-2 text-sm">
+        Members of selected Lodges can view this character and its saved profile. Leave every box
+        unchecked to remove all sharing.
       </p>
 
       <form
@@ -65,25 +55,23 @@ export function LodgeSharingControl({
           <legend className="sr-only">Choose Lodges</legend>
 
           {lodges.length === 0 ? (
-            <p className="text-sm text-text-muted">
-              You do not currently belong to any Lodges. You can still
-              remove any previous sharing by saving below.
+            <p className="text-text-muted text-sm">
+              You do not currently belong to any Lodges. You can still remove any previous sharing
+              by saving below.
             </p>
           ) : (
             lodges.map((lodge) => (
               <label
                 key={lodge.id}
-                className="flex cursor-pointer items-center gap-3 rounded-md border border-border bg-background p-3"
+                className="border-border bg-background flex cursor-pointer items-center gap-3 rounded-md border p-3"
               >
                 <input
                   type="checkbox"
                   name="lodgeIds"
                   value={lodge.id}
                   checked={selected.includes(lodge.id)}
-                  onChange={(event) =>
-                    toggleLodge(lodge.id, event.target.checked)
-                  }
-                  className="h-4 w-4 accent-accent"
+                  onChange={(event) => toggleLodge(lodge.id, event.target.checked)}
+                  className="accent-accent h-4 w-4"
                 />
                 <span className="text-text-primary">{lodge.name}</span>
               </label>
@@ -92,7 +80,7 @@ export function LodgeSharingControl({
 
           <button
             type="submit"
-            className="mt-2 self-start rounded-md bg-accent px-5 py-2.5 font-medium text-background hover:bg-accent-hover disabled:opacity-60"
+            className="bg-accent text-background hover:bg-accent-hover mt-2 self-start rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
           >
             {isPending ? 'Saving...' : 'Save Sharing'}
           </button>
@@ -104,7 +92,7 @@ export function LodgeSharingControl({
           </p>
         )}
 
-        <p role="status" className="mt-3 text-sm text-text-muted">
+        <p role="status" className="text-text-muted mt-3 text-sm">
           {showMessage && !isPending ? state.success : null}
         </p>
       </form>

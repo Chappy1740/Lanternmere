@@ -46,13 +46,10 @@ export async function updateLodgeSharing(
       };
     }
 
-    const { data, error } = await supabase.rpc(
-      'set_character_lodge_sharing',
-      {
-        p_character_id: characterId,
-        p_lodge_ids: [...new Set(lodgeIds)],
-      },
-    );
+    const { data, error } = await supabase.rpc('set_character_lodge_sharing', {
+      p_character_id: characterId,
+      p_lodge_ids: [...new Set(lodgeIds)],
+    });
 
     if (error || data !== characterId) {
       return {
@@ -69,6 +66,7 @@ export async function updateLodgeSharing(
   }
 
   revalidatePath('/travelers');
+  revalidatePath('/hearth');
   revalidatePath('/travelers/[id]', 'page');
 
   return {

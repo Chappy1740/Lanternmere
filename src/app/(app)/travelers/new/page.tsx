@@ -9,20 +9,14 @@ const inputClass =
   'rounded-md border border-border bg-background px-3 py-2 text-text-primary focus-visible:outline-2 focus-visible:outline-accent';
 
 export default function AddCharacterPage() {
-  const [state, formAction, isPending] = useActionState(
-    addCharacter,
-    initialState,
-  );
+  const [state, formAction, isPending] = useActionState(addCharacter, initialState);
 
   return (
     <div className="max-w-xl">
-      <h1 className="font-display text-3xl font-bold text-text-primary">
-        Add a Character
-      </h1>
+      <h1 className="font-display text-text-primary text-3xl font-bold">Add a Character</h1>
 
-      <p className="mt-2 text-text-muted">
-        Find a Retail World of Warcraft character using their region,
-        realm, and name.
+      <p className="text-text-muted mt-2">
+        Find a Retail World of Warcraft character using their region, realm, and name.
       </p>
 
       <form action={formAction} className="mt-8">
@@ -30,15 +24,10 @@ export default function AddCharacterPage() {
           <legend className="sr-only">Character details</legend>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="region" className="text-sm text-text-primary">
+            <label htmlFor="region" className="text-text-primary text-sm">
               Region
             </label>
-            <select
-              id="region"
-              name="region"
-              defaultValue="us"
-              className={inputClass}
-            >
+            <select id="region" name="region" defaultValue="us" className={inputClass}>
               <option value="us">Americas and Oceania</option>
               <option value="eu">Europe</option>
               <option value="kr">Korea</option>
@@ -47,7 +36,7 @@ export default function AddCharacterPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="realm" className="text-sm text-text-primary">
+            <label htmlFor="realm" className="text-text-primary text-sm">
               Realm
             </label>
             <input
@@ -63,10 +52,7 @@ export default function AddCharacterPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label
-              htmlFor="characterName"
-              className="text-sm text-text-primary"
-            >
+            <label htmlFor="characterName" className="text-text-primary text-sm">
               Character name
             </label>
             <input
@@ -81,14 +67,14 @@ export default function AddCharacterPage() {
             />
           </div>
 
-          <p className="text-sm text-text-muted">
-            Profile data comes from Blizzard. Adding a public character
-            does not verify ownership of that character.
+          <p className="text-text-muted text-sm">
+            Profile data comes from Blizzard. Adding a public character does not verify ownership of
+            that character.
           </p>
 
           <button
             type="submit"
-            className="self-start rounded-md bg-accent px-5 py-2.5 font-medium text-background hover:bg-accent-hover disabled:opacity-60"
+            className="bg-accent text-background hover:bg-accent-hover self-start rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
           >
             {isPending ? 'Finding and saving...' : 'Add Character'}
           </button>

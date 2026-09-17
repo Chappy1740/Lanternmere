@@ -9,7 +9,7 @@ export type CreateLodgeState = {
 
 export async function createLodge(
   _prevState: CreateLodgeState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreateLodgeState> {
   const name = String(formData.get('name') ?? '').trim();
   const description = String(formData.get('description') ?? '').trim();

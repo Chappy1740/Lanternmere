@@ -10,7 +10,7 @@ export type AuthActionState = {
 
 export async function signIn(
   _prevState: AuthActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthActionState> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -32,7 +32,7 @@ export async function signIn(
 
 export async function signUp(
   _prevState: AuthActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<AuthActionState> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;

@@ -4,6 +4,10 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { MainCharacterControl } from './main-character-control';
 import { LodgeSharingControl } from './lodge-sharing-control';
+import { displayProfileSchema } from '@/lib/wow/character-display';
+import { loadRefreshFailures } from '@/lib/wow/refresh-status';
+import { CharacterPortrait } from '@/components/character-portrait';
+import { CharacterFreshness } from '@/components/character-freshness';
 const characterSchema = z.object({
   id: z.uuid(),
   profile_id: z.uuid(),
@@ -22,17 +26,7 @@ const snapshotSchema = z.object({
   snapshot_data: z.unknown(),
 });
 
-const displayProfileSchema = z.object({
-  name: z.string().optional(),
-  realm: z.object({ name: z.string().optional() }).optional(),
-  active_spec: z.object({ name: z.string().optional() }).optional(),
-});
-
-export default async function CharacterDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function CharacterDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
   if (!z.uuid().safeParse(id).success) {
@@ -50,9 +44,7 @@ export default async function CharacterDetailPage({
 
   const { data, error } = await supabase
     .from('characters')
-    .select(
-      'id, profile_id, character_name, realm_slug, region, class, faction, level, is_main',
-    )
+    .select('id, profile_id, character_name, realm_slug, region, class, faction, level, is_main')
     .eq('id', id)
     .maybeSingle();
 
@@ -79,32 +71,23 @@ export default async function CharacterDetailPage({
     throw new Error('Unable to load the character snapshot.');
   }
 
-  const snapshot = snapshotData
-    ? snapshotSchema.parse(snapshotData)
-    : null;
+  const snapshot = snapshotData ? snapshotSchema.parse(snapshotData) : null;
 
-  const displayProfile = displayProfileSchema.safeParse(
-    snapshot?.snapshot_data,
-  );
+  const displayProfile = displayProfileSchema.safeParse(snapshot?.snapshot_data);
   const profile = displayProfile.success ? displayProfile.data : null;
 
   const name = profile?.name || character.character_name;
   const realm = profile?.realm?.name || character.realm_slug;
   const specialization = profile?.active_spec?.name;
   const isOwner = character.profile_id === user.id;
+  const failures = await loadRefreshFailures(supabase, [character.id]);
   let availableLodges: { id: string; name: string }[] = [];
   let selectedLodgeIds: string[] = [];
 
   if (isOwner) {
     const [membershipResult, sharingResult] = await Promise.all([
-      supabase
-        .from('lodge_members')
-        .select('lodge_id')
-        .eq('profile_id', user.id),
-      supabase
-        .from('character_lodges')
-        .select('lodge_id')
-        .eq('character_id', character.id),
+      supabase.from('lodge_members').select('lodge_id').eq('profile_id', user.id),
+      supabase.from('character_lodges').select('lodge_id').eq('character_id', character.id),
     ]);
 
     if (membershipResult.error || sharingResult.error) {
@@ -138,67 +121,76 @@ export default async function CharacterDetailPage({
   }
   return (
     <div className="max-w-2xl">
-      <p className="text-sm text-text-muted">
+      <p className="text-text-muted text-sm">
         {isOwner ? 'Your saved character' : 'Shared Lodge character'}
       </p>
 
-      <h1 className="mt-2 font-display text-3xl font-bold text-text-primary">
-        {name}
-      </h1>
+      <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">{name}</h1>
 
-      <p className="mt-2 text-text-muted">
+      <div className="mt-4">
+        <CharacterPortrait src={profile?.portrait_url} name={name} />
+      </div>
+
+      <p className="text-text-muted mt-2">
         {realm} · {character.region.toUpperCase()}
       </p>
 
-      <div className="mt-6 rounded-lg border border-border bg-surface p-6">
+      <div className="border-border bg-surface mt-6 rounded-lg border p-6">
         <dl className="grid grid-cols-2 gap-6">
           <div>
-            <dt className="text-sm text-text-muted">Level</dt>
-            <dd className="mt-1 text-text-primary">
-              {character.level ?? 'Unavailable'}
+            <dt className="text-text-muted text-sm">Equipped item level</dt>
+            <dd className="text-text-primary mt-1">
+              {profile?.equipped_item_level ?? 'Unavailable — refresh to check'}
             </dd>
+          </div>
+          <div>
+            <dt className="text-text-muted text-sm">Average item level</dt>
+            <dd className="text-text-primary mt-1">
+              {profile?.average_item_level ?? 'Unavailable — refresh to check'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-text-muted text-sm">Level</dt>
+            <dd className="text-text-primary mt-1">{character.level ?? 'Unavailable'}</dd>
           </div>
 
           <div>
-            <dt className="text-sm text-text-muted">Class</dt>
-            <dd className="mt-1 text-text-primary">
-              {character.class ?? 'Unavailable'}
-            </dd>
+            <dt className="text-text-muted text-sm">Class</dt>
+            <dd className="text-text-primary mt-1">{character.class ?? 'Unavailable'}</dd>
           </div>
 
           <div>
-            <dt className="text-sm text-text-muted">Specialization</dt>
-            <dd className="mt-1 text-text-primary">
-              {specialization ?? 'Unavailable'}
-            </dd>
+            <dt className="text-text-muted text-sm">Specialization</dt>
+            <dd className="text-text-primary mt-1">{specialization ?? 'Unavailable'}</dd>
           </div>
 
           <div>
-            <dt className="text-sm text-text-muted">Faction</dt>
-            <dd className="mt-1 text-text-primary">
-              {character.faction ?? 'Unavailable'}
-            </dd>
+            <dt className="text-text-muted text-sm">Faction</dt>
+            <dd className="text-text-primary mt-1">{character.faction ?? 'Unavailable'}</dd>
           </div>
 
           <div>
-            <dt className="text-sm text-text-muted">Character status</dt>
-            <dd className="mt-1 text-text-primary">
-              {character.is_main ? 'Main' : 'Alternate'}
-            </dd>
+            <dt className="text-text-muted text-sm">Character status</dt>
+            <dd className="text-text-primary mt-1">{character.is_main ? 'Main' : 'Alternate'}</dd>
           </div>
 
           <div>
-            <dt className="text-sm text-text-muted">Source</dt>
-            <dd className="mt-1 text-text-primary">
-              {snapshot?.source === 'blizzard'
-                ? 'Blizzard'
-                : snapshot?.source ?? 'Unavailable'}
+            <dt className="text-text-muted text-sm">Source</dt>
+            <dd className="text-text-primary mt-1">
+              {snapshot?.source === 'blizzard' ? 'Blizzard' : (snapshot?.source ?? 'Unavailable')}
             </dd>
           </div>
         </dl>
 
+        <div className="mt-6">
+          <CharacterFreshness
+            refreshedAt={snapshot?.last_refreshed_at}
+            failedAt={failures.latest.get(character.id)}
+            statusUnavailable={failures.unavailable}
+          />
+        </div>
         {snapshot && (
-          <p className="mt-6 text-sm text-text-muted">
+          <p className="text-text-muted mt-6 text-sm">
             Last refreshed:{' '}
             <time dateTime={snapshot.last_refreshed_at}>
               {new Intl.DateTimeFormat('en-US', {
@@ -212,12 +204,19 @@ export default async function CharacterDetailPage({
         )}
       </div>
       {isOwner && (
-        <MainCharacterControl
-          characterId={character.id}
-          isMain={character.is_main}
-        />
+        <p className="text-text-muted mt-4 text-sm">
+          To refresh this profile,{' '}
+          <Link
+            href="/travelers/new"
+            className="text-accent focus-visible:outline-accent underline focus-visible:outline-2"
+          >
+            import this character again
+          </Link>{' '}
+          using the same region, realm, and name. Main and Lodge sharing settings are preserved.
+        </p>
       )}
-            {isOwner && (
+      {isOwner && <MainCharacterControl characterId={character.id} isMain={character.is_main} />}
+      {isOwner && (
         <LodgeSharingControl
           key={character.id}
           characterId={character.id}
@@ -225,10 +224,7 @@ export default async function CharacterDetailPage({
           selectedLodgeIds={selectedLodgeIds}
         />
       )}
-      <Link
-        href="/travelers/new"
-        className="mt-6 inline-block text-accent hover:text-accent-hover"
-      >
+      <Link href="/travelers/new" className="text-accent hover:text-accent-hover mt-6 inline-block">
         Add another character
       </Link>
     </div>

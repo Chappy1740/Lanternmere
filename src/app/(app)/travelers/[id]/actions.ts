@@ -41,8 +41,7 @@ export async function makeMainCharacter(
 
     if (error || data !== characterId) {
       return {
-        error:
-          'Unable to change your main. Choose one of your own saved characters and try again.',
+        error: 'Unable to change your main. Choose one of your own saved characters and try again.',
         success: null,
       };
     }
@@ -55,6 +54,7 @@ export async function makeMainCharacter(
 
   // Refresh the list and all details, including the previous main.
   revalidatePath('/travelers');
+  revalidatePath('/hearth');
   revalidatePath('/travelers/[id]', 'page');
 
   return {
