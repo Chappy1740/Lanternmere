@@ -122,3 +122,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Rechecked the authenticated live Hearth with repaired Supabase connectivity. The current Lodge has no upcoming events, recorded achievements, or Chronicle entries; all three activity sections correctly rendered their empty states.
 - The repository has no authoring route or server action for events, achievements, or Chronicles. No test records were inserted into the shared database, and no live Lodge data was changed.
 - Populated activity-summary browser verification remains pending representative live data or explicit authorization to create and later remove scoped test records. Existing mocked activity checks cover populated rows, nullable-field fallbacks, ordering, output escaping, and isolated failures.
+
+## Hearth populated-activity browser checkpoint — September 17, 2026
+
+- With explicit authorization, inserted one uniquely marked event, achievement, and Chronicle for the current verified Lodge/profile pair through the linked Lanternmere project. The insert guard required exactly one matching Lodge membership; the database confirmed one row in each table.
+- Authenticated browser verification confirmed populated event title/date/time/type/difficulty, achievement title/description/achievement date, and Chronicle title/body/date. At a 390px viewport, all three summary titles remained present and document client/scroll width both measured 375px.
+- Deleted only those three uniquely marked records using the same Lodge/profile guard; the database confirmed one deletion from each table. Reloading the browser restored all three empty states. No persistent test data remains.
+- This closes populated and empty activity-summary browser coverage. The Hearth now has recorded desktop/phone, keyboard-entry, populated/empty, mocked failure, lint, TypeScript, and production-build evidence. Broader multi-member/multi-Lodge browser privacy coverage remains represented by mocks and prior query/RLS checks rather than altered live accounts.
