@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getViewer, getLodgeMemberships } from '@/lib/hearth/context';
 import { loadLodgeActivity, activityDate, excerpt } from '@/lib/hearth/activity';
 
@@ -31,7 +32,12 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
             <ul className={listClass}>
               {events.rows.map((event) => (
                 <li key={event.id}>
-                  <h3 className={titleClass}>{event.title.trim() || 'Lodge event'}</h3>
+                  <Link
+                    href={`/quest-board/${event.id}?lodge=${lodgeId}`}
+                    className={`${titleClass} hover:text-accent underline-offset-4 hover:underline`}
+                  >
+                    {event.title.trim() || 'Lodge event'}
+                  </Link>
                   <p className={textClass}>
                     <time dateTime={event.event_date}>{activityDate(event.event_date)}</time>
                     {event.event_time
@@ -46,6 +52,12 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
                 </li>
               ))}
             </ul>
+            <Link
+              href={`/quest-board?lodge=${lodgeId}`}
+              className="text-accent hover:text-accent-hover mt-5 inline-block text-sm underline underline-offset-4"
+            >
+              Visit the Quest Board
+            </Link>
           </>
         )}
       </section>

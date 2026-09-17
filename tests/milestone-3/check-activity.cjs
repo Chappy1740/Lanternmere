@@ -53,6 +53,7 @@ const client = {
 };
 const { LodgeActivity } = load('src/components/lodge-activity.tsx', {
   'react/jsx-runtime': require('react/jsx-runtime'),
+  'next/link': { default: ({ children }) => children },
   '@/lib/hearth/activity': activity,
   '@/lib/hearth/context': {
     getViewer: async () => {

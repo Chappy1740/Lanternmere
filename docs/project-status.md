@@ -136,3 +136,12 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Current final regression run passed all 70 preserved and Milestone 3 mocked checks: 13 profile, 20 character-enhancement, 11 Hearth-context, 9 Main-character, 8 roster, and 9 activity checks. Full lint and production build passed in the preceding checkpoint.
 - The former 30-file formatting baseline was corrected in maintenance commit `a7a9fc3`; `npm run format:check` now passes.
 - The working tree is clean. The local branch contains the implementation, verification handoffs, and skip-link fix; it has not been pushed in this session.
+
+## Milestone 4 Quest Board checkpoint — September 17, 2026
+
+- Started `codex/milestone-4-quest-board` from `main` at `dabd84d` after inspecting the existing event and attendee schema, RLS policies, helper functions, and Hearth activity summary.
+- Added the Lodge-scoped Quest Board with upcoming and recent-past lists, event detail and participant views, create/edit/delete controls, and self-RSVP for confirmed, tentative, or declined attendance. Existing permissions are preserved: all verified Lodge members can create, while the event creator or an owner/caretaker can edit or remove it.
+- Added and applied `20260917165942_harden_event_boundaries.sql`, which prevents changing an event's Lodge or creator and rechecks the event, profile, and optional character ownership on RSVP inserts and updates. Migration history, deployed policy definitions, and its trigger were verified on Lanternmere.
+- Hearth upcoming-event titles and a Quest Board link now retain the selected Lodge context. The Quest Board uses its own verified Lodge selection and returns 404 for absent, repeated, malformed, or foreign selections.
+- Current-session checks passed: all 75 mocked regression checks (including the 9 activity checks), lint, TypeScript, production build, and diff whitespace validation. `npm run format:check` still reports pre-existing formatting differences across unrelated files.
+- Authenticated browser checks verified empty and populated Quest Board states; authorized event creation, edit, confirmed RSVP, participant rendering, and deletion; and the corresponding populated and restored-empty Hearth summaries. The event, RSVP, uniquely labelled temporary Lodge, and confirmed temporary account were removed through the Supabase dashboard. A read-only database check confirmed zero matching Lodges, memberships, events, and users.
