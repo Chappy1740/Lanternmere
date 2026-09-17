@@ -127,7 +127,7 @@ async function check(label, run) {
   });
   await check('RLS migration freezes event identity and protects RSVP ownership', async () => {
     const sql = fs.readFileSync(
-      'supabase/migrations/20260917140026_harden_event_boundaries.sql',
+      'supabase/migrations/20260917165942_harden_event_boundaries.sql',
       'utf8',
     );
     assert.match(sql, /new\.lodge_id is distinct from old\.lodge_id/);
