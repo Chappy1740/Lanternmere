@@ -136,3 +136,12 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Current final regression run passed all 70 preserved and Milestone 3 mocked checks: 13 profile, 20 character-enhancement, 11 Hearth-context, 9 Main-character, 8 roster, and 9 activity checks. Full lint and production build passed in the preceding checkpoint.
 - The former 30-file formatting baseline was corrected in maintenance commit `a7a9fc3`; `npm run format:check` now passes.
 - The working tree is clean. The local branch contains the implementation, verification handoffs, and skip-link fix; it has not been pushed in this session.
+
+## Milestone 4 Quest Board checkpoint — September 17, 2026
+
+- Started `codex/milestone-4-quest-board` from `main` at `dabd84d` after inspecting the existing event and attendee schema, RLS policies, helper functions, and Hearth activity summary.
+- Added the Lodge-scoped Quest Board with upcoming and recent-past lists, event detail and participant views, create/edit/delete controls, and self-RSVP for confirmed, tentative, or declined attendance. Existing permissions are preserved: all verified Lodge members can create, while the event creator or an owner/caretaker can edit or remove it.
+- Added a local migration, `20260917140026_harden_event_boundaries.sql`, which prevents changing an event's Lodge or creator and rechecks the event, profile, and optional character ownership on RSVP inserts and updates. It has not been applied to a database in this checkpoint.
+- Hearth upcoming-event titles and a Quest Board link now retain the selected Lodge context. The Quest Board uses its own verified Lodge selection and returns 404 for absent, repeated, malformed, or foreign selections.
+- Current-session checks passed: Quest Board mocked loader/RLS checks (5), preserved Milestone 2 profile checks (13), character-enhancement checks (20), Hearth-context checks (11), Main-character checks (9), roster checks (8), lint, TypeScript, production build, and diff whitespace validation. The preserved activity test was updated for its new `next/link` dependency and needs its final rerun with the full suite.
+- Authenticated browser checks verified the empty Quest Board and creation form, keyboard skip-link focus to the main landmark, and a 390px form layout without horizontal overflow. No event or RSVP was submitted and no live Lodge data changed. Populated event/detail/RSVP browser coverage and a disposable-database RLS rehearsal remain pending.
