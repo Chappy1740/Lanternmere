@@ -32,3 +32,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Preserve server-verified ownership for privileged character writes, official server-fetched profile data, and selected-Lodge sharing restrictions.
 - Preserve the Milestone 2 security tests. Use their README for database rehearsals; never apply the disposable baseline to the original database.
 - Run checks appropriate to the change and report what actually ran, including limitations. Review the diff and stage only intended files.
+
+# Lanternmere Project Instructions
+
+Before making project changes, read and follow `docs/CODEX_SESSION_RULES.md`.
+
+GitHub and the repository documentation are the source of truth. Keep work focused on the current task, inspect only the files needed, avoid unrelated changes, and follow the model/session-efficiency guidance in the permanent Codex rules.
