@@ -7,14 +7,14 @@ These rules are permanent project guidance for Codex sessions working on Lantern
 - GitHub and the repository documentation are the source of truth.
 - Read this file before making project changes.
 - Use the current milestone documentation and existing code instead of reconstructing project history from old chat conversations.
-- Do not assume repository state. Inspect the relevant files before changing them.
+- Inspect the repository before claiming current file contents, commits, branch, or Git status. Treat previously recorded repository state as historical until verified.
 
 ## Session Efficiency
 
 - Use the smallest capable model for the task.
-- Default normal implementation work to Terra Medium.
-- Use Sol Medium for connected features across several files, complicated data work, architecture decisions, or difficult debugging.
-- Reserve Astra Light or Medium for unusually difficult work where the lower-cost model is not sufficient.
+- Default to Terra Medium for normal coding, dashboard layout, components, routine fixes, and tests.
+- Use Sol Medium for connected multi-file features, complicated data work, or difficult implementation decisions.
+- Reserve Astra for difficult Supabase/RLS/security issues, serious unresolved bugs, and major architecture or refactor work.
 - Do not reread or broadly analyze the entire repository when the requested task is narrow.
 - Inspect only the files and documentation needed for the current task, expanding scope only when evidence shows it is necessary.
 - Do not repeat repository discovery that permanent documentation already answers.
@@ -41,13 +41,17 @@ These rules are permanent project guidance for Codex sessions working on Lantern
 - Review the diff before considering the task complete.
 - Keep commits focused and descriptive.
 
+## Session Handoff
+
+- End each coding session with a concise status and next-step handoff: what changed, verification actually run, unresolved issues or limitations, and the next concrete step.
+- Distinguish checks run in the current session from previously recorded results.
+- Update docs/project-status.md when scope, implementation status, or verification results change.
+
 ## Current Lanternmere Workflow
 
 For Milestone 3 — The Hearth:
 
 - Branch: `milestone-3-the-hearth`
-- Normal coding, dashboard layout, components, routine fixes, and tests: Terra Medium.
-- Connected features spanning several files, difficult data work, or complex implementation decisions: Sol Medium.
-- Astra should be an exception, not the default.
+- Follow the durable model-selection guidance under Session Efficiency.
 
 These model choices are workflow guidance for conserving usage while maintaining implementation quality; they do not change the technical requirements of the project.
