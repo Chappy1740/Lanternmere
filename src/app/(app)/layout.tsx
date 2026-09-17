@@ -1,21 +1,7 @@
-import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/shell/app-shell';
-import { createClient } from '@/lib/supabase/server';
+import { getViewer } from '@/lib/hearth/context';
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/sign-in');
-  }
-
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  await getViewer();
   return <AppShell>{children}</AppShell>;
 }

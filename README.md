@@ -10,7 +10,7 @@ Lanternmere is a World of Warcraft community app organized around Lodges and Tra
 - [Development and verification](docs/development.md)
 - [Agent instructions](AGENTS.md)
 
-Milestones 0–2 are complete according to the project handoff. Milestone 3, **The Hearth**, has not been implemented; its dashboard currently contains a placeholder. See the status document before starting work.
+Milestones 0–2 are complete according to the project handoff. Milestone 3, **The Hearth**, is in progress: personalized welcome and Lodge context are implemented; the remaining dashboard sections are pending. See the status document before starting work.
 
 ## Local development
 

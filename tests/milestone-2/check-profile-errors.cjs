@@ -27,8 +27,10 @@ function load(file, dependencies) {
   return exports;
 }
 const input = load('src/lib/wow/character-input.ts', { zod: localRequire('zod') });
+const portrait = load('src/lib/wow/portrait.ts', {});
 const { fetchCharacterProfile } = load('src/lib/wow/character-profile.ts', {
   'server-only': {}, zod: localRequire('zod'), './character-input': input,
+  './portrait': portrait,
   './blizzard-token': { getBlizzardToken: async () => {
     tokenCalls++;
     if (tokenError) throw new Error('SENSITIVE_SENTINEL');
@@ -67,6 +69,7 @@ async function failure(label, response, code, messagePattern, given = valid) {
   tokenError = false;
   await failure('invalid input performs no I/O', () => { throw new Error('must not fetch'); }, 'invalid_input', /only letters/i, { ...valid, characterName: 'Wrenx123' });
   responder = (url, options) => {
+    if (url.pathname.endsWith('/character-media')) return new Response('', { status: 404 });
     assert.equal(url.pathname, '/profile/wow/character/stormrage/wrenx');
     assert.equal(options.cache, 'no-store');
     assert.ok(options.signal);
