@@ -17,7 +17,7 @@ These are historical baseline observations. Check Git for current branch and wor
 | 0         | Complete per user handoff; early history contains setup, formatting, environment validation, and design tokens. | Repository history; no separate acceptance checklist is preserved.                                                    |
 | 1         | Front door and Lodge onboarding complete.                                                                       | Commit `82b4d70`.                                                                                                     |
 | 2         | Travelers and Characters complete, with recorded verification and limitations.                                  | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
-| 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                    | Hearth checkpoints below; implementation commit `2896833`.                                                           |
+| 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                    | Hearth checkpoints below; implementation commit `2896833`.                                                            |
 
 ## Character-data enhancement checkpoint — September 16, 2026
 

@@ -6,21 +6,21 @@ This is a map of the inspected repository, not a proposal for new implementation
 
 The app uses Next.js App Router, React, TypeScript, Tailwind CSS, Supabase, and Zod. `package.json` and the lockfile are authoritative for dependency versions. At the documentation baseline, Next.js is 16.3.5 and React is 19.2.8.
 
-| Location | Responsibility |
-| --- | --- |
-| `src/app/(auth)` | Sign-in, sign-up, and account actions. |
-| `src/app/(app)/layout.tsx` | Verified user check and shared authenticated shell. |
-| `src/app/(app)/(lodge)/layout.tsx` | Lodge membership check; redirects users without membership to Lodge creation. |
-| `src/app/(app)/(lodge)/hearth/page.tsx` | Dashboard placeholder. |
-| `src/app/(app)/lodges/new` | Lodge onboarding and creation action. |
-| `src/app/(app)/travelers` | Character listing, import, details, refresh, Main selection, and sharing controls. |
-| `src/components/shell` | Sidebar, topbar, and application shell. |
-| `src/lib/navigation.ts` | Navigation labels and destinations. |
-| `src/lib/wow` | Identifier validation, Blizzard token retrieval, and public profile client. |
-| `src/lib/supabase` | Browser, server, middleware, and privileged server client utilities. |
-| `src/lib/env.client.ts`, `src/lib/env.server.ts` | Environment validation and client/server separation. |
-| `supabase/migrations` | Versioned database schema and access controls. |
-| `tests/milestone-2` | Mocked profile checks and disposable-database security rehearsals. |
+| Location                                         | Responsibility                                                                     |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `src/app/(auth)`                                 | Sign-in, sign-up, and account actions.                                             |
+| `src/app/(app)/layout.tsx`                       | Verified user check and shared authenticated shell.                                |
+| `src/app/(app)/(lodge)/layout.tsx`               | Lodge membership check; redirects users without membership to Lodge creation.      |
+| `src/app/(app)/(lodge)/hearth/page.tsx`          | Dashboard placeholder.                                                             |
+| `src/app/(app)/lodges/new`                       | Lodge onboarding and creation action.                                              |
+| `src/app/(app)/travelers`                        | Character listing, import, details, refresh, Main selection, and sharing controls. |
+| `src/components/shell`                           | Sidebar, topbar, and application shell.                                            |
+| `src/lib/navigation.ts`                          | Navigation labels and destinations.                                                |
+| `src/lib/wow`                                    | Identifier validation, Blizzard token retrieval, and public profile client.        |
+| `src/lib/supabase`                               | Browser, server, middleware, and privileged server client utilities.               |
+| `src/lib/env.client.ts`, `src/lib/env.server.ts` | Environment validation and client/server separation.                               |
+| `supabase/migrations`                            | Versioned database schema and access controls.                                     |
+| `tests/milestone-2`                              | Mocked profile checks and disposable-database security rehearsals.                 |
 
 ## Trusted character import
 

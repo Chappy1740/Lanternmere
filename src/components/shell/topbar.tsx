@@ -8,18 +8,18 @@ type TopbarProps = {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   return (
-    <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 lg:px-6">
+    <header className="border-border bg-surface flex items-center justify-between border-b px-4 py-3 lg:px-6">
       <button
         onClick={onMenuClick}
         aria-expanded={false}
         aria-controls="primary-navigation"
         aria-label="Open navigation"
-        className="rounded p-2 text-text-muted hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent lg:hidden"
+        className="text-text-muted hover:text-text-primary focus-visible:outline-accent rounded p-2 focus-visible:outline-2 lg:hidden"
       >
         <Menu size={22} />
       </button>
 
-      <div className="hidden flex-1 items-center gap-2 rounded-md border border-border bg-surface-raised px-3 py-1.5 text-sm text-text-muted lg:flex lg:max-w-xs">
+      <div className="border-border bg-surface-raised text-text-muted hidden flex-1 items-center gap-2 rounded-md border px-3 py-1.5 text-sm lg:flex lg:max-w-xs">
         <Search size={16} aria-hidden="true" />
         <span>Search…</span>
       </div>
@@ -27,12 +27,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <div className="flex items-center gap-4">
         <button
           aria-label="Notifications"
-          className="rounded p-2 text-text-muted hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent"
+          className="text-text-muted hover:text-text-primary focus-visible:outline-accent rounded p-2 focus-visible:outline-2"
         >
           <Bell size={20} />
         </button>
         <div
-          className="h-8 w-8 rounded-full bg-accent/20"
+          className="bg-accent/20 h-8 w-8 rounded-full"
           role="img"
           aria-label="User avatar placeholder"
         />

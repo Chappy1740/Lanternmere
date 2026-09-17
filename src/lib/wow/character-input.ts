@@ -12,19 +12,12 @@ export const characterInputSchema = z.object({
 
   realm: z
     .string()
-    .transform((value) =>
-      normalizeText(value)
-        .replace(/['’]/g, '')
-        .replace(/\s+/g, '-'),
-    )
+    .transform((value) => normalizeText(value).replace(/['’]/g, '').replace(/\s+/g, '-'))
     .pipe(
       z
         .string()
         .min(1, 'Enter a realm.')
-        .regex(
-          /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u,
-          'Enter a realm name or realm slug.',
-        ),
+        .regex(/^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u, 'Enter a realm name or realm slug.'),
     ),
 
   characterName: z
