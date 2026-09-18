@@ -11,7 +11,7 @@ The app uses Next.js App Router, React, TypeScript, Tailwind CSS, Supabase, and 
 | `src/app/(auth)`                                 | Sign-in, sign-up, and account actions.                                             |
 | `src/app/(app)/layout.tsx`                       | Verified user check and shared authenticated shell.                                |
 | `src/app/(app)/(lodge)/layout.tsx`               | Lodge membership check; redirects users without membership to Lodge creation.      |
-| `src/app/(app)/(lodge)/hearth/page.tsx`          | Dashboard placeholder.                                                             |
+| `src/app/(app)/(lodge)/hearth/page.tsx`          | Authenticated Lodge dashboard: context, Main, roster, and activity summaries.     |
 | `src/app/(app)/lodges/new`                       | Lodge onboarding and creation action.                                              |
 | `src/app/(app)/travelers`                        | Character listing, import, details, refresh, Main selection, and sharing controls. |
 | `src/components/shell`                           | Sidebar, topbar, and application shell.                                            |

@@ -9,7 +9,7 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 | Lodge         | A community with membership; users can create a Lodge during onboarding.                 |
 | Travelers     | The character area, with imports, cards, details, and character controls.                |
 | Main          | A user's selected main character, with switching supported.                              |
-| The Hearth    | The dashboard route; currently a placeholder behind account and Lodge membership checks. |
+| The Hearth    | The authenticated Lodge dashboard with context, Main character, roster, and activity summaries. |
 | Lodge sharing | Owner-controlled character visibility in selected Lodges.                                |
 
 ## Implemented capabilities
@@ -18,9 +18,10 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 - WoW character lookup by region, realm, and name using official public profile data fetched on the server.
 - Character and snapshot persistence, refresh, Main selection, and selected-Lodge sharing.
 - Theme tokens and a shared sidebar/topbar shell.
+- The Hearth dashboard and Quest Board event/RSVP workflows.
 
-Navigation also names Adventures, Quest Board, Hall of Legends, Chronicles, Supply Chest, and Caretaker's Office. Navigation labels do not establish implemented features or approved milestone scope.
+Hall of Legends and Chronicles are the next product area. Navigation labels do not establish implementation on their own.
 
 ## Boundaries of this documentation
 
-The repository and preserved Milestone 2 checkpoint are the evidence for implemented behavior. The user's handoff establishes milestone completion and the next milestone's name. Detailed future requirements, including The Hearth's contents, still need to be provided. Do not invent a roadmap from labels or placeholders.
+The repository, milestone specifications, and preserved checkpoints are evidence for implemented behavior. The original migration roadmap is archived separately to retain requirements that still remain gaps. Do not infer implementation from navigation labels.

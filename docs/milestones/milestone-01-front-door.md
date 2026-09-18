@@ -16,6 +16,7 @@ Provide the secure entry path into Lanternmere and establish a user's first Lodg
 - Lodge owner membership
 - Lodge membership routing
 - protected Hearth access
+- secure Lodge invitations and role management (original roadmap requirement; not implemented)
 
 ## Primary user flow
 Create Account  
@@ -48,3 +49,6 @@ Create Account
 
 ## Milestone boundary
 Authentication and Lodge membership remain separate gates so onboarding routes can remain reachable.
+
+## Reconciliation note
+Owner membership creation and role-aware authorization exist. The original roadmap also required secure invitations and Lodge role management; neither has been verified as an implemented user flow. They remain an MVP gap and must preserve ADR-001 when addressed.

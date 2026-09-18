@@ -145,3 +145,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Hearth upcoming-event titles and a Quest Board link now retain the selected Lodge context. The Quest Board uses its own verified Lodge selection and returns 404 for absent, repeated, malformed, or foreign selections.
 - Current-session checks passed: all 75 mocked regression checks (including the 9 activity checks), lint, TypeScript, production build, and diff whitespace validation. `npm run format:check` still reports pre-existing formatting differences across unrelated files.
 - Authenticated browser checks verified empty and populated Quest Board states; authorized event creation, edit, confirmed RSVP, participant rendering, and deletion; and the corresponding populated and restored-empty Hearth summaries. The event, RSVP, uniquely labelled temporary Lodge, and confirmed temporary account were removed through the Supabase dashboard. A read-only database check confirmed zero matching Lodges, memberships, events, and users.
+## Pre-Milestone-5 consolidation — September 18, 2026
+
+- Consolidated the approved visual direction into docs/design/README.md; permanent production raster assets are under public/brand/, while visual-reference boards remain under docs/design/references/.
+- Archived the recovered original Claude MVP requirements at docs/archive/claude-migration/original-mvp-roadmap.md and preserved the Lodge/RLS decision record at docs/adr/ADR-001-rls-policy-boundaries.md.
+- Milestones 0–4 remain implemented; no application, database, migration, RLS, or authentication behavior changed in this pass.
+- Before declaring the original MVP complete, address or deliberately defer: secure Lodge invites and role-management flows; Quest Board participant role selection and group-composition summary; and Milestone 5 memory media/captions plus search/filtering.
+- Next planned checkpoint: UI/design alignment against the approved reference set, then Milestone 5.

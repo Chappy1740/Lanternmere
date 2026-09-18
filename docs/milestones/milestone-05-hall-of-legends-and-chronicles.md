@@ -15,6 +15,7 @@ Preserve accomplishments, memorable moments, and the shared history of each Lodg
 - show related character, Lodge, and event context where supported
 - distinguish Blizzard-derived achievement data from Lanternmere-created accomplishments
 - provide clear empty states
+- group milestones where supported
 
 ## Primary user flow
 Lodge member  
@@ -31,6 +32,8 @@ Lodge member
 - Chronicle detail view
 - create/edit/delete flows if supported and approved
 - relationships to Lodge, profile, character, event, or accomplishment where supported
+- screenshots/media references and captions, when the required storage and authorization are approved
+- search and filtering of shared memories
 - chronological presentation where useful
 - recent Chronicle activity surfaced on The Hearth
 - clear empty states
@@ -121,7 +124,7 @@ Use canonical Hall of Legends / Chronicle data rather than duplicate dashboard-o
 - final diff is reviewed
 
 ## Milestone boundary
-Milestone 5 completes the initial Lanternmere MVP roadmap. After completion, perform a full Milestones 0–5 integration review.
+Milestone 5 completes the initial Lanternmere MVP roadmap only after remaining original-MVP gaps are addressed or consciously deferred: secure Lodge invites/role management, Milestone 4 composition features, and the recorded memory media/search scope. After completion, perform a full Milestones 0–5 integration review.
 
 ## Usage-saving and model guidance
 - Use repository docs as project memory instead of restating the full roadmap each session.

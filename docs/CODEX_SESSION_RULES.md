@@ -49,9 +49,11 @@ These rules are permanent project guidance for Codex sessions working on Lantern
 
 ## Current Lanternmere Workflow
 
-For Milestone 3 — The Hearth:
+For the pre-Milestone-5 consolidation and UI/design-alignment checkpoint:
 
-- Branch: `milestone-3-the-hearth`
+- Work from current `main` or a focused documentation/design branch.
+- Read `docs/design/README.md`, `docs/archive/claude-migration/original-mvp-roadmap.md`, and `docs/adr/ADR-001-rls-policy-boundaries.md` when relevant.
+- Preserve product behavior, database schema, RLS, authentication, and completed Milestones 0–4 unless an explicitly approved task changes them.
 - Follow the durable model-selection guidance under Session Efficiency.
 
 These model choices are workflow guidance for conserving usage while maintaining implementation quality; they do not change the technical requirements of the project.

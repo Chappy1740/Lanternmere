@@ -10,7 +10,9 @@ Lanternmere is a World of Warcraft community app organized around Lodges and Tra
 - [Development and verification](docs/development.md)
 - [Agent instructions](AGENTS.md)
 
-Milestones 0–3 are complete according to the project handoff. Milestone 3, **The Hearth**, provides personalized welcome, Lodge context, Main character, roster, and activity summaries. See the status document for verification evidence and remaining coverage limits.
+Milestones 0–4 are implemented. The next planned work is a UI/design-alignment checkpoint followed by Milestone 5, **Hall of Legends and Chronicles**. See the status document for verification evidence, original-MVP gaps, and remaining coverage limits.
+
+Approved visual direction and permanent assets: [design specification](docs/design/README.md). Original migration requirements and durable security rationale: [Claude roadmap archive](docs/archive/claude-migration/original-mvp-roadmap.md) and [ADR-001](docs/adr/ADR-001-rls-policy-boundaries.md).
 
 ## Local development
 

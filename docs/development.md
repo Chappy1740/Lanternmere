@@ -4,7 +4,7 @@
 
 1. Read `AGENTS.md` and [project status](project-status.md).
 2. Inspect the current branch, working tree, and relevant source before changing files; preserve unrelated work.
-3. Confirm the current task scope. For The Hearth, obtain requirements before implementing the placeholder dashboard.
+3. Confirm the current task scope. Before Milestone 5, preserve completed Milestones 0–4 during the UI/design-alignment checkpoint.
 
 Before writing Next.js code, follow the generated instructions in `AGENTS.md` and read the relevant installed guides under `node_modules/next/dist/docs/`.
 
@@ -49,4 +49,4 @@ The recorded suite does not cover concurrent multi-session races or exhaustive m
 
 ## Review and commit
 
-Inspect `git status`, review the changed files and full diff, and stage only intended files. During this documentation phase, show the diff to the user before committing. Product implementation starts only after the documentation commit and agreement on Milestone 3 scope.
+Inspect `git status`, review the changed files and full diff, and stage only intended files. During this documentation phase, show the diff to the user before committing. Any future product implementation starts only after agreement on the relevant milestone scope; this consolidation pass itself changes no product behavior.
