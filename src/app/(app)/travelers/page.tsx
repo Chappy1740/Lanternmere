@@ -78,30 +78,31 @@ export default async function TravelersPage() {
   );
 
   return (
-    <div className="max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-5xl">
+      <div className="lodge-panel flex flex-wrap items-center justify-between gap-4 p-6 sm:p-8">
         <div>
-          <h1 className="font-display text-text-primary text-3xl font-bold">Travelers</h1>
+          <p className="text-accent text-sm font-medium tracking-[0.14em] uppercase">The company</p>
+          <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">Travelers</h1>
           <p className="text-text-muted mt-2">Your saved World of Warcraft characters.</p>
         </div>
 
         <Link
           href="/travelers/new"
-          className="bg-accent text-background hover:bg-accent-hover rounded-md px-5 py-2.5 font-medium"
+          className="lodge-button px-5 py-2.5 font-medium"
         >
           Add Character
         </Link>
       </div>
 
       {characters.length === 0 ? (
-        <div className="border-border bg-surface mt-8 rounded-lg border p-8">
+        <div className="lodge-empty mt-8 p-8">
           <h2 className="font-display text-text-primary text-xl">Your journey starts here</h2>
           <p className="text-text-muted mt-2">
             Add a character to bring their public Blizzard profile into Lanternmere.
           </p>
         </div>
       ) : (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
           {characters.map((character) => {
             const snapshot = character.character_snapshots[0];
             const parsed = displayProfileSchema.safeParse(snapshot?.snapshot_data);
@@ -110,15 +111,23 @@ export default async function TravelersPage() {
             const name = profile?.name || character.character_name;
             const realm = profile?.realm?.name || character.realm_slug;
             const specialization = profile?.active_spec?.name;
+            const identity = [profile?.race?.name, profile?.gender?.name]
+              .filter(Boolean)
+              .join(' · ');
 
             return (
               <Link
                 key={character.id}
                 href={`/travelers/${character.id}`}
-                className="border-border bg-surface hover:border-accent focus-visible:outline-accent rounded-lg border p-6 transition-colors focus-visible:outline-2"
+                className="lodge-panel lodge-panel-interactive focus-visible:outline-accent block p-6 focus-visible:outline-2"
               >
                 <div className="flex flex-wrap items-start gap-3">
-                  <CharacterPortrait src={profile?.portrait_url} name={name} />
+                  <CharacterPortrait
+                    src={profile?.portrait_url}
+                    name={name}
+                    characterClass={character.class}
+                    gender={profile?.gender?.name}
+                  />
                   <h2 className="font-display text-text-primary min-w-0 flex-1 text-2xl font-bold break-words">
                     {name}
                   </h2>
@@ -136,7 +145,7 @@ export default async function TravelersPage() {
                 </p>
 
                 <p className="text-text-muted mt-1 text-sm">
-                  {[specialization, character.faction].filter(Boolean).join(' · ') ||
+                  {[specialization, identity, character.faction].filter(Boolean).join(' · ') ||
                     'Details unavailable'}
                 </p>
 

@@ -23,10 +23,13 @@ export default async function NewEventPage({
       >
         Back to Quest Board
       </Link>
-      <h1 className="font-display text-text-primary mt-6 text-3xl font-bold">Post a new quest</h1>
-      <p className="text-text-muted mt-2">
-        This event will be visible to members of {selected.lodges.name}.
-      </p>
+      <header className="lodge-panel mt-6 p-6 sm:p-8">
+        <p className="lodge-kicker">Quest Board</p>
+        <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">Post a new quest</h1>
+        <p className="text-text-muted mt-2">
+          This event will be visible to members of {selected.lodges.name}.
+        </p>
+      </header>
       <div className="mt-8">
         <QuestBoardEventForm action={createEvent} lodgeId={selected.lodge_id} />
       </div>

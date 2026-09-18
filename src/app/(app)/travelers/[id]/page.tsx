@@ -120,61 +120,76 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     }
   }
   return (
-    <div className="max-w-2xl">
-      <p className="text-text-muted text-sm">
+    <div className="mx-auto max-w-3xl">
+      <div className="lodge-panel p-6 sm:p-8">
+      <p className="lodge-kicker">
         {isOwner ? 'Your saved character' : 'Shared Lodge character'}
       </p>
 
-      <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">{name}</h1>
+      <h1 className="font-display text-text-primary mt-3 text-4xl font-bold">{name}</h1>
 
-      <div className="mt-4">
-        <CharacterPortrait src={profile?.portrait_url} name={name} />
+      <div className="mt-5 flex items-center gap-4 rounded-lg border border-[color:var(--border-ornate)] bg-surface-sunken/35 p-4">
+        <CharacterPortrait
+          src={profile?.portrait_url}
+          name={name}
+          characterClass={character.class}
+          gender={profile?.gender?.name}
+        />
+        <p className="text-text-muted text-sm">
+          {realm} · {character.region.toUpperCase()}
+        </p>
       </div>
 
-      <p className="text-text-muted mt-2">
-        {realm} · {character.region.toUpperCase()}
-      </p>
-
-      <div className="border-border bg-surface mt-6 rounded-lg border p-6">
+      <div className="mt-6">
         <dl className="grid grid-cols-2 gap-6">
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Equipped item level</dt>
             <dd className="text-text-primary mt-1">
               {profile?.equipped_item_level ?? 'Unavailable — refresh to check'}
             </dd>
           </div>
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Average item level</dt>
             <dd className="text-text-primary mt-1">
               {profile?.average_item_level ?? 'Unavailable — refresh to check'}
             </dd>
           </div>
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Level</dt>
             <dd className="text-text-primary mt-1">{character.level ?? 'Unavailable'}</dd>
           </div>
 
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Class</dt>
             <dd className="text-text-primary mt-1">{character.class ?? 'Unavailable'}</dd>
           </div>
 
-          <div>
+          <div className="lodge-data-cell">
+            <dt className="text-text-muted text-sm">Race</dt>
+            <dd className="text-text-primary mt-1">{profile?.race?.name ?? 'Unavailable'}</dd>
+          </div>
+
+          <div className="lodge-data-cell">
+            <dt className="text-text-muted text-sm">Gender</dt>
+            <dd className="text-text-primary mt-1">{profile?.gender?.name ?? 'Unavailable'}</dd>
+          </div>
+
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Specialization</dt>
             <dd className="text-text-primary mt-1">{specialization ?? 'Unavailable'}</dd>
           </div>
 
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Faction</dt>
             <dd className="text-text-primary mt-1">{character.faction ?? 'Unavailable'}</dd>
           </div>
 
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Character status</dt>
             <dd className="text-text-primary mt-1">{character.is_main ? 'Main' : 'Alternate'}</dd>
           </div>
 
-          <div>
+          <div className="lodge-data-cell">
             <dt className="text-text-muted text-sm">Source</dt>
             <dd className="text-text-primary mt-1">
               {snapshot?.source === 'blizzard' ? 'Blizzard' : (snapshot?.source ?? 'Unavailable')}
@@ -202,6 +217,7 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
             </time>
           </p>
         )}
+      </div>
       </div>
       {isOwner && (
         <p className="text-text-muted mt-4 text-sm">

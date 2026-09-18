@@ -43,6 +43,7 @@ const profile = {
   realm: { id: 1, name: 'Stormrage', slug: 'stormrage' },
   character_class: { id: 4, name: 'Rogue' },
   race: { id: 1, name: 'Human' },
+  gender: { type: 'MALE', name: 'Male' },
   faction: { type: 'ALLIANCE', name: 'Alliance' },
   equipped_item_level: 150,
   average_item_level: 155,
@@ -71,6 +72,7 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.equal(result.ok, true);
     assert.equal(result.profile.equipped_item_level, 150);
     assert.equal(result.profile.average_item_level, 155);
+    assert.equal(result.profile.gender.name, 'Male');
     assert.equal(result.profile.portrait_url, avatar);
   });
   for (const [label, response] of [
@@ -106,6 +108,14 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.equal(result.ok, true);
     assert.equal(result.profile.equipped_item_level, undefined);
     assert.equal(result.profile.average_item_level, undefined);
+  });
+  await check('malformed optional gender does not destroy core profile', async () => {
+    const result = await fetchWith(() => Response.json(media), {
+      ...profile,
+      gender: { type: 'MALE' },
+    });
+    assert.equal(result.ok, true);
+    assert.equal(result.profile.gender, undefined);
   });
   await check('portrait host, scheme, query, path and credentials are restricted', () => {
     assert.equal(portrait.isBlizzardPortrait(avatar), true);

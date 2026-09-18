@@ -6,9 +6,9 @@ import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
 function EventList({ events, lodgeId }: { events: LodgeEvent[]; lodgeId: string }) {
   return (
-    <ul className="mt-5 grid gap-4">
+    <ul className="mt-5 grid gap-4 lg:grid-cols-2">
       {events.map((event) => (
-        <li key={event.id} className="border-border bg-surface rounded-lg border p-5">
+        <li key={event.id} className="lodge-panel lodge-panel-interactive p-5">
           <Link
             href={`/quest-board/${event.id}?lodge=${lodgeId}`}
             className="font-display text-accent hover:text-accent-hover text-xl font-bold underline-offset-4 hover:underline"
@@ -49,7 +49,7 @@ export default async function QuestBoardPage({
   const lodgeId = selected.lodge_id;
   return (
     <div className="mx-auto max-w-5xl space-y-9">
-      <header className="border-border flex flex-col justify-between gap-5 border-b pb-6 sm:flex-row sm:items-end">
+      <header className="lodge-panel flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-end sm:p-8">
         <div>
           <p className="text-accent mb-3 flex items-center gap-2 text-sm">
             <CalendarDays size={18} aria-hidden="true" /> Lodge gatherings
@@ -63,12 +63,12 @@ export default async function QuestBoardPage({
         </div>
         <Link
           href={`/quest-board/new?lodge=${lodgeId}`}
-          className="bg-accent text-background hover:bg-accent-hover inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 font-medium"
+          className="lodge-button inline-flex items-center justify-center gap-2 px-5 py-2.5 font-medium"
         >
           <Plus size={18} aria-hidden="true" /> Create event
         </Link>
       </header>
-      <section aria-labelledby="upcoming-heading">
+      <section aria-labelledby="upcoming-heading" className="lodge-panel p-6">
         <h2 id="upcoming-heading" className="font-display text-text-primary text-2xl font-bold">
           Upcoming quests
         </h2>
@@ -77,7 +77,7 @@ export default async function QuestBoardPage({
             Upcoming events could not be loaded. Please try again later.
           </p>
         ) : upcoming.length === 0 ? (
-          <div className="border-border bg-surface mt-5 rounded-lg border p-6">
+          <div className="lodge-empty mt-5 p-6">
             <p className="text-text-primary font-medium">The board is quiet for now.</p>
             <p className="text-text-muted mt-2 text-sm">
               Post the next adventure when your Lodge is ready to gather.
@@ -87,7 +87,7 @@ export default async function QuestBoardPage({
           <EventList events={upcoming} lodgeId={lodgeId} />
         )}
       </section>
-      <section aria-labelledby="past-heading" className="border-border border-t pt-8">
+      <section aria-labelledby="past-heading" className="lodge-panel p-6">
         <h2 id="past-heading" className="font-display text-text-primary text-2xl font-bold">
           Past quests
         </h2>

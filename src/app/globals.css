@@ -11,21 +11,25 @@
   --color-stone: #a49a8c;
   --color-parchment: #e8d6b0;
 
-  --background: var(--color-night-navy);
-  --surface: var(--color-lake-teal);
-  --surface-raised: #16283b;
-  --border: #26404f;
+  --background: #09111d;
+  --surface: #111d2a;
+  --surface-raised: #172737;
+  --surface-sunken: #0c1622;
+  --border: #3b4550;
+  --border-ornate: rgba(242, 177, 61, 0.34);
   --text-primary: var(--color-parchment);
   --text-muted: var(--color-stone);
   --accent: var(--color-lantern-gold);
   --accent-hover: var(--color-warm-amber);
   --success: var(--color-moss-green);
+  --shadow-panel: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
   --color-border: var(--border);
   --color-text-primary: var(--text-primary);
   --color-text-muted: var(--text-muted);
@@ -48,7 +52,112 @@
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% -10%, rgba(30, 61, 69, 0.8), transparent 32rem),
+    radial-gradient(circle at 100% 0%, rgba(122, 74, 40, 0.18), transparent 28rem),
+    var(--background);
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: rgba(242, 177, 61, 0.32);
+  color: var(--text-primary);
+}
+
+@layer components {
+  .lodge-panel {
+    border: 1px solid var(--border);
+    border-top-color: var(--border-ornate);
+    border-radius: 0.75rem;
+    background: linear-gradient(145deg, rgba(23, 39, 55, 0.92), rgba(12, 22, 34, 0.98));
+    box-shadow: var(--shadow-panel), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .lodge-kicker {
+    color: var(--accent);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .lodge-data-cell {
+    border: 1px solid rgba(59, 69, 80, 0.78);
+    border-radius: 0.5rem;
+    background: rgba(8, 16, 26, 0.42);
+    padding: 0.65rem 0.75rem;
+  }
+
+  .lodge-list-row {
+    border: 1px solid rgba(59, 69, 80, 0.65);
+    border-radius: 0.5rem;
+    background: rgba(8, 16, 26, 0.3);
+  }
+
+  .lodge-panel-interactive {
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .lodge-panel-interactive:hover {
+    border-color: var(--border-ornate);
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+  }
+
+  .lodge-field {
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--surface-sunken);
+    color: var(--text-primary);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.22);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .lodge-field:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(242, 177, 61, 0.12);
+  }
+
+  .lodge-button {
+    border: 1px solid rgba(255, 224, 156, 0.38);
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: var(--background);
+    box-shadow: 0 8px 20px rgba(224, 138, 46, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  }
+
+  .lodge-button:hover:not(:disabled) {
+    filter: brightness(1.06);
+    box-shadow: 0 10px 24px rgba(224, 138, 46, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .lodge-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .lodge-button-secondary {
+    border: 1px solid var(--border-ornate);
+    border-radius: 0.5rem;
+    background: rgba(242, 177, 61, 0.07);
+    color: var(--accent);
+    transition: background 160ms ease, border-color 160ms ease;
+  }
+
+  .lodge-button-secondary:hover {
+    border-color: var(--accent);
+    background: rgba(242, 177, 61, 0.14);
+  }
+
+  .lodge-empty {
+    border: 1px dashed var(--border-ornate);
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(30, 61, 69, 0.35), rgba(12, 22, 34, 0.82));
+  }
 }

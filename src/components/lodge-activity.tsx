@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BookOpen, CalendarDays, Trophy } from 'lucide-react';
 import { getViewer, getLodgeMemberships } from '@/lib/hearth/context';
 import { loadLodgeActivity, activityDate, excerpt } from '@/lib/hearth/activity';
 
@@ -6,15 +7,17 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
   const [{ supabase }, memberships] = await Promise.all([getViewer(), getLodgeMemberships()]);
   if (!memberships.some((membership) => membership.lodge_id === lodgeId)) return null;
   const { events, achievements, chronicles } = await loadLodgeActivity(supabase, lodgeId);
-  const sectionClass = 'min-w-0 border-border border-t pt-6';
-  const headingClass = 'font-display text-text-primary text-xl font-bold';
+  const sectionClass = 'lodge-panel min-w-0 p-5 sm:p-6';
+  const headingClass = 'font-display text-text-primary flex items-center gap-2 text-xl font-bold';
   const listClass = 'mt-4 space-y-5';
   const titleClass = 'text-text-primary font-medium break-words';
   const textClass = 'text-text-muted mt-2 text-sm break-words';
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
+    <div className="grid gap-5 lg:grid-cols-2">
       <section aria-labelledby="events-heading" className={sectionClass}>
+        <p className="lodge-kicker">Gather next</p>
         <h2 id="events-heading" className={headingClass}>
+          <CalendarDays className="text-accent" size={18} aria-hidden="true" />
           Upcoming events
         </h2>
         {events.state === 'error' ? (
@@ -31,7 +34,7 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
             </p>
             <ul className={listClass}>
               {events.rows.map((event) => (
-                <li key={event.id}>
+                <li key={event.id} className="lodge-list-row p-4">
                   <Link
                     href={`/quest-board/${event.id}?lodge=${lodgeId}`}
                     className={`${titleClass} hover:text-accent underline-offset-4 hover:underline`}
@@ -62,7 +65,9 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
         )}
       </section>
       <section aria-labelledby="achievements-heading" className={sectionClass}>
+        <p className="lodge-kicker">The hall remembers</p>
         <h2 id="achievements-heading" className={headingClass}>
+          <Trophy className="text-accent" size={18} aria-hidden="true" />
           Recent achievements
         </h2>
         {achievements.state === 'error' ? (
@@ -77,7 +82,7 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
             <p className={textClass}>Most recently recorded for this Lodge.</p>
             <ul className={listClass}>
               {achievements.rows.map((achievement) => (
-                <li key={achievement.id}>
+                <li key={achievement.id} className="lodge-list-row p-4">
                   <h3 className={titleClass}>{achievement.title.trim() || 'Lodge achievement'}</h3>
                   {excerpt(achievement.description) && (
                     <p className={textClass}>{excerpt(achievement.description)}</p>
@@ -95,8 +100,10 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
           </>
         )}
       </section>
-      <section aria-labelledby="chronicles-heading" className={sectionClass}>
+      <section aria-labelledby="chronicles-heading" className={`${sectionClass} lg:col-span-2`}>
+        <p className="lodge-kicker">Stories shared</p>
         <h2 id="chronicles-heading" className={headingClass}>
+          <BookOpen className="text-accent" size={18} aria-hidden="true" />
           Recent Chronicles
         </h2>
         {chronicles.state === 'error' ? (
@@ -108,7 +115,7 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
         ) : (
           <ul className={listClass}>
             {chronicles.rows.map((entry) => (
-              <li key={entry.id}>
+              <li key={entry.id} className="lodge-list-row p-4">
                 <h3 className={titleClass}>{entry.title?.trim() || 'Untitled Chronicle'}</h3>
                 <p className={textClass}>
                   {excerpt(entry.body) ||

@@ -11,9 +11,10 @@ export async function LodgeRoster({ lodgeId }: { lodgeId: string }) {
   return (
     <section
       aria-labelledby="roster-heading"
-      className="border-border rounded-lg border p-6 sm:p-8"
+      className="lodge-panel p-6 sm:p-8"
     >
-      <h2 id="roster-heading" className="font-display text-text-primary text-xl font-bold">
+      <p className="lodge-kicker">Lodge company</p>
+      <h2 id="roster-heading" className="font-display text-text-primary mt-2 text-xl font-bold">
         Around the Hearth
       </h2>
       {result.state === 'error' ? (
@@ -38,11 +39,11 @@ export async function LodgeRoster({ lodgeId }: { lodgeId: string }) {
               Shared Main characters are temporarily unavailable.
             </p>
           )}
-          <ul className="divide-border mt-5 divide-y">
+          <ul className="mt-5 space-y-3">
             {result.members.map((member) => {
               const main = result.mains.get(member.profile_id);
               return (
-                <li key={member.profile_id} className="py-4 first:pt-0 last:pb-0">
+                <li key={member.profile_id} className="lodge-list-row p-4">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-text-primary font-medium break-words">
                       {member.profiles?.display_name.trim() || 'Name unavailable'}

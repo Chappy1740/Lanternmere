@@ -18,7 +18,7 @@ export function QuestBoardEventForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   return (
-    <form action={formAction} className="border-border bg-surface rounded-lg border p-6 sm:p-8">
+    <form action={formAction} className="lodge-panel p-6 sm:p-8">
       <input type="hidden" name="lodgeId" value={lodgeId} />
       {event && <input type="hidden" name="eventId" value={event.id} />}
       <div className="grid gap-6 sm:grid-cols-2">
@@ -29,7 +29,7 @@ export function QuestBoardEventForm({
             required
             maxLength={120}
             defaultValue={event?.title}
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">
@@ -39,7 +39,7 @@ export function QuestBoardEventForm({
             type="date"
             required
             defaultValue={event?.event_date}
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">
@@ -48,7 +48,7 @@ export function QuestBoardEventForm({
             name="eventTime"
             type="time"
             defaultValue={event?.event_time?.slice(0, 5)}
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">
@@ -58,7 +58,7 @@ export function QuestBoardEventForm({
             maxLength={80}
             defaultValue={event?.activity_type ?? ''}
             placeholder="Raid, Mythic+, PvP…"
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">
@@ -68,7 +68,7 @@ export function QuestBoardEventForm({
             maxLength={80}
             defaultValue={event?.difficulty ?? ''}
             placeholder="Heroic, casual, progression…"
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium sm:col-span-2">
@@ -78,7 +78,7 @@ export function QuestBoardEventForm({
             rows={6}
             maxLength={2000}
             defaultValue={event?.notes ?? ''}
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           />
         </label>
       </div>
@@ -95,7 +95,7 @@ export function QuestBoardEventForm({
       <button
         type="submit"
         disabled={isPending}
-        className="bg-accent text-background hover:bg-accent-hover mt-6 rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
+        className="lodge-button mt-6 px-5 py-2.5 font-medium disabled:opacity-60"
       >
         {isPending ? 'Saving…' : event ? 'Save event' : 'Post event'}
       </button>

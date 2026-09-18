@@ -36,15 +36,18 @@ export default async function EventDetailPage({
       >
         Back to Quest Board
       </Link>
-      <article className="border-border bg-surface rounded-lg border p-6 sm:p-8">
-        <p className="text-accent text-sm">{event.activity_type?.trim() || 'Lodge event'}</p>
-        <h1 className="font-display text-text-primary mt-2 text-3xl font-bold break-words">
+      <article className="lodge-panel p-6 sm:p-8">
+        <p className="lodge-kicker">{event.activity_type?.trim() || 'Lodge event'}</p>
+        <h1 className="font-display text-text-primary mt-3 text-4xl font-bold break-words">
           {event.title.trim() || 'Lodge event'}
         </h1>
-        <p className="text-text-muted mt-4">
-          <time dateTime={event.event_date}>{eventDateTime(event)}</time> (UTC)
-        </p>
-        {event.difficulty?.trim() && <p className="text-text-primary mt-3">{event.difficulty}</p>}
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <p className="lodge-data-cell text-text-muted text-sm">
+            <span className="block text-text-primary font-medium">When</span>
+            <time dateTime={event.event_date}>{eventDateTime(event)}</time> (UTC)
+          </p>
+          {event.difficulty?.trim() && <p className="lodge-data-cell text-text-muted text-sm"><span className="text-text-primary block font-medium">Difficulty</span>{event.difficulty}</p>}
+        </div>
         {event.notes?.trim() && (
           <p className="text-text-primary mt-6 break-words whitespace-pre-line">{event.notes}</p>
         )}
@@ -52,7 +55,7 @@ export default async function EventDetailPage({
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               href={`/quest-board/${event.id}/edit?lodge=${selected.lodge_id}`}
-              className="bg-accent text-background hover:bg-accent-hover rounded-md px-4 py-2 font-medium"
+              className="lodge-button px-4 py-2 font-medium"
             >
               Edit event
             </Link>
@@ -60,13 +63,14 @@ export default async function EventDetailPage({
           </div>
         )}
       </article>
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <EventRsvpControl eventId={event.id} currentStatus={currentAttendee?.rsvp_status} />
         <section
           aria-labelledby="participants-heading"
-          className="border-border bg-surface rounded-lg border p-6"
+          className="lodge-panel p-6"
         >
-          <h2 id="participants-heading" className="font-display text-text-primary text-xl">
+          <p className="lodge-kicker">Those who answered</p>
+          <h2 id="participants-heading" className="font-display text-text-primary mt-2 text-xl">
             Participants
           </h2>
           {attendees === null ? (
@@ -78,7 +82,7 @@ export default async function EventDetailPage({
           ) : (
             <ul className="mt-4 space-y-3">
               {attendees.map((attendee) => (
-                <li key={attendee.id} className="border-border border-b pb-3 last:border-0">
+                <li key={attendee.id} className="lodge-list-row p-4">
                   <p className="text-text-primary break-words">
                     {attendee.profiles?.display_name?.trim() || 'Lodge member'}
                     {attendee.profile_id === user.id ? ' (you)' : ''}

@@ -6,20 +6,22 @@ import { addCharacter, type AddCharacterState } from './actions';
 const initialState: AddCharacterState = { error: null };
 
 const inputClass =
-  'rounded-md border border-border bg-background px-3 py-2 text-text-primary focus-visible:outline-2 focus-visible:outline-accent';
+  'lodge-field px-3 py-2';
 
 export default function AddCharacterPage() {
   const [state, formAction, isPending] = useActionState(addCharacter, initialState);
 
   return (
-    <div className="max-w-xl">
-      <h1 className="font-display text-text-primary text-3xl font-bold">Add a Character</h1>
+    <div className="mx-auto max-w-xl">
+      <header className="lodge-panel p-6 sm:p-8">
+        <p className="lodge-kicker">Travelers</p>
+        <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">Add a Character</h1>
+        <p className="text-text-muted mt-2">
+          Find a Retail World of Warcraft character using their region, realm, and name.
+        </p>
+      </header>
 
-      <p className="text-text-muted mt-2">
-        Find a Retail World of Warcraft character using their region, realm, and name.
-      </p>
-
-      <form action={formAction} className="mt-8">
+      <form action={formAction} className="lodge-panel mt-8 p-6 sm:p-8">
         <fieldset disabled={isPending} className="flex flex-col gap-6">
           <legend className="sr-only">Character details</legend>
 
@@ -74,7 +76,7 @@ export default function AddCharacterPage() {
 
           <button
             type="submit"
-            className="bg-accent text-background hover:bg-accent-hover self-start rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
+            className="lodge-button self-start px-5 py-2.5 font-medium disabled:opacity-60"
           >
             {isPending ? 'Finding and saving...' : 'Add Character'}
           </button>

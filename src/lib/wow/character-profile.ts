@@ -19,6 +19,16 @@ const profileSchema = z.object({
   level: z.number().int().nonnegative(),
   character_class: namedRecordSchema,
   race: namedRecordSchema,
+  // Blizzard records the character's selected presentation separately from class.
+  // It is optional here so an incomplete upstream response cannot discard an
+  // otherwise valid character import.
+  gender: z
+    .object({
+      type: z.string().min(1),
+      name: z.string().min(1),
+    })
+    .optional()
+    .catch(undefined),
   faction: z.object({
     type: z.string().min(1),
     name: z.string().min(1),

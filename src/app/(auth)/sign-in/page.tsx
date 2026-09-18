@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { signIn, type AuthActionState } from '../actions';
 
 const initialState: AuthActionState = { error: null };
@@ -10,10 +11,24 @@ export default function SignInPage() {
   const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center px-4">
-      <div className="border-border bg-surface w-full max-w-sm rounded-lg border p-8">
-        <h1 className="font-display text-accent text-2xl font-bold">Lanternmere</h1>
-        <p className="text-text-muted mt-1 text-sm">Welcome back, Traveler.</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <Image
+        src="/brand/lanternmere-lodge-hero-v1.png"
+        alt=""
+        fill
+        priority
+        className="object-cover object-[68%_center]"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,11,18,0.92),rgba(5,11,18,0.72)_48%,rgba(5,11,18,0.3)),linear-gradient(0deg,rgba(5,11,18,0.7),transparent)]" />
+      <div className="lodge-panel relative w-full max-w-sm p-7 sm:p-8">
+        <div className="flex items-center gap-3">
+          <Image src="/brand/lanternmere-master-crest.png" alt="" width={48} height={48} className="h-11 w-11 rounded-full border border-[color:var(--border-ornate)]" />
+          <div>
+            <p className="lodge-kicker">The Lodge awaits</p>
+            <h1 className="font-display text-accent mt-1 text-2xl font-bold">Lanternmere</h1>
+          </div>
+        </div>
+        <p className="text-text-muted mt-5 text-sm">Welcome back, Traveler.</p>
 
         <form action={formAction} className="mt-6 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
@@ -26,7 +41,7 @@ export default function SignInPage() {
               type="email"
               required
               autoComplete="email"
-              className="border-border bg-background text-text-primary focus-visible:outline-accent rounded-md border px-3 py-2 focus-visible:outline-2"
+              className="lodge-field px-3 py-2"
             />
           </div>
 
@@ -40,7 +55,7 @@ export default function SignInPage() {
               type="password"
               required
               autoComplete="current-password"
-              className="border-border bg-background text-text-primary focus-visible:outline-accent rounded-md border px-3 py-2 focus-visible:outline-2"
+              className="lodge-field px-3 py-2"
             />
           </div>
 
@@ -53,7 +68,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="bg-accent text-background hover:bg-accent-hover mt-2 rounded-md px-4 py-2 font-medium transition-colors disabled:opacity-60"
+            className="lodge-button mt-2 px-4 py-2 font-medium disabled:opacity-60"
           >
             {isPending ? 'Signing in…' : 'Sign In'}
           </button>

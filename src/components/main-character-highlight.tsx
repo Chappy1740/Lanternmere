@@ -18,6 +18,7 @@ export async function MainCharacterHighlight() {
         ['Class', ready.character.class],
         ['Specialization', ready.profile?.active_spec?.name],
         ['Race', ready.profile?.race?.name],
+        ['Gender', ready.profile?.gender?.name],
         ['Faction', ready.character.faction],
         ['Equipped item level', ready.profile?.equipped_item_level],
       ].filter(([, value]) => value !== undefined && value !== null && value !== '')
@@ -26,15 +27,21 @@ export async function MainCharacterHighlight() {
   return (
     <section
       aria-labelledby="main-character-heading"
-      className="border-border rounded-lg border p-6 sm:p-8"
+      className="lodge-panel p-6 sm:p-8"
     >
-      <h2 id="main-character-heading" className="font-display text-text-primary text-xl font-bold">
-        Your Main character
+      <p className="lodge-kicker">Your champion</p>
+      <h2 id="main-character-heading" className="font-display text-text-primary mt-2 text-xl font-bold">
+        Your Main
       </h2>
       {ready && name ? (
         <>
-          <div className="mt-5 flex items-center gap-4">
-            <CharacterPortrait src={ready.profile?.portrait_url} name={name} />
+          <div className="mt-5 flex items-center gap-4 rounded-lg border border-[color:var(--border-ornate)] bg-surface-sunken/35 p-4">
+            <CharacterPortrait
+              src={ready.profile?.portrait_url}
+              name={name}
+              characterClass={ready.character.class}
+              gender={ready.profile?.gender?.name}
+            />
             <div className="min-w-0">
               <h3 className="font-display text-text-primary text-2xl font-bold break-words">
                 {name}
@@ -47,7 +54,7 @@ export async function MainCharacterHighlight() {
           </div>
           <dl className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3">
             {details.map(([label, value]) => (
-              <div key={label}>
+              <div key={label} className="lodge-data-cell">
                 <dt className="text-text-muted text-sm">{label}</dt>
                 <dd className="text-text-primary mt-1 break-words">{value}</dd>
               </div>

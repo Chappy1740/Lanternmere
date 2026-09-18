@@ -18,8 +18,9 @@ export function MainCharacterControl({
   const [state, formAction, isPending] = useActionState(makeMainCharacter, initialState);
 
   return (
-    <div className="border-border bg-surface mt-6 rounded-lg border p-6">
-      <h2 className="font-display text-text-primary text-xl">Main Character</h2>
+    <div className="lodge-panel mt-6 p-6">
+      <p className="lodge-kicker">Character standing</p>
+      <h2 className="font-display text-text-primary mt-2 text-xl">Main Character</h2>
 
       {isMain ? (
         <p className="text-text-muted mt-2 text-sm">
@@ -36,7 +37,7 @@ export function MainCharacterControl({
           <button
             type="submit"
             disabled={isPending}
-            className="bg-accent text-background hover:bg-accent-hover mt-4 rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
+            className="lodge-button mt-4 px-5 py-2.5 font-medium disabled:opacity-60"
           >
             {isPending ? 'Updating...' : 'Make Main'}
           </button>

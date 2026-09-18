@@ -35,8 +35,9 @@ export function LodgeSharingControl({
   }
 
   return (
-    <section className="border-border bg-surface mt-6 rounded-lg border p-6">
-      <h2 className="font-display text-text-primary text-xl">Lodge Sharing</h2>
+    <section className="lodge-panel mt-6 p-6">
+      <p className="lodge-kicker">Choose the company</p>
+      <h2 className="font-display text-text-primary mt-2 text-xl">Lodge Sharing</h2>
 
       <p className="text-text-muted mt-2 text-sm">
         Members of selected Lodges can view this character and its saved profile. Leave every box
@@ -63,7 +64,7 @@ export function LodgeSharingControl({
             lodges.map((lodge) => (
               <label
                 key={lodge.id}
-                className="border-border bg-background flex cursor-pointer items-center gap-3 rounded-md border p-3"
+                className="lodge-list-row flex cursor-pointer items-center gap-3 p-3"
               >
                 <input
                   type="checkbox"
@@ -80,7 +81,7 @@ export function LodgeSharingControl({
 
           <button
             type="submit"
-            className="bg-accent text-background hover:bg-accent-hover mt-2 self-start rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
+            className="lodge-button mt-2 self-start px-5 py-2.5 font-medium disabled:opacity-60"
           >
             {isPending ? 'Saving...' : 'Save Sharing'}
           </button>

@@ -14,17 +14,20 @@ export function EventRsvpControl({
 }) {
   const [state, formAction, isPending] = useActionState(updateRsvp, initialState);
   return (
-    <form action={formAction} className="border-border bg-surface rounded-lg border p-6">
+    <form action={formAction} className="lodge-panel p-6">
       <input type="hidden" name="eventId" value={eventId} />
       <fieldset disabled={isPending}>
-        <legend className="font-display text-text-primary text-xl">Your attendance</legend>
+        <legend className="flex flex-col gap-2">
+          <span className="lodge-kicker">Answer the call</span>
+          <span className="font-display text-text-primary text-xl">Your attendance</span>
+        </legend>
         <p className="text-text-muted mt-2 text-sm">Let the Lodge know whether you can make it.</p>
         <label className="text-text-primary mt-4 flex flex-col gap-2 text-sm font-medium">
           RSVP status
           <select
             name="status"
             defaultValue={currentStatus ?? 'tentative'}
-            className="border-border bg-background rounded-md border px-3 py-2 font-normal"
+            className="lodge-field px-3 py-2 font-normal"
           >
             <option value="confirmed">Confirmed</option>
             <option value="tentative">Tentative</option>
@@ -33,7 +36,7 @@ export function EventRsvpControl({
         </label>
         <button
           type="submit"
-          className="bg-accent text-background hover:bg-accent-hover mt-5 rounded-md px-5 py-2.5 font-medium disabled:opacity-60"
+          className="lodge-button mt-5 px-5 py-2.5 font-medium disabled:opacity-60"
         >
           {isPending ? 'Saving…' : 'Save RSVP'}
         </button>

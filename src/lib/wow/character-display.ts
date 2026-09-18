@@ -7,6 +7,7 @@ export const displayProfileSchema = z.object({
   realm: optionalName,
   active_spec: optionalName,
   race: optionalName,
+  gender: optionalName,
   equipped_item_level: z.number().int().nonnegative().optional().catch(undefined),
   average_item_level: z.number().int().nonnegative().optional().catch(undefined),
   portrait_url: z.string().refine(isBlizzardPortrait).optional().catch(undefined),
