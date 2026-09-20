@@ -65,6 +65,7 @@ const jsx = (type, props) => ({ type: typeof type === 'function' ? type.name : t
 const page = load('src/app/(app)/(lodge)/hearth/page.tsx', {
   'react/jsx-runtime': { jsx, jsxs: jsx },
   'next/link': { default: 'a' },
+  'next/image': { default: 'img' },
   'next/navigation': navigation,
   'lucide-react': { Flame: 'flame' },
   '@/lib/hearth/context': context,

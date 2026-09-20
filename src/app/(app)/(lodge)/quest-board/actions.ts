@@ -23,6 +23,8 @@ const eventIdSchema = z.uuid();
 const rsvpSchema = z.object({
   eventId: z.uuid(),
   status: z.enum(['confirmed', 'tentative', 'declined']),
+  role: z.enum(['', 'tank', 'healer', 'damage', 'support', 'flexible']),
+  characterId: z.union([z.literal(''), z.uuid()]),
 });
 
 function eventInput(formData: FormData) {
@@ -186,6 +188,8 @@ export async function updateRsvp(
   const parsed = rsvpSchema.safeParse({
     eventId: formData.get('eventId'),
     status: formData.get('status'),
+    role: formData.get('role') ?? '',
+    characterId: formData.get('characterId') ?? '',
   });
   if (!parsed.success) return { error: 'Choose a valid RSVP status.', success: null };
   try {
@@ -198,12 +202,26 @@ export async function updateRsvp(
       .maybeSingle();
     if (eventError || !event)
       return { error: 'This event is not available to your Lodge.', success: null };
+    if (parsed.data.characterId) {
+      const { data: character, error: characterError } = await session.supabase
+        .from('characters')
+        .select('id')
+        .eq('id', parsed.data.characterId)
+        .eq('profile_id', session.user.id)
+        .maybeSingle();
+      if (characterError || !character)
+        return {
+          error: 'Choose one of your own Travelers, or leave it unassigned.',
+          success: null,
+        };
+    }
     const { error } = await session.supabase.from('event_attendees').upsert(
       {
         event_id: event.id,
         profile_id: session.user.id,
         rsvp_status: parsed.data.status,
-        character_id: null,
+        character_id: parsed.data.characterId || null,
+        role: parsed.data.role || null,
       },
       { onConflict: 'event_id,profile_id' },
     );

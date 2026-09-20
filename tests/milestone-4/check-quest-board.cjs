@@ -125,6 +125,51 @@ async function check(label, run) {
     assert.match(events.eventDateTime(event()), /September 18, 2026 at 19:30/);
     assert.match(events.eventDateTime({ ...event(), event_time: null }), /time to be arranged/);
   });
+  await check(
+    'group composition counts confirmed canonical roles and surfaces unassigned players',
+    async () => {
+      const attendees = [
+        {
+          id: eventId,
+          profile_id: profileId,
+          rsvp_status: 'confirmed',
+          role: 'tank',
+          character_id: null,
+          profiles: null,
+          characters: null,
+        },
+        {
+          id: '44444444-4444-4444-8444-444444444444',
+          profile_id: '55555555-5555-4555-8555-555555555555',
+          rsvp_status: 'confirmed',
+          role: null,
+          character_id: null,
+          profiles: null,
+          characters: null,
+        },
+        {
+          id: '66666666-6666-4666-8666-666666666666',
+          profile_id: '77777777-7777-4777-8777-777777777777',
+          rsvp_status: 'tentative',
+          role: 'healer',
+          character_id: null,
+          profiles: null,
+          characters: null,
+        },
+      ];
+      assert.equal(
+        JSON.stringify(events.groupComposition(attendees)),
+        JSON.stringify(
+          [
+            ['tank', 1],
+            ['unassigned', 1],
+          ].map(([role, count]) => ({ role, count })),
+        ),
+      );
+      assert.equal(events.eventRoleLabel('damage'), 'Damage');
+      assert.equal(events.eventRoleLabel(null), 'Unassigned');
+    },
+  );
   await check('RLS migration freezes event identity and protects RSVP ownership', async () => {
     const sql = fs.readFileSync(
       'supabase/migrations/20260917165942_harden_event_boundaries.sql',

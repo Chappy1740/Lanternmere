@@ -20,6 +20,8 @@ const attendeeSchema = z.object({
   profile_id: z.uuid(),
   rsvp_status: z.enum(['confirmed', 'tentative', 'declined']),
   role: z.string().nullable(),
+  character_id: z.uuid().nullable(),
+  characters: z.object({ character_name: z.string(), realm_slug: z.string() }).nullable(),
   profiles: z.object({ display_name: z.string().nullable() }).nullable(),
 });
 
@@ -78,7 +80,9 @@ export async function loadEventDetail(supabase: Supabase, eventId: string, lodge
         .maybeSingle(),
       supabase
         .from('event_attendees')
-        .select('id, profile_id, rsvp_status, role, profiles(display_name)')
+        .select(
+          'id, profile_id, rsvp_status, role, character_id, profiles(display_name), characters(character_name, realm_slug)',
+        )
         .eq('event_id', eventId)
         .order('rsvp_status')
         .order('id'),
@@ -89,6 +93,25 @@ export async function loadEventDetail(supabase: Supabase, eventId: string, lodge
   } catch {
     return { event: null, attendees: null };
   }
+}
+
+export const eventRoles = ['tank', 'healer', 'damage', 'support', 'flexible'] as const;
+export type EventRole = (typeof eventRoles)[number];
+
+export function eventRoleLabel(role: string | null) {
+  return role ? `${role.charAt(0).toUpperCase()}${role.slice(1)}` : 'Unassigned';
+}
+
+export function groupComposition(attendees: EventAttendee[]) {
+  const counts = new Map<EventRole | 'unassigned', number>();
+  for (const attendee of attendees) {
+    if (attendee.rsvp_status !== 'confirmed') continue;
+    const role = eventRoles.includes(attendee.role as EventRole)
+      ? (attendee.role as EventRole)
+      : 'unassigned';
+    counts.set(role, (counts.get(role) ?? 0) + 1);
+  }
+  return [...counts.entries()].map(([role, count]) => ({ role, count }));
 }
 
 export function eventDateTime(event: Pick<LodgeEvent, 'event_date' | 'event_time'>) {

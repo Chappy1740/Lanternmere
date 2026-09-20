@@ -8,9 +8,15 @@ const initialState: QuestBoardState = { error: null, success: null };
 export function EventRsvpControl({
   eventId,
   currentStatus,
+  currentRole,
+  currentCharacterId,
+  characters,
 }: {
   eventId: string;
   currentStatus?: string;
+  currentRole?: string | null;
+  currentCharacterId?: string | null;
+  characters: { id: string; character_name: string; realm_slug: string }[];
 }) {
   const [state, formAction, isPending] = useActionState(updateRsvp, initialState);
   return (
@@ -32,6 +38,36 @@ export function EventRsvpControl({
             <option value="confirmed">Confirmed</option>
             <option value="tentative">Tentative</option>
             <option value="declined">Declined</option>
+          </select>
+        </label>
+        <label className="text-text-primary mt-4 flex flex-col gap-2 text-sm font-medium">
+          Preferred group role
+          <select
+            name="role"
+            defaultValue={currentRole ?? ''}
+            className="lodge-field px-3 py-2 font-normal"
+          >
+            <option value="">No preference yet</option>
+            <option value="tank">Tank</option>
+            <option value="healer">Healer</option>
+            <option value="damage">Damage</option>
+            <option value="support">Support</option>
+            <option value="flexible">Flexible</option>
+          </select>
+        </label>
+        <label className="text-text-primary mt-4 flex flex-col gap-2 text-sm font-medium">
+          Traveler (optional)
+          <select
+            name="characterId"
+            defaultValue={currentCharacterId ?? ''}
+            className="lodge-field px-3 py-2 font-normal"
+          >
+            <option value="">Choose later</option>
+            {characters.map((character) => (
+              <option key={character.id} value={character.id}>
+                {character.character_name} · {character.realm_slug}
+              </option>
+            ))}
           </select>
         </label>
         <button

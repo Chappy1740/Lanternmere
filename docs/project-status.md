@@ -145,6 +145,7 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Hearth upcoming-event titles and a Quest Board link now retain the selected Lodge context. The Quest Board uses its own verified Lodge selection and returns 404 for absent, repeated, malformed, or foreign selections.
 - Current-session checks passed: all 75 mocked regression checks (including the 9 activity checks), lint, TypeScript, production build, and diff whitespace validation. `npm run format:check` still reports pre-existing formatting differences across unrelated files.
 - Authenticated browser checks verified empty and populated Quest Board states; authorized event creation, edit, confirmed RSVP, participant rendering, and deletion; and the corresponding populated and restored-empty Hearth summaries. The event, RSVP, uniquely labelled temporary Lodge, and confirmed temporary account were removed through the Supabase dashboard. A read-only database check confirmed zero matching Lodges, memberships, events, and users.
+
 ## Pre-Milestone-5 consolidation — September 18, 2026
 
 - Consolidated the approved visual direction into docs/design/README.md; permanent production raster assets are under public/brand/, while visual-reference boards remain under docs/design/references/.
@@ -152,3 +153,63 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Milestones 0–4 remain implemented; no application, database, migration, RLS, or authentication behavior changed in this pass.
 - Before declaring the original MVP complete, address or deliberately defer: secure Lodge invites and role-management flows; Quest Board participant role selection and group-composition summary; and Milestone 5 memory media/captions plus search/filtering.
 - Next planned checkpoint: UI/design alignment against the approved reference set, then Milestone 5.
+
+## Milestone 5 Chronicles foundation — September 18, 2026
+
+- Added the first production slice of Chronicles: Lodge-scoped chronological listings, detail views, text search, and member-authored create, edit, and delete flows. Entries are read only through the existing `chronicle_entries` RLS policies; server actions also verify the signed-in user and Lodge membership, and restrict edit/delete to the author or a verified owner/caretaker.
+- This uses the existing Chronicle table only. No schema migration, Storage bucket, media upload, or live database change was made. The form clearly states that media uploads will arrive in a later Chronicle pass.
+- Added five mocked Chronicle checks covering Lodge scoping, bounded listing, detail scoping, in-memory filtering after the scoped read, malformed data, UTC date display, and excerpt cleanup. Current validation passed: Chronicle checks, lint, TypeScript, targeted Prettier, production build, and diff whitespace validation.
+- Browser review confirmed the authenticated empty Chronicle state and the new route hierarchy. Creating a live test Chronicle remains intentionally deferred until explicit authorization to add and remove a temporary Lodge memory.
+- Added the Hall of Legends authoring slice: Lodge-scoped listing, detail, search, and manual create/edit/delete flows. A record may credit one of the author’s Travelers or be kept as a Lodge-wide milestone. Existing Blizzard-sourced rows remain visibly distinguished from manually recorded rows.
+- Added four Hall of Legends mocked checks for Lodge scoping, bounded listing, detail scoping, post-scope search, malformed data, dates, and Lodge-milestone credit. Browser review confirmed the existing temporary verification record renders correctly in the list and detail page; it was not changed or removed.
+- Remaining Milestone 5 scope: media/screenshots and captions with approved Storage authorization, a richer group-composition record for events/milestones, and populated browser verification of the new authoring flows.
+
+## Milestone 5 Chronicle media foundation — September 18, 2026
+
+- Added a prepared, unapplied migration for the private `chronicle-media` Storage bucket and `chronicle_media` metadata table. Images are limited to JPEG, PNG, or WebP at 5 MB; captions are limited to 500 characters. Object paths include the Lodge and Chronicle IDs, and Storage/database policies restrict reads to Lodge members and writes/deletes to the Chronicle author/uploader or a verified Lodge owner/caretaker.
+- Chronicle create/edit now accepts one optional image and caption, writes through the ordinary authenticated Supabase client, and displays private one-hour signed URLs in the detail view. It never uses a public bucket, public URL, local filesystem storage, or service-role key. Failed new-entry media writes remove the newly created Chronicle; failed edit attachments preserve the text update and return a safe error.
+- Retrieved the missing applied migration `20260917200241_harden-legends-and-chronicles.sql` from the linked Lanternmere project, then restored the pre-existing tracked migration files that the retrieval tool had rewritten. Applied `20260918185955_add_chronicle_media_storage.sql` to Lanternmere with vault updates skipped. Read-only verification confirmed RLS on `chronicle_media`, a private 5 MB `chronicle-media` bucket limited to JPEG/PNG/WebP, and all six database/Storage policies. The security advisor reported only the pre-existing public SECURITY DEFINER RPC and leaked-password-protection warnings; no new Chronicle-media warning was reported.
+- Current-session checks passed: full lint, TypeScript, production build, Chronicle and Hall mocked loader checks, new mocked media/policy checks, `git diff --check`, migration history verification, and the read-only Storage/RLS query. Live uploads and browser rendering have not been verified in this session.
+- Authenticated browser review verified the Chronicle route’s Lodge context, empty state, accessible search label, and scoped no-match search state. Populated Chronicle media upload, signed-image rendering, and authorized removal remain pending because they require creating and deleting temporary Lodge content.
+- With explicit authorization, browser verification created a temporary Chronicle using the approved Lodge hero image, confirmed the private signed image and caption render on its detail page, then removed the image and Chronicle. The deleted detail URL returned 404 and the Lodge Chronicle list returned to its original empty state. No test media or Chronicle record remains.
+
+## Milestone 5 achievement provenance hardening — September 19, 2026
+
+- Applied `20260919041137_harden_achievement_source_provenance.sql` to Lanternmere. Ordinary authenticated Lodge members can now insert only `manual` accomplishments; the new database trigger prevents an accomplishment’s source from being changed after creation. Trusted server imports remain able to create Blizzard-derived records.
+- A dry run preceded application. Read-only database verification confirmed the manual-only insert policy and immutable-source trigger, and migration history is current through this migration. No accomplishment records were created, edited, or removed.
+
+## Milestone 5 Chronicle date filtering — September 19, 2026
+
+- Authenticated browser review confirmed that both date controls retain their selected values in the URL and produce the combined matching/no-results state without changing Lodge data.
+- Added optional inclusive `From` and `To` date filters to Chronicle search. They are applied in the existing selected-Lodge database query before text filtering, retain newest-first ordering, and provide a combined no-results state.
+- Current-session validation passed: TypeScript, targeted ESLint, six Chronicle mocked checks including date filtering and Lodge scoping, and `git diff --check`. No migration or live data change was required.
+
+## Milestone 5 Hall of Legends browser verification — September 19, 2026
+
+- Authenticated browser review confirmed the Lodge-scoped Hall search and empty states, plus the detail provenance label for a Lanternmere-created accomplishment.
+- Removed the temporary `M5 browser verification achievement` after explicit approval. Its detail route now returns 404 and the Hall returned to its empty state.
+
+## Milestone 5 responsive and accessibility review — September 19, 2026
+
+- Authenticated browser review at a 375 px viewport confirmed responsive Hall of Legends and Chronicles layouts, reachable controls, readable empty states, and the mobile navigation.
+- The Chronicle skip link moved keyboard focus directly to main content. The temporary viewport override was reset after review.
+
+## Milestones 0–5 integration review — September 19, 2026
+
+- Milestone 5 is complete: Hall of Legends supports Lodge-visible personal accomplishments and shared Lodge milestones, distinguishes manual from Blizzard-derived records, and protects source provenance. Chronicles support Lodge-private authored records, optional private image/caption attachments, text and date filtering, Hearth reuse, and verified responsive/accessibility basics.
+- The original-MVP roadmap still has two unimplemented gaps: secure Lodge invitations with role-management UI, and Quest Board participant role selection with a group-composition summary. Existing event attendance can retain a role value but the current RSVP UI/action does not collect it or provide a composition summary.
+- No claim is made that the full original MVP is complete until those gaps are implemented or deliberately deferred by product decision. No schema, RLS, or application change was made by this review.
+
+## Lodge invitations and role management — September 19, 2026
+
+- Added a provider-free invitation workflow in the Caretaker's Office. Lodge owners can create a seven-day, single-use share link or optionally bind the link to an email address and open a prefilled draft in their normal mail app. Lanternmere does not access a personal mailbox or send outbound email.
+- Applied `20260919050947_lodge_invitations_and_role_safety.sql` to Lanternmere. It stores only SHA-256 token hashes, enables invitation RLS, permits owner-only invitation administration, and redeems tokens atomically into memberships. Email-addressed invitations verify the accepting account's email within the database function; blank-email links intentionally remain shareable bearer links.
+- The migration also changes membership management to owner-only. Owners may manage caretaker/member/guest roles, while owner memberships cannot be created, changed, removed, or self-removed through ordinary authenticated writes. Ownership transfer remains intentionally out of scope for this workflow.
+- Current-session checks passed: invitation regression checks, full lint, TypeScript, production build, previous Milestone 5 checks, `git diff --check`, migration dry run/application, and read-only database verification of invitation RLS/policies, the redemption function, and owner-only membership policies. Browser review verified the authenticated owner view and public invitation entry page without creating or redeeming a live invitation.
+- Supabase's security advisor reports the intentional authenticated `SECURITY DEFINER` redemption RPC alongside existing warnings for the Lodge-creation and character RPCs, plus leaked-password protection. The redemption function requires an authenticated user, hashes the bearer token, enforces expiration/one-time use/email binding, and runs atomically; no new unreviewed advisor finding was introduced.
+
+## Quest Board group composition — September 19, 2026
+
+- Added optional RSVP role selection (Tank, Healer, Damage, Support, or Flexible) and optional selection of the member's own Traveler. The existing attendee table and RLS already support both fields; the server action now validates role values and verifies the selected Traveler belongs to the signed-in member before the RLS-protected RSVP upsert.
+- Event detail shows a confirmed-party composition summary, including an explicit unassigned count, and participants display their role and selected Traveler where present. Tentative and declined replies remain visible in the participant list but do not inflate the confirmed-party summary.
+- Current checks passed: six Quest Board mocked checks, lint, TypeScript, production build, and diff whitespace validation. With explicit authorization, authenticated browser verification created a clearly marked temporary event, saved a confirmed Tank RSVP linked to Wrenx, and confirmed the saved participant detail and `Tank: 1` composition summary. The temporary event and its cascade-deleted RSVP were removed; its detail URL returned 404 and the Quest Board returned to its original empty state.

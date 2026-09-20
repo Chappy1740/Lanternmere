@@ -8,12 +8,20 @@ export type AuthActionState = {
   error: string | null;
 };
 
+function returnTo(formData: FormData) {
+  const value = formData.get('returnTo');
+  return typeof value === 'string' && /^\/invitations\/[A-Za-z0-9_-]{32,128}$/.test(value)
+    ? value
+    : null;
+}
+
 export async function signIn(
   _prevState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
+  const destination = returnTo(formData);
 
   if (!email || !password) {
     return { error: 'Email and password are required.' };
@@ -27,7 +35,7 @@ export async function signIn(
   }
 
   revalidatePath('/', 'layout');
-  redirect('/hearth');
+  redirect(destination ?? '/hearth');
 }
 
 export async function signUp(
@@ -38,6 +46,7 @@ export async function signUp(
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
   const displayName = formData.get('displayName') as string;
+  const destination = returnTo(formData);
 
   if (!email || !password) {
     return { error: 'Email and password are required.' };
@@ -63,7 +72,9 @@ export async function signUp(
   }
 
   revalidatePath('/', 'layout');
-  redirect('/sign-in?confirmEmail=1');
+  redirect(
+    `/sign-in?confirmEmail=1${destination ? `&next=${encodeURIComponent(destination)}` : ''}`,
+  );
 }
 
 export async function signOut() {

@@ -54,6 +54,7 @@ const client = {
 const { LodgeActivity } = load('src/components/lodge-activity.tsx', {
   'react/jsx-runtime': require('react/jsx-runtime'),
   'next/link': { default: ({ children }) => children },
+  'lucide-react': { BookOpen: () => null, CalendarDays: () => null, Trophy: () => null },
   '@/lib/hearth/activity': activity,
   '@/lib/hearth/context': {
     getViewer: async () => {

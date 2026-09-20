@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { DeleteEventControl } from '@/components/delete-event-control';
 import { EventRsvpControl } from '@/components/event-rsvp-control';
 import { eventDateTime, loadEventDetail } from '@/lib/quest-board/events';
+import { eventRoleLabel, groupComposition } from '@/lib/quest-board/events';
+import { z } from 'zod';
 import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
 export default async function EventDetailPage({
@@ -26,6 +28,18 @@ export default async function EventDetailPage({
   const { event, attendees } = await loadEventDetail(supabase, id, selected.lodge_id);
   if (!event) notFound();
   const currentAttendee = attendees?.find((attendee) => attendee.profile_id === user.id);
+  const { data: characterData, error: characterError } = await supabase
+    .from('characters')
+    .select('id, character_name, realm_slug')
+    .eq('profile_id', user.id)
+    .order('character_name')
+    .limit(100);
+  const characters = characterError
+    ? []
+    : (z
+        .array(z.object({ id: z.uuid(), character_name: z.string(), realm_slug: z.string() }))
+        .safeParse(characterData).data ?? []);
+  const composition = attendees ? groupComposition(attendees) : [];
   const canManage =
     event.created_by === user.id || selected.role === 'owner' || selected.role === 'caretaker';
   return (
@@ -43,10 +57,15 @@ export default async function EventDetailPage({
         </h1>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <p className="lodge-data-cell text-text-muted text-sm">
-            <span className="block text-text-primary font-medium">When</span>
+            <span className="text-text-primary block font-medium">When</span>
             <time dateTime={event.event_date}>{eventDateTime(event)}</time> (UTC)
           </p>
-          {event.difficulty?.trim() && <p className="lodge-data-cell text-text-muted text-sm"><span className="text-text-primary block font-medium">Difficulty</span>{event.difficulty}</p>}
+          {event.difficulty?.trim() && (
+            <p className="lodge-data-cell text-text-muted text-sm">
+              <span className="text-text-primary block font-medium">Difficulty</span>
+              {event.difficulty}
+            </p>
+          )}
         </div>
         {event.notes?.trim() && (
           <p className="text-text-primary mt-6 break-words whitespace-pre-line">{event.notes}</p>
@@ -64,15 +83,33 @@ export default async function EventDetailPage({
         )}
       </article>
       <div className="grid gap-8 lg:grid-cols-2">
-        <EventRsvpControl eventId={event.id} currentStatus={currentAttendee?.rsvp_status} />
-        <section
-          aria-labelledby="participants-heading"
-          className="lodge-panel p-6"
-        >
+        <EventRsvpControl
+          eventId={event.id}
+          currentStatus={currentAttendee?.rsvp_status}
+          currentRole={currentAttendee?.role}
+          currentCharacterId={currentAttendee?.character_id}
+          characters={characters}
+        />
+        <section aria-labelledby="participants-heading" className="lodge-panel p-6">
           <p className="lodge-kicker">Those who answered</p>
           <h2 id="participants-heading" className="font-display text-text-primary mt-2 text-xl">
             Participants
           </h2>
+          {composition.length > 0 && (
+            <div
+              className="border-border mt-4 flex flex-wrap gap-2 border-y py-3"
+              aria-label="Confirmed group composition"
+            >
+              {composition.map(({ role, count }) => (
+                <span
+                  key={role}
+                  className="bg-background text-text-primary rounded-full px-3 py-1 text-xs"
+                >
+                  {eventRoleLabel(role)}: {count}
+                </span>
+              ))}
+            </div>
+          )}
           {attendees === null ? (
             <p role="alert" className="text-text-muted mt-3 text-sm">
               Participants could not be loaded. Please try again later.
@@ -89,7 +126,8 @@ export default async function EventDetailPage({
                   </p>
                   <p className="text-text-muted mt-1 text-sm capitalize">
                     {attendee.rsvp_status}
-                    {attendee.role?.trim() ? ` · ${attendee.role}` : ''}
+                    {attendee.role?.trim() ? ` · ${eventRoleLabel(attendee.role)}` : ''}
+                    {attendee.characters ? ` · ${attendee.characters.character_name}` : ''}
                   </p>
                 </li>
               ))}
