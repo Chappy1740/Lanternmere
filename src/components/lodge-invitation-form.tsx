@@ -20,7 +20,7 @@ export function LodgeInvitationForm({
     ? `${typeof window === 'undefined' ? '' : window.location.origin}${state.invitationPath}`
     : null;
   const mailto = invitationUrl
-    ? `mailto:${encodeURIComponent(state.email ?? '')}?subject=${encodeURIComponent(`Join ${lodgeName} on Lanternmere`)}&body=${encodeURIComponent(`You are invited to join ${lodgeName} on Lanternmere.\n\n${invitationUrl}\n\nThis invitation expires in seven days.`)}`
+    ? `mailto:${encodeURIComponent(state.email ?? '')}?subject=${encodeURIComponent(`A lantern is lit for you at ${lodgeName}`)}&body=${encodeURIComponent(`Traveler,\n\nYou have been invited to join ${lodgeName} in Lanternmere.\n\nAccept your invitation:\n${invitationUrl}\n\nThis private invitation expires in seven days. If you were not expecting it, you can safely ignore this message.\n\n— Lanternmere`)}`
     : null;
 
   return (

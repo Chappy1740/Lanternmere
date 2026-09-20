@@ -213,3 +213,21 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Added optional RSVP role selection (Tank, Healer, Damage, Support, or Flexible) and optional selection of the member's own Traveler. The existing attendee table and RLS already support both fields; the server action now validates role values and verifies the selected Traveler belongs to the signed-in member before the RLS-protected RSVP upsert.
 - Event detail shows a confirmed-party composition summary, including an explicit unassigned count, and participants display their role and selected Traveler where present. Tentative and declined replies remain visible in the participant list but do not inflate the confirmed-party summary.
 - Current checks passed: six Quest Board mocked checks, lint, TypeScript, production build, and diff whitespace validation. With explicit authorization, authenticated browser verification created a clearly marked temporary event, saved a confirmed Tank RSVP linked to Wrenx, and confirmed the saved participant detail and `Tank: 1` composition summary. The temporary event and its cascade-deleted RSVP were removed; its detail URL returned 404 and the Quest Board returned to its original empty state.
+
+## Milestone 6 Adventures foundation — September 19, 2026
+
+- Replaced the Adventures placeholder with a Lodge-scoped planning hub that presents the next six canonical Quest Board events and routes members directly to event creation and party planning. It does not duplicate events, RSVPs, Travelers, or party composition data.
+- No database schema, migration, RLS, or live data change was required. The authenticated browser confirmed the empty state and links render correctly; lint, TypeScript, production build, and diff whitespace validation passed.
+- Recurring templates, campaign goals, strategy notes, and progress states remain intentionally unimplemented until their product behavior and data model are agreed.
+
+## Password recovery — September 19, 2026
+
+- Added a visible `Forgot password?` link to sign-in, a generic email-reset request page that avoids account enumeration, an auth-code callback, and a session-verified new-password form. The app never reveals whether a submitted email has an account.
+- Browser review confirmed the link and recovery screen render correctly. No recovery email was sent and no password was changed during verification.
+- Before production use, add the deployed Lanternmere origin’s `/auth/callback` URL to Supabase Auth’s allowed redirect URLs; local links target the current local origin automatically.
+
+## Lanternmere communication style — September 19, 2026
+
+- Added a durable communication voice and visual specification plus ready-to-paste Lanternmere HTML templates for Supabase sign-up confirmation, password recovery, and email-change messages. The templates are versioned in `supabase/templates/auth/`; they do not send email merely by existing in the repository.
+- Updated the provider-free Lodge invitation mail draft with the same warm, clear voice, an explicit private-link notice, and the seven-day expiry.
+- Lint, TypeScript, production build, and diff whitespace validation passed. Applying the Auth templates is deliberately deferred until a production Site URL and sending configuration exist.
