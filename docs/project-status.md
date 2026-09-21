@@ -288,3 +288,12 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Locked the post-Milestone-6 Guild Operations roadmap into Milestones 7–14: Guild Hall foundation, Raid Room, Weekly Command Center, Recruitment & Trials, Professions & Guild Services, Mythic+ Operations, Progression Intelligence, and the future Lanternkeeper assistant.
 - Added a Supply Chest verified-resources policy so Lanternmere can deliberately link to canonical specialist sites and guides without implying every linked service is integrated or duplicating restricted third-party content.
 - This roadmap update is documentation-only. It does not add schema, RLS, application behavior, API credentials, or external calls.
+
+
+## Lanternkeeper readiness completion gate — September 21, 2026
+
+- Milestone 6 remains in progress; no Milestone 6.5 was created.
+- Before closing Milestone 6, perform a targeted Lanternkeeper-readiness audit across Milestones 1–6.
+- The audit checks structured data, reusable authorized server services, RLS/permission boundaries, provenance/freshness/consent for external data, stable record relationships, and treatment of retrieved/user-authored content as untrusted data.
+- The audit does not require adding AI calls, chat persistence, embeddings, model credentials, or AI-specific schema to completed milestones.
+- Findings should be classified as no-change, targeted refactor, or deferred Milestone 7+ work. Only material compatibility/security/provenance issues should be fixed before closing Milestone 6.

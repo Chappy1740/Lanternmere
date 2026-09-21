@@ -72,3 +72,23 @@ No database schema, migration, or RLS change belongs to this first slice. The hu
 - Preserve Lodge privacy, explicit selected-Lodge scoping, and existing RLS boundaries.
 - Treat external integrations as opt-in, read-only by default, and clearly timestamped; never make a third-party score or sim result an implicit requirement.
 - Keep the room atmospheric and planning-oriented; avoid a generic project-management dashboard.
+
+## Milestone completion gate — Lanternkeeper readiness
+
+Milestone 6 remains in progress until its agreed Adventures scope is complete. Before Milestone 6 is closed and Milestone 7 begins, perform a targeted Lanternkeeper readiness audit across Milestones 1–6.
+
+This is an audit and targeted-refactor gate, not a requirement to rebuild completed milestones or add AI calls early.
+
+Verify:
+
+- important operational facts are stored as structured records/fields rather than only presentation text;
+- reusable server-side loaders/services can expose authorized domain data without requiring future AI code to duplicate page logic or use arbitrary database access;
+- ownership, Lodge membership, selected-Lodge sharing, server authorization, and RLS boundaries remain enforceable for every potentially AI-readable record;
+- external/imported data preserves provider/source, refresh timestamp, consent/sharing state, freshness/staleness, and safe failure state where applicable;
+- canonical records have stable identifiers and relationships suitable for links/citations back to authoritative Lanternmere screens;
+- user-authored notes and external content can be treated as untrusted data rather than application/model instructions;
+- no AI provider, chat persistence, embeddings, model calls, or AI-specific schema is added merely to satisfy this audit.
+
+Record any findings as no-change, targeted refactor, or deferred Milestone 7+ work. Fix only issues that materially affect security, provenance, reuse, or future Lanternkeeper compatibility.
+
+Milestone 6 may be marked complete only after the remaining Adventures scope and this readiness audit are both complete and documented.
