@@ -281,3 +281,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 
 - Traveler detail pages now render the saved Raider.IO snapshot as a read-only progress banner: Mythic+ score, available raid-tier summaries, UTC refresh timestamp, and source link. It uses the existing snapshot JSON and does not add polling or a schema change.
 - Lint, TypeScript, and `git diff --check` passed. Warcraft Logs live progression remains pending a server-side Warcraft Logs OAuth client registration and credentials; no unsupported scrape or placeholder live integration was added.
+
+
+## Guild Operations long-range roadmap — September 21, 2026
+
+- Locked the post-Milestone-6 Guild Operations roadmap into Milestones 7–14: Guild Hall foundation, Raid Room, Weekly Command Center, Recruitment & Trials, Professions & Guild Services, Mythic+ Operations, Progression Intelligence, and the future Lanternkeeper assistant.
+- Added a Supply Chest verified-resources policy so Lanternmere can deliberately link to canonical specialist sites and guides without implying every linked service is integrated or duplicating restricted third-party content.
+- This roadmap update is documentation-only. It does not add schema, RLS, application behavior, API credentials, or external calls.

@@ -10,7 +10,7 @@ Lanternmere is a World of Warcraft community app organized around Lodges and Tra
 - [Development and verification](docs/development.md)
 - [Agent instructions](AGENTS.md)
 
-Milestones 0–5 are implemented. Milestone 6, **Adventures**, is in progress; its delivered foundation provides a Lodge-scoped planning hub built on canonical Quest Board events. Milestone 7, **The Guild Hall: Guild Operations**, is the dedicated future guild-operations milestone. See the [Milestone 6 specification](docs/milestones/milestone-06-adventures.md), [Milestone 7 specification](docs/milestones/milestone-07-guild-operations.md), and status document for agreed scope, verification evidence, original-MVP gaps, and remaining coverage limits.
+Milestones 0–5 are implemented. Milestone 6, **Adventures**, is in progress; its delivered foundation provides a Lodge-scoped planning hub built on canonical Quest Board events. Milestone 7, **The Guild Hall: Guild Operations**, is the dedicated future guild-operations milestone. See the [product roadmap](docs/milestones/ROADMAP.md), [Milestone 6 specification](docs/milestones/milestone-06-adventures.md), [Milestone 7 specification](docs/milestones/milestone-07-guild-operations.md), and status document for agreed scope, verification evidence, original-MVP gaps, and remaining coverage limits.
 
 Approved visual direction and permanent assets: [design specification](docs/design/README.md). Original migration requirements and durable security rationale: [Claude roadmap archive](docs/archive/claude-migration/original-mvp-roadmap.md) and [ADR-001](docs/adr/ADR-001-rls-policy-boundaries.md).
 
