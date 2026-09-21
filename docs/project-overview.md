@@ -18,9 +18,9 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 - WoW character lookup by region, realm, and name using official public profile data fetched on the server.
 - Character and snapshot persistence, refresh, Main selection, and selected-Lodge sharing.
 - Theme tokens and a shared sidebar/topbar shell.
-- The Hearth dashboard and Quest Board event/RSVP workflows.
+- The Hearth dashboard, Quest Board event/RSVP workflows, Hall of Legends, Chronicles, and the Adventures planning hub.
 
-Hall of Legends and Chronicles are the next product area. Navigation labels do not establish implementation on their own.
+Milestone 6, Adventures & Guild Operations, is in progress. Its first delivered slice reuses canonical Quest Board events; later planning and operations features require agreed behavior and data models. Navigation labels do not establish implementation on their own.
 
 ## Boundaries of this documentation
 

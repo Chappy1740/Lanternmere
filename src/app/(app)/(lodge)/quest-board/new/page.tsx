@@ -1,20 +1,29 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { QuestBoardEventForm } from '@/components/quest-board-event-form';
+import { loadEventTemplate } from '@/lib/adventures/event-templates';
 import { createEvent } from '../actions';
-import { getLodgeMemberships } from '@/lib/hearth/context';
+import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
 export default async function NewEventPage({
   searchParams,
 }: {
-  searchParams: Promise<{ lodge?: string | string[] }>;
+  searchParams: Promise<{ lodge?: string | string[]; template?: string | string[] }>;
 }) {
-  const [memberships, params] = await Promise.all([getLodgeMemberships(), searchParams]);
+  const [memberships, params, { supabase }] = await Promise.all([
+    getLodgeMemberships(),
+    searchParams,
+    getViewer(),
+  ]);
   const selected =
     typeof params.lodge === 'string'
       ? memberships.find((membership) => membership.lodge_id === params.lodge)
       : undefined;
   if (!selected) notFound();
+  const template =
+    typeof params.template === 'string'
+      ? await loadEventTemplate(supabase, params.template, selected.lodge_id)
+      : null;
   return (
     <div className="mx-auto max-w-3xl">
       <Link
@@ -27,11 +36,17 @@ export default async function NewEventPage({
         <p className="lodge-kicker">Quest Board</p>
         <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">Post a new quest</h1>
         <p className="text-text-muted mt-2">
-          This event will be visible to members of {selected.lodges.name}.
+          {template
+            ? `Starting from the ${template.title} recurring plan. Choose the date for this outing.`
+            : `This event will be visible to members of ${selected.lodges.name}.`}
         </p>
       </header>
       <div className="mt-8">
-        <QuestBoardEventForm action={createEvent} lodgeId={selected.lodge_id} />
+        <QuestBoardEventForm
+          action={createEvent}
+          lodgeId={selected.lodge_id}
+          template={template ?? undefined}
+        />
       </div>
     </div>
   );

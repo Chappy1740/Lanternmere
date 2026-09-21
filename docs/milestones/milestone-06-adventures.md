@@ -18,12 +18,30 @@ Lanternmere is not intended to become a generic guild-management dashboard. Its 
 
 No database schema, migration, or RLS change belongs to this first slice. The hub only reads the already private, Lodge-scoped event data.
 
+## Recurring plans slice
+
+- Lodge members can save shared weekly recurring plans with an optional UTC time, activity, difficulty, and preparation notes.
+- A recurring plan is a reusable prompt, not an automatic scheduler: a member explicitly chooses a date and posts the resulting canonical Quest Board event.
+- Plans are visible to Lodge members and removable by their author or a Lodge owner/caretaker. They do not duplicate event, RSVP, Traveler, or party-composition data.
+- The `event_templates` table is private to the Lodge through RLS and preserves its Lodge and author identity after creation.
+
+## Campaigns and goals slice
+
+- Lodge members can begin a manually maintained campaign with an optional focus and numeric goal.
+- Authors and Lodge owners/caretakers can maintain its progress and set it active, completed, or archived.
+- Campaigns remain Lodge-private and do not infer progress from external services or create work assignments.
+
+## Raider.IO refresh slice
+
+- A Traveler owner may manually refresh that Traveler's public Raider.IO Mythic+ and raid-progression summary. The request is made only by server code, never by the browser with a secret or an unsupported scrape.
+- Refreshes are limited to once per 24 hours per Traveler. A rate-limit, not-found, or upstream failure returns a safe message; a previous successful snapshot remains intact and records the latest failure when possible.
+- Owners can explicitly share or revoke a saved summary with each selected Lodge. Each successful snapshot shows its Raider.IO source link and UTC refresh time.
+- Lodge owners and caretakers see only consented snapshot identity, Mythic+ score, freshness, last refresh failure, and the attributed source link in Adventures. They do not gain access to the broader Traveler profile through this view.
+
 ## Planned scope
 
 ### Planning and operations
 
-- recurring event templates and schedules;
-- Lodge goals, campaigns, and clear progress or completion states;
 - raid, dungeon, route, strategy, and preparation notes;
 - leader-focused readiness views that reuse canonical Traveler, RSVP, role, and party-composition data;
 - attendance and assignment tools only where their behavior, visibility, and source of truth are explicitly agreed.

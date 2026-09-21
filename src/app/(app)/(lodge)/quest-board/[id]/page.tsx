@@ -68,7 +68,13 @@ export default async function EventDetailPage({
           )}
         </div>
         {event.notes?.trim() && (
-          <p className="text-text-primary mt-6 break-words whitespace-pre-line">{event.notes}</p>
+          <section aria-labelledby="strategy-heading" className="mt-6">
+            <p className="lodge-kicker">Before the gathering</p>
+            <h2 id="strategy-heading" className="font-display text-text-primary mt-2 text-xl">
+              Strategy and preparation
+            </h2>
+            <p className="text-text-primary mt-3 break-words whitespace-pre-line">{event.notes}</p>
+          </section>
         )}
         {canManage && (
           <div className="mt-8 flex flex-wrap items-center gap-4">

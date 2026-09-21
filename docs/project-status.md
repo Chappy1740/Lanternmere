@@ -18,6 +18,9 @@ These are historical baseline observations. Check Git for current branch and wor
 | 1         | Front door and Lodge onboarding complete.                                                                       | Commit `82b4d70`.                                                                                                     |
 | 2         | Travelers and Characters complete, with recorded verification and limitations.                                  | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
 | 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                    | Hearth checkpoints below; implementation commit `2896833`.                                                            |
+| 4         | Quest Board event and RSVP workflows complete, including party composition.                                      | Quest Board and group-composition checkpoints below.                                                                   |
+| 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                      | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
+| 6         | In progress: Adventures foundation delivered; future operations slices remain pending agreement.                 | [Milestone 6 specification](milestones/milestone-06-adventures.md) and current direction below.                      |
 
 ## Character-data enhancement checkpoint — September 16, 2026
 
@@ -239,3 +242,42 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Future external-progress discovery covers opt-in Warcraft Logs raid progression and Raider.IO Mythic+ progress. The intended first approach is read-only, manually refreshed data with explicit connection/consent, Lodge-role visibility, source attribution, freshness, failure, and revocation behavior agreed before implementation.
 - A future weekly readiness view may accept player-submitted Raidbots Top Gear or Droptimizer report links, update times, and player-authored upgrade targets. Leaders can see concise roster-level priorities and return to the original report. Lanternmere will not scrape Raidbots, submit simulations, or present personalized simulation output as a universal gear requirement without a supported reviewed integration path.
 - No application, database, RLS, API connection, credential, or external-data change was made in this planning handoff. Before implementation, confirm each provider's current supported integration path, terms, rate limits, data ownership, privacy/consent, and attribution requirements.
+
+## Documentation alignment — September 21, 2026
+
+- Updated the README and project overview so their milestone summary matches the recorded current state: Milestones 0–5 are implemented and Milestone 6 is in progress with its Adventures foundation delivered.
+- No application, database, RLS, API, authentication, or external-data behavior changed. The next Milestone 6 product slice remains intentionally unselected pending agreement on its behavior and data model.
+
+## Milestone 6 recurring plans — September 21, 2026
+
+- Added Lodge-scoped weekly recurring plans to Adventures. A plan stores reusable event details and can prefill a manually dated Quest Board event; it never creates events automatically or duplicates RSVP, Traveler, or party-composition records.
+- Applied `20260921083259_adventure_event_templates.sql` to Lanternmere after a dry run that listed only this migration. The new table has RLS and separate authenticated policies for member reads/inserts, creator-or-admin updates, and creator-or-admin deletes; identity changes are blocked by a trigger.
+- Current-session checks: new recurring-plan mocked checks, existing Quest Board mocked checks, lint, TypeScript, production build, `git diff --check`, migration-history verification, a read-only RLS/policy catalog query, and the Supabase security advisor. The advisor reported only the existing public SECURITY DEFINER RPC and leaked-password-protection warnings; no new warning concerns the template table.
+- Authenticated browser review confirmed the Adventures empty state and recurring-plan form against the applied schema. No live template was created; populated, prefill, delete, multi-Lodge, and non-author authorization browser paths remain covered by application/RLS design and mocked loader checks rather than altered live Lodge data.
+- Next Milestone 6 slice remains to be selected from campaigns/goals, strategy/preparation notes, or leader-focused readiness views. External integrations remain deferred pending provider discovery and explicit agreement.
+
+## Milestone 6 campaigns and goals — September 21, 2026
+
+- Added Lodge-private, manually maintained campaigns with an optional focus, optional numeric goal, progress count, and active/completed/archived state. Campaigns do not infer external progress or create assignments.
+- Applied `20260921085040_lodge_campaigns.sql` after a dry run listing only that migration. RLS separates member reads/inserts from author-or-lead updates/deletes and freezes Lodge/author identity.
+- Current-session checks: campaign mocked loader/migration checks, lint, TypeScript, production build, `git diff --check`, and authenticated browser review of the empty/form state. No live campaign was created. Next proposed slice: strategy and preparation notes for canonical Quest Board events.
+
+## Milestone 6 Raider.IO manual refresh — September 21, 2026
+
+- Applied `20260921092826_raiderio_readiness.sql` after a dry run. It adds per-character, selected-Lodge consent and a private saved Raider.IO summary. RLS permits an owner to select/enable/revoke their sharing and permits only the owner or members of a selected Lodge to read a saved summary; snapshot writes use the server-only service-role client.
+- A Traveler owner can now manually request the documented public Raider.IO character profile endpoint. The server validates the owned Traveler's saved region, realm, and name, never exposes a credential, stores the source URL/timestamp/progression summary, honors HTTP 429 with a safe response, and limits a successful refresh to once every 24 hours. An upstream failure does not overwrite a successful snapshot.
+- Owner browser review confirmed the rendered refresh control, UTC timestamp, Raider.IO attribution link, and saved success state on an existing Traveler. It did not create or remove Lodge sharing, events, campaigns, or other temporary data.
+- Applied `20260921101922_raiderio_snapshot_identity.sql` after a dry run. It adds a minimal identity projection to the existing consented snapshot and backfills it from saved Travelers; it does not change sharing policies or grant a leader broader Traveler access.
+- Adventures now shows Lodge owners/caretakers the opted-in snapshot identity, Mythic+ score, freshness, latest safe failure message, and Raider.IO source link. The loader first scopes character IDs to the selected Lodge's consent rows, then reads only the RLS-permitted snapshots; it does not join or expose the broader `characters` profile.
+- Current-session checks: lint, TypeScript, `git diff --check`, migration dry run/application, read-only column verification, migration-history verification, the Supabase security advisor, and authenticated browser review. The advisor reported only existing callable SECURITY DEFINER RPC and leaked-password-protection warnings; none concern this slice. The browser confirmed the leader card renders Wrenx's opted-in snapshot with score, fresh status, and source link. No sharing, event, campaign, or other temporary data was changed during this check.
+
+## Milestone 6 Raidbots report handoff — September 21, 2026
+
+- Applied `20260921102721_character_raidbots_reports.sql` after a dry run. A Traveler owner can save an existing Raidbots URL and optional, 500-character player-authored upgrade target for a selected Lodge. RLS allows the owner to manage it and members of that selected Lodge to read it.
+- Lanternmere validates that report URLs use the Raidbots host but never submits simulations, scrapes report data, or makes an external Raidbots request. Adventures leaders see the voluntarily shared character identity, targets, update time, and a link back to the original report.
+- Current-session checks: lint, TypeScript, `git diff --check`, migration dry run/application, and authenticated browser review of the empty report-sharing form. No live report link or targets were saved.
+
+## Raider.IO progress banner — September 21, 2026
+
+- Traveler detail pages now render the saved Raider.IO snapshot as a read-only progress banner: Mythic+ score, available raid-tier summaries, UTC refresh timestamp, and source link. It uses the existing snapshot JSON and does not add polling or a schema change.
+- Lint, TypeScript, and `git diff --check` passed. Warcraft Logs live progression remains pending a server-side Warcraft Logs OAuth client registration and credentials; no unsupported scrape or placeholder live integration was added.
