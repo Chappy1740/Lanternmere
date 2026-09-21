@@ -1,4 +1,4 @@
-# Milestone 6 — Adventures & Guild Operations
+# Milestone 6 — Adventures
 
 ## Status
 
@@ -6,9 +6,9 @@ In progress.
 
 ## Purpose
 
-Give each Lodge a shared place to turn upcoming Quest Board events into a clear picture of the road ahead, while giving Guild Leaders and Raid Leaders a calm, useful view of their guild's readiness, progress, and priorities.
+Give each Lodge a shared place to turn upcoming Quest Board events into a clear picture of the road ahead. Adventures focuses on recurring plans, campaigns and goals, preparation context, and opt-in external progress summaries that enrich Lodge planning without duplicating canonical event, RSVP, Traveler, Chronicle, or achievement records.
 
-Lanternmere is not intended to become a generic guild-management dashboard. Its leadership tools should help a group prepare, run content, understand progress, and preserve its shared story.
+Dedicated guild-management workflows are intentionally separated into Milestone 7 — The Guild Hall: Guild Operations.
 
 ## First delivered slice
 
@@ -40,11 +40,11 @@ No database schema, migration, or RLS change belongs to this first slice. The hu
 
 ## Planned scope
 
-### Planning and operations
+### Adventure planning
 
 - raid, dungeon, route, strategy, and preparation notes;
-- leader-focused readiness views that reuse canonical Traveler, RSVP, role, and party-composition data;
-- attendance and assignment tools only where their behavior, visibility, and source of truth are explicitly agreed.
+- Lodge-scoped planning views that reuse canonical Traveler, RSVP, role, and party-composition data;
+- hand off guild-specific readiness, attendance, assignments, loot, and leadership workflows to Milestone 7 rather than duplicating them here.
 
 ### External progress integrations
 

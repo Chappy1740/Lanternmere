@@ -235,10 +235,10 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Updated the provider-free Lodge invitation mail draft with the same warm, clear voice, an explicit private-link notice, and the seven-day expiry.
 - Lint, TypeScript, production build, and diff whitespace validation passed. Applying the Auth templates is deliberately deferred until a production Site URL and sending configuration exist.
 
-## Milestone 6 direction: Adventures & Guild Operations — September 20, 2026
+## Milestone 6 direction: Adventures — September 20, 2026
 
 - The user confirmed the product's broader goal: Lanternmere should be a warm guild home where Guild Leaders and Raid Leaders can see their guild and do practical raid-planning work, while preserving the group's story and identity.
-- Milestone 6 is now documented as **Adventures & Guild Operations**. Planned planning scope includes recurring event templates, campaign goals, strategy/preparation notes, progress states, leader-focused readiness views, and carefully designed attendance or assignment tools.
+- Milestone 6 is documented as **Adventures**. Its planning scope includes recurring event templates, campaign goals, strategy/preparation notes, progress states, and opt-in external progress summaries. Dedicated guild readiness, attendance, assignment, loot, and leadership workflows move to Milestone 7.
 - Future external-progress discovery covers opt-in Warcraft Logs raid progression and Raider.IO Mythic+ progress. The intended first approach is read-only, manually refreshed data with explicit connection/consent, Lodge-role visibility, source attribution, freshness, failure, and revocation behavior agreed before implementation.
 - A future weekly readiness view may accept player-submitted Raidbots Top Gear or Droptimizer report links, update times, and player-authored upgrade targets. Leaders can see concise roster-level priorities and return to the original report. Lanternmere will not scrape Raidbots, submit simulations, or present personalized simulation output as a universal gear requirement without a supported reviewed integration path.
 - No application, database, RLS, API connection, credential, or external-data change was made in this planning handoff. Before implementation, confirm each provider's current supported integration path, terms, rate limits, data ownership, privacy/consent, and attribution requirements.

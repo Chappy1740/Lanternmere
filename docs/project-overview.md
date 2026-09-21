@@ -20,7 +20,7 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 - Theme tokens and a shared sidebar/topbar shell.
 - The Hearth dashboard, Quest Board event/RSVP workflows, Hall of Legends, Chronicles, and the Adventures planning hub.
 
-Milestone 6, Adventures & Guild Operations, is in progress. Its first delivered slice reuses canonical Quest Board events; later planning and operations features require agreed behavior and data models. Navigation labels do not establish implementation on their own.
+Milestone 6, Adventures, is in progress. Its delivered and planned slices focus on Lodge-scoped planning, recurring plans, campaigns, and opt-in external progress summaries. Milestone 7, The Guild Hall: Guild Operations, is the dedicated future guild-operations milestone for roster leadership, raid planning, readiness, attendance, loot council, and related guild workflows. Navigation labels do not establish implementation on their own.
 
 ## Boundaries of this documentation
 
