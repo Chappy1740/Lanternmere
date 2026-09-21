@@ -14,7 +14,7 @@
 - Milestone 11 — The Artisan Hall: Professions & Guild Services — professions, crafting discovery, crafting requests, and guild resource goals.
 - Milestone 12 — The Expedition Board: Mythic+ Operations — guild key groups, role matching, weekly goals, Vault context, and key-night planning.
 - Milestone 13 — The Chronicle Lens: Progression Intelligence — Warcraft Logs, Raider.IO, Raidbots handoffs, trends, and post-raid review.
-- Milestone 14 — The Lanternkeeper: Assisted Guild Intelligence — permission-aware summaries and operational briefings built from Lanternmere's authorized data.
+- Milestone 14 — The Lanternkeeper: Assisted Guild Intelligence — permission-aware summaries and operational briefings built from Lanternmere's authorized data. Architecture is defined early in `docs/lanternkeeper-ai-architecture.md` so Milestones 7–13 remain AI-ready without making AI a dependency.
 
 ## Cross-cutting product direction
 

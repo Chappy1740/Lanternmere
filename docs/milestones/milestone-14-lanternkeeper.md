@@ -24,3 +24,7 @@ Use Lanternmere's own authorized operational data to reduce leadership busywork 
 - Do not infer private traits, intent, skill, or character from game data.
 - Respect the same RLS, permissions, sharing, and consent boundaries as the underlying records.
 - Generated summaries must distinguish known facts from suggestions and missing/stale data.
+
+## Architecture reference
+
+Implementation of this milestone must follow [Lanternkeeper AI Architecture](../lanternkeeper-ai-architecture.md). Milestones 7–13 should preserve structured, permission-aware, provenance-rich data so the future assistant can use narrow domain tools rather than unrestricted database access.
