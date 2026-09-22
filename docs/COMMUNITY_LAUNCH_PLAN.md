@@ -18,6 +18,18 @@ Lanternmere is a community-built hub where friends and guildmates can bring usef
 
 Public descriptions must accurately reflect features that are actually available. Planned integrations or future capabilities should be labeled as planned until implemented.
 
+## Official Community Channels
+
+Lanternmere's current official public/community identities are:
+
+- **Instagram:** `@Lanternmere_WoW`
+- **X:** `@Lanternmere_WoW`
+- **Discord:** Lanternmere
+
+Keep the Lanternmere name, logo, voice, and visual identity consistent across these channels. Instagram and X are public-facing discovery and development-story channels; Discord remains the primary community space.
+
+Public profiles should clearly describe Lanternmere as an independent/unofficial World of Warcraft community project and must not imply affiliation with or endorsement by Blizzard Entertainment.
+
 ## Audience
 
 Initial audiences, in order:
