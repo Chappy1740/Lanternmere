@@ -18,9 +18,19 @@ These are historical baseline observations. Check Git for current branch and wor
 | 1         | Front door and Lodge onboarding complete.                                                                       | Commit `82b4d70`.                                                                                                     |
 | 2         | Travelers and Characters complete, with recorded verification and limitations.                                  | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
 | 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                    | Hearth checkpoints below; implementation commit `2896833`.                                                            |
-| 4         | Quest Board event and RSVP workflows complete, including party composition.                                      | Quest Board and group-composition checkpoints below.                                                                   |
-| 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                      | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
-| 6         | Adventures complete: canonical planning, preparation notes, campaigns, and consented external progress context. | [Milestone 6 specification](milestones/milestone-06-adventures.md) and final checkpoint below.                       |
+| 4         | Quest Board event and RSVP workflows complete, including party composition.                                     | Quest Board and group-composition checkpoints below.                                                                  |
+| 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                     | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
+| 6         | Adventures complete: canonical planning, preparation notes, campaigns, and consented external progress context. | [Milestone 6 specification](milestones/milestone-06-adventures.md) and final checkpoint below.                        |
+| 7         | In progress: Guild foundation locally prepared; database migration is not applied.                              | Approved Guild/Lodge separation and member-portal design; current checkpoint below.                                   |
+
+## Guild foundation checkpoint — September 21, 2026
+
+- User-approved model: Guilds are independent, multi-Guild-capable workspaces; neither Guild membership nor a member-facing Guild portal grants Lodge, Traveler, character, RSVP, or external-snapshot access.
+- Locally prepared migration `20260922043253_guild_foundation.sql` creates Guild, Guild-member, composable leadership-role, invitation, Guild-audit, and per-character Guild-consent records. It defaults the member portal off; Guild Master and Officer can opt in through an auditable server-checked operation. Guild Master, Officer, Raid Leader, and Loot Council are application capabilities; regular Guild members obtain no leadership access.
+- Guild creation is atomic and assigns the creating authenticated user as sole Guild Master. Invitation redemption is atomic, email-bound when an address is supplied, and creates an ordinary member only. Raw invitation tokens are never stored.
+- Local Guild Hall route supports creating a Guild, selecting among a user’s Guilds, and creating seven-day email-bound or shareable Guild invitations. A dedicated invitation route safely returns users through sign-in/sign-up and redeems the invitation atomically. It deliberately sits outside the Lodge route group so a Guild does not require Lodge membership. Roster management, ownership transfer, character-consent controls, canonical event publication, raids, attendance, and loot remain subsequent Milestone 7 slices.
+- Current-session verification: focused ESLint, TypeScript, static Guild-foundation checks, production build, and diff-whitespace check passed. Migration `20260922043253_guild_foundation.sql` was applied to the linked Lanternmere database after a dry run; remote history confirms it. Guild Hall browser verification now renders the authenticated “Establish a Guild workspace” form. No Guild has been created and no other live data changed.
+- No commit has been created. The unrelated untracked `Prompting_Learning_Workbook.xlsx` remains untouched.
 
 ## Character-data enhancement checkpoint — September 16, 2026
 
@@ -282,13 +292,11 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Traveler detail pages now render the saved Raider.IO snapshot as a read-only progress banner: Mythic+ score, available raid-tier summaries, UTC refresh timestamp, and source link. It uses the existing snapshot JSON and does not add polling or a schema change.
 - Lint, TypeScript, and `git diff --check` passed. Warcraft Logs live progression remains pending a server-side Warcraft Logs OAuth client registration and credentials; no unsupported scrape or placeholder live integration was added.
 
-
 ## Guild Operations long-range roadmap — September 21, 2026
 
 - Locked the post-Milestone-6 Guild Operations roadmap into Milestones 7–14: Guild Hall foundation, Raid Room, Weekly Command Center, Recruitment & Trials, Professions & Guild Services, Mythic+ Operations, Progression Intelligence, and the future Lanternkeeper assistant.
 - Added a Supply Chest verified-resources policy so Lanternmere can deliberately link to canonical specialist sites and guides without implying every linked service is integrated or duplicating restricted third-party content.
 - This roadmap update is documentation-only. It does not add schema, RLS, application behavior, API credentials, or external calls.
-
 
 ## Lanternkeeper readiness completion gate — September 21, 2026
 
@@ -307,3 +315,11 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Read-only `npx supabase migration list` confirmed that every local migration through `20260921102721_character_raidbots_reports` matches remote migration history. No migration or production data was created or changed. No authenticated browser smoke check ran in this session because no local application/browser session was available.
 - Read-only `npx supabase db advisors --linked --type security` reported only the existing warnings for four intentionally callable `SECURITY DEFINER` RPCs (`create_lodge`, `redeem_lodge_invitation`, `set_character_lodge_sharing`, and `set_main_character`) and disabled leaked-password protection. It reported no Milestone 6-specific security finding.
 - Next planned milestone: Milestone 7 — The Guild Hall: Guild Operations.
+
+## Milestone 7 Guild membership operations — September 22, 2026
+
+- Guild Hall now has a leadership-only Lanternmere member directory. A Guild Master can grant or revoke the existing composable Officer, Raid Leader, and Loot Council roles; Officers can manage Raid Leader and Loot Council roles only. The server action validates its input and the database RPC remains the final authorization and audit boundary.
+- Applied `20260922095617_guild_ownership_transfer.sql`. Guild Master ownership is now an explicit, seven-day, recipient-accepted flow: only a current Guild Master may request or cancel it, only the specified current member may accept it, and accepting atomically removes the former master role, grants the recipient the master role, and records audit events. Direct role policies can no longer create another `guild_master` membership.
+- Current-session checks: focused Prettier, ESLint, TypeScript, `git diff --check`, remote migration dry run/application, migration-history confirmation, Supabase security advisor, and authenticated browser review. The browser displays the Member Operations and Guild Master Ownership sections; no live invitation, member role, or ownership transfer was created because the Guild currently has one Lanternmere member.
+- The security advisor reports the intentional authenticated `SECURITY DEFINER` Guild transfer RPCs alongside the existing callable Guild/Lodge RPCs and disabled leaked-password protection. Each new transfer RPC authenticates the caller, verifies the specific Guild member/role inside the transaction, uses an empty `search_path`, and has `PUBLIC`/`anon` execution revoked.
+- Refreshed the existing, consented official Morning Mayhem roster after adding server-side Blizzard class-ID normalization. The saved 919-entry snapshot now renders class names and preserves the imported Guild rank labels; it did not create Lanternmere accounts, memberships, Travelers, or character claims.

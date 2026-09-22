@@ -12,7 +12,8 @@ export type AuthActionState = {
 
 function returnTo(formData: FormData) {
   const value = formData.get('returnTo');
-  return typeof value === 'string' && /^\/invitations\/[A-Za-z0-9_-]{32,128}$/.test(value)
+  return typeof value === 'string' &&
+    /^\/(?:invitations|guild-invitations)\/[A-Za-z0-9_-]{32,128}$/.test(value)
     ? value
     : null;
 }

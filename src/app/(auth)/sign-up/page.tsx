@@ -12,7 +12,8 @@ function SignUpForm() {
   const [state, formAction, isPending] = useActionState(signUp, initialState);
   const params = useSearchParams();
   const next = params.get('next');
-  const returnTo = next && /^\/invitations\/[A-Za-z0-9_-]{32,128}$/.test(next) ? next : '';
+  const returnTo =
+    next && /^\/(?:invitations|guild-invitations)\/[A-Za-z0-9_-]{32,128}$/.test(next) ? next : '';
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">

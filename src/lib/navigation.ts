@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Trophy,
   BookOpen,
+  Building2,
   Package,
   Settings,
 } from 'lucide-react';
@@ -20,6 +21,7 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { label: 'The Hearth', subtitle: 'Dashboard', href: '/hearth', icon: Home },
   { label: 'Travelers', subtitle: 'Members', href: '/travelers', icon: Users },
+  { label: 'Guild Hall', subtitle: 'Guild Operations', href: '/guild-hall', icon: Building2 },
   {
     label: 'Adventures',
     subtitle: 'Raids · Mythic+ · PvP',
