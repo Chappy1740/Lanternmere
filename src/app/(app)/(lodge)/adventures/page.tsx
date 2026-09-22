@@ -235,7 +235,8 @@ export default async function AdventuresPage({
             More roads ahead
           </h2>
           <p className="text-text-muted mt-2 text-sm leading-6">
-            Strategy notes and player-submitted weekly readiness plans are the next Adventures expansions.
+            Strategy and preparation live with each Quest Board event. Future progression context
+            belongs in the Chronicle Lens after the Guild Hall foundation is in place.
           </p>
         </article>
       </section>

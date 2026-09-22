@@ -20,7 +20,7 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 - Theme tokens and a shared sidebar/topbar shell.
 - The Hearth dashboard, Quest Board event/RSVP workflows, Hall of Legends, Chronicles, and the Adventures planning hub.
 
-Milestone 6, Adventures, is in progress. Its delivered and planned slices focus on Lodge-scoped planning, recurring plans, campaigns, and opt-in external progress summaries. Milestones 7–14 establish the planned Guild Operations era: Guild Hall foundation, Raid Room, weekly command center, recruitment/trials, professions/services, Mythic+ operations, progression intelligence, and the future Lanternkeeper assistant. The Supply Chest remains the home for deliberately verified external resources and specialist-site links. See `docs/milestones/ROADMAP.md`. Navigation labels do not establish implementation on their own.
+Milestone 6, Adventures, is complete. It provides Lodge-scoped planning, recurring plans, campaigns, canonical Quest Board preparation notes, opt-in Raider.IO snapshots, and player-submitted Raidbots handoffs. Milestone 7, The Guild Hall: Guild Operations, is next; supported Warcraft Logs integration is deferred to Milestone 13, The Chronicle Lens: Progression Intelligence. Milestones 7–14 establish the planned Guild Operations era: Guild Hall foundation, Raid Room, weekly command center, recruitment/trials, professions/services, Mythic+ operations, progression intelligence, and the future Lanternkeeper assistant. The Supply Chest remains the home for deliberately verified external resources and specialist-site links. See `docs/milestones/ROADMAP.md`. Navigation labels do not establish implementation on their own.
 
 ## Boundaries of this documentation
 

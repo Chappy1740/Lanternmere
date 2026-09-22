@@ -2,8 +2,8 @@
 
 ## Current
 
-- Milestones 0–5 — implemented.
-- Milestone 6 — Adventures — in progress. Its completion gate includes a targeted Lanternkeeper-readiness audit of Milestones 1–6 before Milestone 7 begins.
+- Milestones 0–6 — implemented.
+- Next planned milestone: Milestone 7 — The Guild Hall: Guild Operations.
 
 ## Guild Operations era
 
