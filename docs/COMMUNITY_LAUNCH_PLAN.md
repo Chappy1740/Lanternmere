@@ -151,6 +151,69 @@ Avoid optimizing for follower counts or impressions at the expense of product qu
 - Keep development milestones separate from community-launch work.
 - Do not introduce marketing changes that compromise accessibility, security, maintainability, or application performance.
 
+
+## Private Alpha — Break Lanternmere
+
+Before broader public introduction, run a controlled Private Alpha with a small group of trusted friends and guildmates.
+
+The goal is not simply to confirm that normal workflows work. Testers should intentionally explore unexpected behavior, confusing workflows, mobile use, repeated actions, refreshes, multiple tabs, unusual input, sign-out/sign-in transitions, and attempts to access or modify information they should not control.
+
+Private Alpha readiness requires:
+
+- A remotely accessible hosted test deployment; testers must not depend on the developer's local machine.
+- Controlled account access appropriate to the current authentication architecture.
+- Production-safe environment configuration with no secrets exposed to the browser or repository.
+- Verified authentication and authorization behavior.
+- Verified Supabase RLS boundaries for user-owned and shared data.
+- Useful error and empty states.
+- Responsive behavior on common phone and desktop sizes.
+- A simple method for testers to report bugs, confusion, and suggestions.
+- Clear identification of unfinished or beta functionality.
+
+A tester report that a workflow is confusing should be treated as meaningful UX feedback even when the underlying code behaves as designed.
+
+### Alpha Test Modes
+
+Use two complementary test modes:
+
+**Traveler Journey** — Ask a tester to begin with minimal instruction and complete normal tasks such as creating an account, finding their way around, working with their character information, using available community features, signing out, returning later, and confirming that expected data persists.
+
+**Chaos Test** — Explicitly encourage testers to try unexpected sequences, strange but valid input, repeated clicks, refreshes, multiple tabs, mobile navigation, interrupted workflows, and unauthorized-access scenarios. Security testing must remain limited to Lanternmere accounts and data the tester is authorized to use.
+
+## UX Label and Accessibility Audit
+
+Before Private Alpha, perform a deliberate screen-by-screen labeling and accessibility audit.
+
+Lanternmere may use immersive World of Warcraft-inspired terminology, but a new user should not need prior knowledge of the project to understand what an interface element does.
+
+Guiding rule:
+
+> Lanternmere can use thematic names, but users should never have to guess what something does.
+
+For each screen, verify:
+
+- The screen has a clear heading and purpose.
+- Themed navigation names have supporting context when their meaning is not self-evident.
+- Buttons use action-oriented, understandable text.
+- Icon-only controls have accessible names and, where useful, visible tooltips.
+- Form controls have persistent labels and do not rely on placeholder text as their only label.
+- Destructive actions clearly state what will happen and use appropriate confirmation.
+- Loading, success, error, empty, disabled, and unavailable states are understandable.
+- Planned functionality is clearly marked as planned, unavailable, beta, or coming soon as appropriate.
+- Status is not communicated by color alone.
+- Keyboard navigation and visible focus behavior remain usable.
+- Interactive targets remain understandable and usable on phone and tablet layouts.
+- Accessibility names match the action a user expects.
+- Error messages explain the problem and, when possible, the next action.
+
+### Screen Review Workflow
+
+Use the approved screen-capture set as the audit checklist:
+
+**screen capture → label review → accessibility review → responsive review → Alpha ready**
+
+Record issues as actionable development work rather than silently changing terminology during the audit. Shared navigation or design-system problems should be corrected at the shared-component level where practical instead of patched independently on every screen.
+
 ## Launch Readiness
 
 A broader public introduction should wait until the current application is stable, representative screenshots are available, basic onboarding works, privacy/security concerns have been reviewed, and there is a simple way for early users to provide feedback.
