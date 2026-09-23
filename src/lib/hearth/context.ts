@@ -16,6 +16,7 @@ export const getViewer = cache(async () => {
 });
 
 const membershipSchema = z.object({
+  id: z.uuid(),
   lodge_id: z.uuid(),
   role: z.enum(['owner', 'caretaker', 'member', 'guest']),
   lodges: z.object({ id: z.uuid(), name: z.string(), description: z.string().nullable() }),
@@ -25,7 +26,7 @@ export const getLodgeMemberships = cache(async () => {
   const { supabase, user } = await getViewer();
   const { data, error } = await supabase
     .from('lodge_members')
-    .select('lodge_id, role, lodges!inner(id, name, description)')
+    .select('id, lodge_id, role, lodges!inner(id, name, description)')
     .eq('profile_id', user.id)
     .order('joined_at', { ascending: true })
     .order('id', { ascending: true });

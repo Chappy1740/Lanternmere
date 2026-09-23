@@ -79,7 +79,7 @@ export async function MainCharacterHighlight() {
             )}
           </div>
           <Link href={`/travelers/${ready.character.id}`} className={`${linkClass} mt-5`}>
-            View {name} and refresh options
+            Manage {name}
           </Link>
         </>
       ) : (

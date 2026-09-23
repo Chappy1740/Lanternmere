@@ -9,6 +9,7 @@ import {
   Building2,
   Package,
   Settings,
+  PlusCircle,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -58,4 +59,5 @@ export const navItems: NavItem[] = [
     href: '/caretakers-office',
     icon: Settings,
   },
+  { label: 'Create Lodge', subtitle: 'Start a new gathering', href: '/lodges/new', icon: PlusCircle },
 ];

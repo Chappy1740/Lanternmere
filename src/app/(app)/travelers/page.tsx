@@ -183,6 +183,10 @@ export default async function TravelersPage() {
                     </p>
                   )}
                 </div>
+
+                <span className="text-accent mt-5 inline-block text-sm font-medium underline underline-offset-4">
+                  Manage character
+                </span>
               </Link>
             );
           })}

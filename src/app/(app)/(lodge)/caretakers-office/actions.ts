@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createInvitationToken, hashInvitationToken } from '@/lib/lodge-invitations';
 import { createClient } from '@/lib/supabase/server';
@@ -11,6 +12,68 @@ export type CaretakerState = {
   invitationPath?: string;
   email?: string;
 };
+
+export type LodgeManagementState = { error: string | null; success: string | null };
+
+function refreshManagement() {
+  revalidatePath('/caretakers-office');
+  revalidatePath('/hearth');
+}
+
+export async function leaveLodge(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const lodgeId = z.uuid().safeParse(formData.get('lodgeId'));
+  if (!lodgeId.success) return { error: 'That Lodge is unavailable.', success: null };
+  const { error } = await (await createClient()).rpc('leave_lodge', { p_lodge_id: lodgeId.data });
+  if (error) return { error: 'Owners must transfer ownership or delete the Lodge before leaving.', success: null };
+  refreshManagement();
+  return { error: null, success: 'You left this Lodge.' };
+}
+
+export async function removeLodgeMember(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const membershipId = z.uuid().safeParse(formData.get('membershipId'));
+  if (!membershipId.success) return { error: 'That member is unavailable.', success: null };
+  const { error } = await (await createClient()).rpc('remove_lodge_member', { p_membership_id: membershipId.data });
+  if (error) return { error: 'Only the Lodge owner can remove non-owner members.', success: null };
+  refreshManagement();
+  return { error: null, success: 'Member removed and their character sharing revoked.' };
+}
+
+export async function requestLodgeOwnershipTransfer(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const membershipId = z.uuid().safeParse(formData.get('toMembershipId'));
+  if (!membershipId.success) return { error: 'Choose another Lodge member.', success: null };
+  const { error } = await (await createClient()).rpc('request_lodge_ownership_transfer', { p_to_membership_id: membershipId.data });
+  if (error) return { error: 'The ownership transfer could not be started.', success: null };
+  refreshManagement();
+  return { error: null, success: 'Transfer requested. The recipient must explicitly accept it.' };
+}
+
+export async function acceptLodgeOwnershipTransfer(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const transferId = z.uuid().safeParse(formData.get('transferId'));
+  if (!transferId.success) return { error: 'That transfer is unavailable.', success: null };
+  const { error } = await (await createClient()).rpc('accept_lodge_ownership_transfer', { p_transfer_id: transferId.data });
+  if (error) return { error: 'That ownership transfer is unavailable.', success: null };
+  refreshManagement();
+  return { error: null, success: 'Lodge ownership accepted.' };
+}
+
+export async function cancelLodgeOwnershipTransfer(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const transferId = z.uuid().safeParse(formData.get('transferId'));
+  if (!transferId.success) return { error: 'That transfer is unavailable.', success: null };
+  const { error } = await (await createClient()).rpc('cancel_lodge_ownership_transfer', { p_transfer_id: transferId.data });
+  if (error) return { error: 'Only the current owner can cancel this transfer.', success: null };
+  refreshManagement();
+  return { error: null, success: 'Ownership transfer canceled.' };
+}
+
+export async function deleteLodge(_: LodgeManagementState, formData: FormData): Promise<LodgeManagementState> {
+  const lodgeId = z.uuid().safeParse(formData.get('lodgeId'));
+  const confirmation = z.string().max(200).safeParse(formData.get('confirmation'));
+  if (!lodgeId.success || !confirmation.success) return { error: 'Confirm the Lodge name to delete it.', success: null };
+  const { error } = await (await createClient()).rpc('delete_lodge', { p_lodge_id: lodgeId.data, p_confirmation: confirmation.data });
+  if (error) return { error: 'Only the owner can delete a Lodge after entering its exact name.', success: null };
+  refreshManagement();
+  redirect('/lodges/new');
+}
 
 const invitationInput = z.object({
   lodgeId: z.uuid(),

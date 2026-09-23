@@ -3,6 +3,8 @@ import { Crown, ShieldCheck } from 'lucide-react';
 import { LodgeInvitationForm } from '@/components/lodge-invitation-form';
 import { LodgeMemberRoleControl } from '@/components/lodge-member-role-control';
 import { RevokeLodgeInvitationControl } from '@/components/revoke-lodge-invitation-control';
+import { DeleteLodgeControl, LeaveLodgeControl, LodgeOwnershipControls, RemoveLodgeMemberControl } from '@/components/lodge-management-controls';
+import Link from 'next/link';
 import { loadLodgeInvitations } from '@/lib/lodge-invitations';
 import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
@@ -42,6 +44,10 @@ export default async function CaretakersOfficePage({
           <p className="text-text-muted mt-4 leading-7">
             Only {selected.lodges.name}&apos;s owner can create invitations or change Lodge roles.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <LeaveLodgeControl lodgeId={selected.lodge_id} disabled={false} />
+            <Link href="/lodges/new" className="text-accent self-start underline underline-offset-4">Create another Lodge</Link>
+          </div>
         </section>
       </div>
     );
@@ -56,6 +62,15 @@ export default async function CaretakersOfficePage({
     loadLodgeInvitations(supabase, selected.lodge_id),
   ]);
   const memberRows = membersError ? null : (members as Member[] | null);
+  const { data: transferData } = await supabase
+    .from('lodge_ownership_transfers')
+    .select('id, to_membership_id')
+    .eq('lodge_id', selected.lodge_id)
+    .is('accepted_at', null)
+    .is('canceled_at', null)
+    .gt('expires_at', new Date().toISOString())
+    .maybeSingle();
+  const pendingTransfer = transferData ? { id: transferData.id, recipientId: transferData.to_membership_id } : null;
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header className="lodge-panel p-6 sm:p-8">
@@ -68,6 +83,12 @@ export default async function CaretakersOfficePage({
         <p className="text-text-muted mt-3">
           Welcome new Travelers and care for {selected.lodges.name}.
         </p>
+        <div className="mt-5 flex flex-wrap gap-3 text-sm">
+          <Link href="/lodges/new" className="text-accent underline underline-offset-4">Create another Lodge</Link>
+          {memberships.length > 1 && memberships.filter((membership) => membership.lodge_id !== selected.lodge_id).map((membership) => (
+            <Link key={membership.lodge_id} href={`/caretakers-office?lodge=${membership.lodge_id}`} className="text-text-muted underline underline-offset-4">Switch to {membership.lodges.name}</Link>
+          ))}
+        </div>
       </header>
 
       <LodgeInvitationForm lodgeId={selected.lodge_id} lodgeName={selected.lodges.name} />
@@ -98,12 +119,27 @@ export default async function CaretakersOfficePage({
                 {member.role === 'owner' ? (
                   <p className="text-text-muted text-sm">Owner role is protected.</p>
                 ) : (
-                  <LodgeMemberRoleControl membershipId={member.id} role={member.role} />
+                  <div className="flex flex-wrap items-center gap-3"><LodgeMemberRoleControl membershipId={member.id} role={member.role} /><RemoveLodgeMemberControl membershipId={member.id} /></div>
                 )}
               </li>
             ))}
           </ul>
         )}
+      </section>
+
+      <section className="lodge-panel p-6 sm:p-8" aria-labelledby="ownership-heading">
+        <p className="lodge-kicker">Stewardship</p>
+        <h2 id="ownership-heading" className="font-display text-text-primary mt-2 text-2xl font-bold">Transfer ownership</h2>
+        <p className="text-text-muted mt-2 text-sm">The recipient must accept before ownership changes.</p>
+        <LodgeOwnershipControls members={(memberRows ?? []).filter((member) => member.id !== selected.id).map((member) => ({ id: member.id, name: member.profiles?.[0]?.display_name?.trim() || 'Lodge member' }))} pendingTransfer={pendingTransfer} recipient={pendingTransfer?.recipientId === selected.id} />
+      </section>
+
+      <section className="lodge-panel p-6 sm:p-8" aria-labelledby="membership-heading">
+        <p className="lodge-kicker">Your membership</p>
+        <h2 id="membership-heading" className="font-display text-text-primary mt-2 text-2xl font-bold">Leave or delete</h2>
+        <p className="text-text-muted mt-2 text-sm">Leaving revokes this Lodge&apos;s access to your shared Travelers.</p>
+        <div className="mt-4"><LeaveLodgeControl lodgeId={selected.lodge_id} disabled={selected.role === 'owner'} /></div>
+        <div className="border-border mt-6 border-t pt-6"><p className="text-red-300 font-medium">Permanent action</p><p className="text-text-muted mt-2 text-sm">Deleting removes this Lodge and its Lodge-scoped content for every member.</p><DeleteLodgeControl lodgeId={selected.lodge_id} lodgeName={selected.lodges.name} /></div>
       </section>
 
       <section className="lodge-panel p-6 sm:p-8" aria-labelledby="invitations-heading">

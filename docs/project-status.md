@@ -1,5 +1,17 @@
 # Project status and handoff
 
+## Lodge management checkpoint — September 23, 2026
+
+- Added visible Create Lodge navigation, Lodge switching links in the Caretaker's Office, non-owner leave controls, owner member removal, a two-person seven-day ownership-transfer flow, and exact-name-confirmed Lodge deletion.
+- Migration `20260923182801_lodge_management.sql` is prepared but has not been applied. It uses owner-checked, authenticated RPCs and revokes a departing/removed member's character sharing for that Lodge.
+- Current-session verification: focused ESLint, TypeScript, and diff-whitespace checks passed. Authenticated browser and disposable-database migration/RLS rehearsal remain pending.
+
+## Character management affordance checkpoint — September 23, 2026
+
+- Travelers now labels each existing character card with a clear “Manage character” affordance. It opens the existing owner-aware character detail route, which already provides the Lanternmere-owned controls for Main status, Lodge sharing, Raider.IO sharing, and Raidbots reports.
+- Blizzard-imported identity and snapshot fields remain read-only. The Hearth continues to resolve the user's saved Main character and its latest persisted Blizzard snapshot from the same authoritative character records; no duplicated profile data or schema/RLS change was needed.
+- Current-session verification: focused ESLint, TypeScript, and diff-whitespace checks passed. No migration was required.
+
 ## Documentation-phase baseline — September 15, 2026
 
 - Repository: `Chappy1740/Lanternmere`.
