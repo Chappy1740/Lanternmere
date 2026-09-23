@@ -1,6 +1,6 @@
 # Lanternmere Growth & Community Playbook
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Purpose:** A practical operating playbook for growing Lanternmere without turning it into an ad machine.
 
 ## North Star
@@ -33,7 +33,15 @@ Lanternmere should feel warm, useful, welcoming, handcrafted, and community-firs
 
 ### What Lanternmere Is
 
-Lanternmere is an independent, community-built World of Warcraft hub for friends, guildmates, and fellow travelers. It brings character, adventure, community, and useful WoW information into one home.
+Lanternmere is an independently built World of Warcraft hub created by one player for friends, guildmates, and fellow travelers. It brings character, adventure, community, and useful WoW information into one home.
+
+### Ownership and Stewardship
+
+Lanternmere is not community-built. Its design, development, product direction, and stewardship remain with its creator. Community members, friends, guildmates, and Founding Travelers may test the product, report problems, and suggest ideas, but feedback informs the vision rather than owning or directing it.
+
+> **Listen to the community. Do not outsource the vision to the community.**
+
+Backend and administrative access are intentionally restricted. The creator remains the primary owner/developer, with access extended only to one or two specifically trusted people when needed. Testers, Discord members, guildmates, and Founding Travelers do not receive backend access by virtue of community participation.
 
 ### What Lanternmere Is Not
 
@@ -131,11 +139,11 @@ Use for:
 
 Keep onboarding simple. Discord recommends prioritizing useful default channels, limiting choices, and using onboarding questions to personalize roles/channels without overwhelming newcomers.
 
-### Reddit — Earned Attention
+### Reddit — Optional / Future
 
-**Job:** discovery through useful participation, not drive-by promotion.
+**Job:** no active role in the current growth plan. Lanternmere does not require a Reddit account or Reddit presence.
 
-Use Reddit only when a community's rules allow the relevant post. Participate before asking for attention. Reddit explicitly notes that promotional content is not automatically spam, but individual communities can prohibit it or impose their own ratios/rules.
+If Reddit becomes useful later, use it only when a community's rules allow the relevant post. Participate before asking for attention. Reddit explicitly notes that promotional content is not automatically spam, but individual communities can prohibit it or impose their own ratios/rules.
 
 Best Lanternmere Reddit posts should be useful even if the reader never clicks a Lanternmere link:
 - “I built this because our guild kept running into X.”
@@ -353,7 +361,7 @@ When the X account is ready:
 - Display name: **Lanternmere**
 - Handle: **@Lanternmere_WoW**
 - Use the approved Lanternmere logo.
-- Bio should identify it as a community-built WoW project and note that it is unofficial/not affiliated with Blizzard.
+- Bio should identify it as an independently built WoW project and note that it is unofficial/not affiliated with Blizzard.
 - Use a Lanternmere lodge/lantern header consistent with Instagram.
 - Do not add a public Discord invite until the community is ready to receive strangers.
 
@@ -416,7 +424,7 @@ Start with:
 
 Example:
 
-> Hey — I saw your discussion about keeping guild/character information scattered across several tools. I'm building Lanternmere, a community WoW project aimed at bringing some of that experience into one home. We're heading toward a small private test. If that problem sounds familiar, I'd value your feedback on one screen/workflow. No promo needed.
+> Hey — I saw your discussion about keeping guild/character information scattered across several tools. I'm building Lanternmere, an independent WoW project aimed at bringing some of that experience into one home. We're heading toward a small private test. If that problem sounds familiar, I'd value your feedback on one screen/workflow. No promo needed.
 
 The first ask is **feedback**, not exposure.
 
@@ -427,6 +435,8 @@ Do not make alpha access a fake scarcity campaign.
 Start with a small trusted cohort. Give each tester a reason for being invited and a clear mission.
 
 Suggested identity: **Founding Travelers**.
+
+Founding Travelers are trusted early users, not product owners, developers, or decision-makers. Their role is to reveal bugs, confusion, needs, and opportunities through real use. Product decisions remain with Lanternmere's creator.
 
 Measure:
 - Invite accepted.
@@ -468,7 +478,7 @@ If those conditions are met, begin with a small, time-boxed experiment rather th
 
 Important: Blizzard's published Developer API terms contain restrictions on using Blizzard Developer APIs/Data for marketing or monetization purposes. Before any paid campaign uses API-derived data, Blizzard assets, or integration-specific claims, review the current legal terms and obtain appropriate advice if necessary.
 
-## Reddit Operating Rules
+## Reddit Operating Rules — Future Reference Only
 
 Before posting:
 - Read the subreddit rules that day.
@@ -506,7 +516,7 @@ Before broad launch or monetization changes, re-check current:
 - Blizzard Developer API Terms.
 - Blizzard Video Policy.
 - Terms for third-party data providers such as Warcraft Logs, Raider.IO, or Raidbots.
-- Instagram, X, Reddit, and Discord platform rules.
+- Instagram, X, and Discord platform rules; Reddit rules only if Lanternmere later establishes a Reddit presence.
 
 Standing rules:
 - Clearly identify Lanternmere as unofficial and independent.
@@ -608,7 +618,6 @@ If alpha evidence supports expansion:
 - Expand trusted beta cohort.
 - Publish short feature demonstrations.
 - Develop a public getting-started path.
-- Prepare Reddit introductions tailored to communities that allow them.
 - Identify a few aligned small/mid-size community partners for feedback.
 - Evaluate public launch readiness.
 - Continue with $0 paid media unless the paid-ad readiness gate is fully satisfied.
