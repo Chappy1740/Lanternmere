@@ -2,8 +2,8 @@
 
 ## Current
 
-- Milestones 0–6 — implemented.
-- Next planned milestone: Milestone 7 — The Guild Hall: Guild Operations.
+- Milestones 0–7 — implemented.
+- Next planned milestone: Milestone 8 — The Raid Room: Raid Operations.
 
 ## Guild Operations era
 
