@@ -20,6 +20,101 @@ export type GuildMemberRoleState = { error: string | null; success: string | nul
 export type GuildOwnershipTransferState = { error: string | null; success: string | null };
 export type GuildDepartureState = { error: string | null; success: string | null };
 export type GuildSharingState = { error: string | null; success: string | null };
+export type GuildRaidOperationState = { error: string | null; success: string | null };
+
+const guildRaidOperationInput = z.object({ guildId: z.uuid(), eventId: z.uuid() });
+export async function createGuildRaidOperation(_: GuildRaidOperationState, formData: FormData) {
+  const parsed = guildRaidOperationInput.safeParse({
+    guildId: formData.get('guildId'),
+    eventId: formData.get('eventId'),
+  });
+  if (!parsed.success) return { error: 'Choose an available Quest Board event.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('create_guild_raid_operation', {
+    p_guild_id: parsed.data.guildId,
+    p_event_id: parsed.data.eventId,
+  });
+  if (error)
+    return {
+      error:
+        'You must be Guild leadership and the event creator or a Lodge administrator to authorize this operation.',
+      success: null,
+    };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Guild raid operation authorized.' };
+}
+
+const guildRaidNotesInput = z.object({ operationId: z.uuid(), notes: z.string().max(4000) });
+export async function saveGuildRaidOperationNotes(_: GuildRaidOperationState, formData: FormData) {
+  const parsed = guildRaidNotesInput.safeParse({
+    operationId: formData.get('operationId'),
+    notes: formData.get('notes'),
+  });
+  if (!parsed.success)
+    return { error: 'Operational notes must be 4,000 characters or fewer.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('set_guild_raid_operation_notes', {
+    p_operation_id: parsed.data.operationId,
+    p_notes: parsed.data.notes,
+  });
+  if (error) return { error: 'Operational notes could not be saved.', success: null };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Operational notes saved.' };
+}
+
+const guildRaidMemberInput = z.object({
+  operationId: z.uuid(),
+  memberId: z.uuid(),
+  status: z.enum(['selected', 'bench']),
+  role: z.enum(['tank', 'healer', 'dps']),
+});
+export async function saveGuildRaidOperationMember(_: GuildRaidOperationState, formData: FormData) {
+  const parsed = guildRaidMemberInput.safeParse({
+    operationId: formData.get('operationId'),
+    memberId: formData.get('memberId'),
+    status: formData.get('status'),
+    role: formData.get('role'),
+  });
+  if (!parsed.success)
+    return { error: 'Choose a valid Guild member, roster state, and role.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('set_guild_raid_operation_member', {
+    p_operation_id: parsed.data.operationId,
+    p_guild_member_id: parsed.data.memberId,
+    p_planning_status: parsed.data.status,
+    p_raid_role: parsed.data.role,
+  });
+  if (error) return { error: 'Raid planning could not be saved.', success: null };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Raid roster saved.' };
+}
+
+const guildRaidAssignmentInput = z.object({
+  operationId: z.uuid(),
+  title: z.string().trim().min(1).max(160),
+  details: z.string().max(2000),
+  memberId: z.uuid().or(z.literal('')),
+});
+export async function createGuildRaidAssignment(_: GuildRaidOperationState, formData: FormData) {
+  const parsed = guildRaidAssignmentInput.safeParse({
+    operationId: formData.get('operationId'),
+    title: formData.get('title'),
+    details: formData.get('details') ?? '',
+    memberId: formData.get('memberId') ?? '',
+  });
+  if (!parsed.success)
+    return { error: 'Enter an assignment title of 160 characters or fewer.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('create_guild_raid_assignment', {
+    p_operation_id: parsed.data.operationId,
+    p_title: parsed.data.title,
+    p_details: parsed.data.details,
+    p_assigned_guild_member_id: parsed.data.memberId || null,
+  });
+  if (error) return { error: 'Assignment could not be saved.', success: null };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Assignment added.' };
+}
 
 export async function updateGuildCharacterSharing(
   _: GuildSharingState,
@@ -56,13 +151,11 @@ export async function updateGuildCharacterSharing(
           .delete()
           .eq('character_id', parsed.data.characterId)
           .eq('guild_id', parsed.data.guildId)
-      : await supabase
-          .from('character_guild_sharing')
-          .upsert({
-            character_id: parsed.data.characterId,
-            guild_id: parsed.data.guildId,
-            visibility: parsed.data.visibility,
-          });
+      : await supabase.from('character_guild_sharing').upsert({
+          character_id: parsed.data.characterId,
+          guild_id: parsed.data.guildId,
+          visibility: parsed.data.visibility,
+        });
   if (result.error) return { error: 'Guild sharing could not be updated.', success: null };
   revalidatePath('/guild-hall');
   return { error: null, success: 'Guild sharing updated.' };

@@ -192,3 +192,60 @@ export async function loadGuildRankLabels(guildId: string) {
       : [],
   );
 }
+
+const guildRaidOperationSchema = z.object({
+  id: z.uuid(),
+  event_id: z.uuid(),
+  title: z.string(),
+  activity_type: z.string().nullable(),
+  event_date: z.string(),
+  event_time: z.string().nullable(),
+  difficulty: z.string().nullable(),
+  operational_notes: z.string(),
+  authorized_at: z.string(),
+});
+const guildRaidOperationMemberSchema = z.object({
+  id: z.uuid(),
+  operation_id: z.uuid(),
+  guild_member_id: z.uuid(),
+  planning_status: z.enum(['selected', 'bench']),
+  raid_role: z.enum(['tank', 'healer', 'dps']),
+});
+const guildRaidAssignmentSchema = z.object({
+  id: z.uuid(),
+  operation_id: z.uuid(),
+  title: z.string(),
+  details: z.string(),
+  assigned_guild_member_id: z.uuid().nullable(),
+});
+export type GuildRaidOperation = z.infer<typeof guildRaidOperationSchema>;
+export type GuildRaidOperationMember = z.infer<typeof guildRaidOperationMemberSchema>;
+export type GuildRaidAssignment = z.infer<typeof guildRaidAssignmentSchema>;
+
+export async function loadGuildRaidOperations(guildId: string) {
+  const { supabase } = await getViewer();
+  const { data, error } = await supabase.rpc('list_guild_raid_operations', { p_guild_id: guildId });
+  const operations = z.array(guildRaidOperationSchema).safeParse(data);
+  if (error || !operations.success) return null;
+  const ids = operations.data.map((operation) => operation.id);
+  if (!ids.length) return { operations: operations.data, members: [], assignments: [] };
+  const [members, assignments] = await Promise.all([
+    supabase
+      .from('guild_raid_operation_members')
+      .select('id, operation_id, guild_member_id, planning_status, raid_role')
+      .in('operation_id', ids),
+    supabase
+      .from('guild_raid_assignments')
+      .select('id, operation_id, title, details, assigned_guild_member_id')
+      .in('operation_id', ids),
+  ]);
+  const parsedMembers = z.array(guildRaidOperationMemberSchema).safeParse(members.data);
+  const parsedAssignments = z.array(guildRaidAssignmentSchema).safeParse(assignments.data);
+  return members.error || assignments.error || !parsedMembers.success || !parsedAssignments.success
+    ? null
+    : {
+        operations: operations.data,
+        members: parsedMembers.data,
+        assignments: parsedAssignments.data,
+      };
+}

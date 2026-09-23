@@ -61,3 +61,25 @@ assert.match(sql, /role in \('guild_master', 'officer', 'raid_leader', 'loot_cou
 assert.doesNotMatch(sql, /references public\.lodges/);
 assert.doesNotMatch(sql, /lodge_id/);
 console.log('Guild foundation checks passed.');
+
+const raidSql = fs.readFileSync(
+  'supabase/migrations/20260923090723_guild_raid_operations.sql',
+  'utf8',
+);
+for (const table of [
+  'guild_raid_operations',
+  'guild_raid_operation_members',
+  'guild_raid_assignments',
+]) {
+  assert.match(raidSql, new RegExp(`create table public\\.${table}`));
+  assert.match(raidSql, new RegExp(`alter table public\\.${table} enable row level security`));
+}
+assert.match(raidSql, /references public\.events\(id\)/);
+assert.match(raidSql, /private\.is_lodge_admin\(event\.lodge_id\)/);
+assert.match(raidSql, /event\.created_by = v_actor/);
+assert.match(raidSql, /private\.can_lead_guild\(p_guild_id\)/);
+assert.match(raidSql, /planning_status in \('selected', 'bench'\)/);
+assert.match(raidSql, /raid_role in \('tank', 'healer', 'dps'\)/);
+assert.match(raidSql, /list_guild_raid_operations/);
+assert.match(raidSql, /guild\.raid_operation_authorized/);
+console.log('Guild raid operation checks passed.');

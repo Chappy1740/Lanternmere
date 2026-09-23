@@ -14,6 +14,7 @@ import {
 import { GuildInvitationForm } from '@/components/guild-invitation-form';
 import { GuildRosterImportForm } from '@/components/guild-roster-import-form';
 import { GuildRankLabelForm } from '@/components/guild-rank-label-form';
+import { GuildRaidOperationCreate, GuildRaidOperations } from '@/components/guild-raid-operations';
 import {
   getGuildMemberships,
   loadGuildMembers,
@@ -22,10 +23,12 @@ import {
   loadPendingGuildOwnershipTransfer,
   loadGuildRoster,
   loadGuildRankLabels,
+  loadGuildRaidOperations,
   guildRoleLabel,
   isGuildLeadership,
   type GuildRole,
 } from '@/lib/guilds';
+import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
 export default async function GuildHallPage({
   searchParams,
@@ -63,17 +66,56 @@ export default async function GuildHallPage({
   const leadership = isGuildLeadership(roles);
   const canManage = roles.includes('guild_master') || roles.includes('officer');
   const sort = params.sort === 'name' || params.sort === 'class' ? params.sort : 'rank';
-  const [roster, rankLabels, guildMembers, ownershipTransfer, ownCharacters, readiness] =
-    await Promise.all([
-      leadership || selected.guilds.member_portal_enabled
-        ? await loadGuildRoster(selected.guild_id, sort)
-        : null,
-      loadGuildRankLabels(selected.guild_id),
-      leadership ? loadGuildMembers(selected.guild_id) : null,
-      loadPendingGuildOwnershipTransfer(selected.guild_id),
-      loadOwnGuildCharacters(selected.guild_id),
-      leadership ? loadGuildReadiness(selected.guild_id) : Promise.resolve([]),
-    ]);
+  const [
+    roster,
+    rankLabels,
+    guildMembers,
+    ownershipTransfer,
+    ownCharacters,
+    readiness,
+    raidOperations,
+    lodgeMemberships,
+    viewer,
+  ] = await Promise.all([
+    leadership || selected.guilds.member_portal_enabled
+      ? await loadGuildRoster(selected.guild_id, sort)
+      : null,
+    loadGuildRankLabels(selected.guild_id),
+    leadership ? loadGuildMembers(selected.guild_id) : null,
+    loadPendingGuildOwnershipTransfer(selected.guild_id),
+    loadOwnGuildCharacters(selected.guild_id),
+    leadership ? loadGuildReadiness(selected.guild_id) : Promise.resolve([]),
+    leadership ? loadGuildRaidOperations(selected.guild_id) : Promise.resolve(null),
+    leadership ? getLodgeMemberships() : Promise.resolve([]),
+    leadership ? getViewer() : Promise.resolve(null),
+  ]);
+  const eligibleLodgeIds = new Set(
+    lodgeMemberships
+      .filter((membership) => membership.role === 'owner' || membership.role === 'caretaker')
+      .map((membership) => membership.lodge_id),
+  );
+  const { data: candidateEvents } =
+    leadership && viewer
+      ? await viewer.supabase
+          .from('events')
+          .select('id, lodge_id, created_by, title, event_date, event_time')
+          .gte('event_date', new Date().toISOString().slice(0, 10))
+          .order('event_date')
+          .order('event_time', { nullsFirst: false })
+          .limit(100)
+      : {
+          data: [] as {
+            id: string;
+            lodge_id: string;
+            created_by: string;
+            title: string;
+            event_date: string;
+            event_time: string | null;
+          }[],
+        };
+  const authorizableEvents = (candidateEvents ?? []).filter(
+    (event) => event.created_by === viewer?.user.id || eligibleLodgeIds.has(event.lodge_id),
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -156,8 +198,8 @@ export default async function GuildHallPage({
           <Swords className="text-accent" size={24} aria-hidden="true" />
           <h2 className="font-display text-text-primary mt-4 text-xl font-bold">Raid operations</h2>
           <p className="text-text-muted mt-3 leading-6">
-            Raid planning, attendance, assignments, and Loot Council workflows will appear here in
-            their own Guild-owned records.
+            Authorized canonical events gain Guild-owned planning, while attendance and Loot Council
+            remain later work.
           </p>
         </div>
         <div className="lodge-panel p-6">
@@ -172,6 +214,37 @@ export default async function GuildHallPage({
           </p>
         </div>
       </section>
+
+      {leadership && guildMembers && (
+        <section className="lodge-panel p-6 sm:p-8" aria-labelledby="raid-operations-heading">
+          <p className="lodge-kicker">Raid operations</p>
+          <h2
+            id="raid-operations-heading"
+            className="font-display text-text-primary mt-2 text-2xl font-bold"
+          >
+            Canonical Quest Board operations
+          </h2>
+          <p className="text-text-muted mt-2 text-sm">
+            Only a Guild leader who also created the event or administers its Lodge can authorize
+            it. This grants the Guild operation a narrow event projection, never Lodge-wide event or
+            RSVP access.
+          </p>
+          <GuildRaidOperationCreate
+            guildId={selected.guild_id}
+            events={authorizableEvents.map((event) => ({
+              id: event.id,
+              label: `${event.title} · ${event.event_date}${event.event_time ? ` ${event.event_time.slice(0, 5)} UTC` : ''}`,
+            }))}
+          />
+          {raidOperations ? (
+            <GuildRaidOperations {...raidOperations} guildMembers={guildMembers} />
+          ) : (
+            <p role="alert" className="text-text-muted mt-4 text-sm">
+              Raid operations could not be loaded.
+            </p>
+          )}
+        </section>
+      )}
 
       {leadership && (
         <section className="lodge-panel p-6">
