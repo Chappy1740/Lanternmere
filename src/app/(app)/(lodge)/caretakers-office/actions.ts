@@ -14,6 +14,27 @@ export type CaretakerState = {
 };
 
 export type LodgeManagementState = { error: string | null; success: string | null };
+export type LodgeIdentityState = { error: string | null; success: string | null };
+
+export async function updateLodgeIdentity(
+  _: LodgeIdentityState,
+  formData: FormData,
+): Promise<LodgeIdentityState> {
+  const parsed = z
+    .object({ lodgeId: z.uuid(), name: z.string().trim().min(1).max(60), description: z.string().trim().max(500) })
+    .safeParse({ lodgeId: formData.get('lodgeId'), name: formData.get('name'), description: formData.get('description') ?? '' });
+  if (!parsed.success) return { error: 'Enter a Lodge name and description within the limits.', success: null };
+  const current = await session();
+  if (!current || !(await isOwner(current.supabase, parsed.data.lodgeId, current.user.id)))
+    return { error: 'Only the Lodge owner can edit Lodge details.', success: null };
+  const { error } = await current.supabase
+    .from('lodges')
+    .update({ name: parsed.data.name, description: parsed.data.description || null })
+    .eq('id', parsed.data.lodgeId);
+  if (error) return { error: 'The Lodge details could not be saved. Please try again.', success: null };
+  refresh();
+  return { error: null, success: 'Lodge details saved.' };
+}
 
 function refreshManagement() {
   revalidatePath('/caretakers-office');

@@ -8,10 +8,13 @@ import {
   leaveLodge,
   removeLodgeMember,
   requestLodgeOwnershipTransfer,
+  updateLodgeIdentity,
+  type LodgeIdentityState,
   type LodgeManagementState,
 } from '@/app/(app)/(lodge)/caretakers-office/actions';
 
 const initial: LodgeManagementState = { error: null, success: null };
+const identityInitial: LodgeIdentityState = { error: null, success: null };
 function Feedback({ state }: { state: LodgeManagementState }) { return <>{state.error && <p role="alert" className="mt-3 text-sm text-red-400">{state.error}</p>}{state.success && <p role="status" className="text-text-muted mt-3 text-sm">{state.success}</p>}</>; }
 
 export function LeaveLodgeControl({ lodgeId, disabled }: { lodgeId: string; disabled: boolean }) {
@@ -37,4 +40,9 @@ export function LodgeOwnershipControls({ members, pendingTransfer, recipient }: 
 export function DeleteLodgeControl({ lodgeId, lodgeName }: { lodgeId: string; lodgeName: string }) {
   const [state, action, pending] = useActionState(deleteLodge, initial);
   return <form action={action} className="mt-4"><input type="hidden" name="lodgeId" value={lodgeId} /><label className="text-sm font-medium">Type <span className="font-mono">DELETE {lodgeName}</span> to permanently delete this Lodge.<input name="confirmation" required className="lodge-field mt-2 block w-full px-3 py-2" autoComplete="off" /></label><button type="submit" disabled={pending} className="mt-3 rounded-md border border-red-400/60 px-4 py-2 text-sm text-red-300 disabled:opacity-60">{pending ? 'Deleting…' : 'Delete Lodge permanently'}</button><Feedback state={state} /></form>;
+}
+
+export function LodgeIdentityControl({ lodgeId, name, description }: { lodgeId: string; name: string; description: string | null }) {
+  const [state, action, pending] = useActionState(updateLodgeIdentity, identityInitial);
+  return <form action={action} className="mt-5 space-y-4"><input type="hidden" name="lodgeId" value={lodgeId} /><label className="block text-sm font-medium">Lodge name<input name="name" required maxLength={60} defaultValue={name} className="lodge-field mt-1 block w-full px-3 py-2" /></label><label className="block text-sm font-medium">Description<textarea name="description" maxLength={500} rows={4} defaultValue={description ?? ''} className="lodge-field mt-1 block w-full px-3 py-2" /></label><button type="submit" disabled={pending} className="lodge-button px-4 py-2 text-sm disabled:opacity-60">{pending ? 'Saving…' : 'Save Lodge details'}</button><Feedback state={state} /></form>;
 }

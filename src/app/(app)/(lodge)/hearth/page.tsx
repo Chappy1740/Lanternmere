@@ -88,6 +88,14 @@ export default async function HearthPage({
         >
           Visit your Travelers
         </Link>
+        {selected.role === 'owner' && (
+          <Link
+            href={`/caretakers-office?lodge=${lodge.id}`}
+            className="text-accent focus-visible:outline-accent mt-4 ml-4 inline-block text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            Edit this Lodge
+          </Link>
+        )}
       </section>
 
       <MainCharacterHighlight />

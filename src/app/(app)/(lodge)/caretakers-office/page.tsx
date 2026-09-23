@@ -3,7 +3,7 @@ import { Crown, ShieldCheck } from 'lucide-react';
 import { LodgeInvitationForm } from '@/components/lodge-invitation-form';
 import { LodgeMemberRoleControl } from '@/components/lodge-member-role-control';
 import { RevokeLodgeInvitationControl } from '@/components/revoke-lodge-invitation-control';
-import { DeleteLodgeControl, LeaveLodgeControl, LodgeOwnershipControls, RemoveLodgeMemberControl } from '@/components/lodge-management-controls';
+import { DeleteLodgeControl, LeaveLodgeControl, LodgeIdentityControl, LodgeOwnershipControls, RemoveLodgeMemberControl } from '@/components/lodge-management-controls';
 import Link from 'next/link';
 import { loadLodgeInvitations } from '@/lib/lodge-invitations';
 import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
@@ -90,6 +90,12 @@ export default async function CaretakersOfficePage({
           ))}
         </div>
       </header>
+
+      <section className="lodge-panel p-6 sm:p-8" aria-labelledby="identity-heading">
+        <p className="lodge-kicker">Lodge identity</p>
+        <h2 id="identity-heading" className="font-display text-text-primary mt-2 text-2xl font-bold">Edit Lodge details</h2>
+        <LodgeIdentityControl lodgeId={selected.lodge_id} name={selected.lodges.name} description={selected.lodges.description} />
+      </section>
 
       <LodgeInvitationForm lodgeId={selected.lodge_id} lodgeName={selected.lodges.name} />
 

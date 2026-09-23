@@ -2,6 +2,7 @@
 
 ## Lodge management checkpoint — September 23, 2026
 
+- Added an owner-only “Edit this Lodge” link on the Hearth and an editable name/description form in the Caretaker's Office. It uses the existing owner-checked Lodge update policy; no migration is required.
 - Added visible Create Lodge navigation, Lodge switching links in the Caretaker's Office, non-owner leave controls, owner member removal, a two-person seven-day ownership-transfer flow, and exact-name-confirmed Lodge deletion.
 - Migration `20260923182801_lodge_management.sql` was applied to the linked Lanternmere database after a dry run; remote migration history confirms it. It uses owner-checked, authenticated RPCs and revokes a departing/removed member's character sharing for that Lodge.
 - Current-session verification: focused ESLint, TypeScript, diff-whitespace, remote migration history, and Supabase security-advisor checks passed. The advisor reports the intended authenticated, checked `SECURITY DEFINER` Lodge RPCs alongside existing Guild RPC and leaked-password-protection warnings; authenticated browser and disposable-database workflow rehearsal remain pending.
