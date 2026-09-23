@@ -34,7 +34,11 @@ export async function signIn(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return { error: 'Invalid email or password.' };
+    if (error.code === 'invalid_credentials') {
+      return { error: 'Invalid email or password.' };
+    }
+
+    return { error: 'Sign-in is temporarily unavailable. Check your connection and try again.' };
   }
 
   revalidatePath('/', 'layout');
