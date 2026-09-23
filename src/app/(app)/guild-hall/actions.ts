@@ -20,6 +20,32 @@ export type GuildMemberRoleState = { error: string | null; success: string | nul
 export type GuildOwnershipTransferState = { error: string | null; success: string | null };
 export type GuildDepartureState = { error: string | null; success: string | null };
 export type GuildSharingState = { error: string | null; success: string | null };
+export type GuildIdentityState = { error: string | null; success: string | null };
+export async function updateGuildIdentity(_: GuildIdentityState, formData: FormData) {
+  const parsed = z
+    .object({
+      guildId: z.uuid(),
+      name: z.string().trim().min(1).max(60),
+      description: z.string().trim().max(1000),
+    })
+    .safeParse({
+      guildId: formData.get('guildId'),
+      name: formData.get('name'),
+      description: formData.get('description') ?? '',
+    });
+  if (!parsed.success)
+    return { error: 'Enter a Guild name and description within the limits.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('set_guild_identity', {
+    p_guild_id: parsed.data.guildId,
+    p_name: parsed.data.name,
+    p_description: parsed.data.description || null,
+  });
+  if (error)
+    return { error: 'Only a Guild Master or Officer can update Guild identity.', success: null };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Guild identity updated.' };
+}
 export type GuildRaidOperationState = { error: string | null; success: string | null };
 
 const guildRaidOperationInput = z.object({ guildId: z.uuid(), eventId: z.uuid() });

@@ -347,3 +347,4 @@ After a milestone, record the delivered scope, verification actually performed, 
 
 - Milestone 7 is complete with independent multi-Guild membership and roles, official roster import, consented Traveler readiness, canonical Quest Board raid operations, selected/bench role planning, Guild assignments and notes, attendance, and Guild settings/ownership safeguards.
 - Loot Council workflow, awards, and award history are intentionally deferred to Milestone 8. Remaining validation limits are live multi-account authorization coverage and authenticated browser capture; no unsupported claims of those checks are made.
+- Applied `20260923095432_guild_identity_settings.sql`: Guild Masters and Officers now edit Guild identity through an audited, server-checked RPC; direct authenticated table updates are revoked.

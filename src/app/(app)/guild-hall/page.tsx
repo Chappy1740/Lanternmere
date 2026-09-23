@@ -14,6 +14,7 @@ import {
 import { GuildInvitationForm } from '@/components/guild-invitation-form';
 import { GuildRosterImportForm } from '@/components/guild-roster-import-form';
 import { GuildRankLabelForm } from '@/components/guild-rank-label-form';
+import { GuildIdentityForm } from '@/components/guild-identity-form';
 import { GuildRaidOperationCreate, GuildRaidOperations } from '@/components/guild-raid-operations';
 import {
   getGuildMemberships,
@@ -441,6 +442,11 @@ export default async function GuildHallPage({
           <GuildMemberPortalControl
             guildId={selected.guild_id}
             enabled={selected.guilds.member_portal_enabled}
+          />
+          <GuildIdentityForm
+            guildId={selected.guild_id}
+            name={selected.guilds.name}
+            description={selected.guilds.description}
           />
           <GuildInvitationForm guildId={selected.guild_id} />
           <GuildRosterImportForm guildId={selected.guild_id} />
