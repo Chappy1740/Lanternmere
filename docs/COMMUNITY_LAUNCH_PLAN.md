@@ -14,7 +14,15 @@ Working positioning:
 
 **Lanternmere — Your World of Warcraft home away from Azeroth.**
 
-Lanternmere is a community-built hub where friends and guildmates can bring useful World of Warcraft information together in one place.
+Lanternmere is an independently built hub, created by one player, where friends and guildmates can bring useful World of Warcraft information together in one place.
+
+### Ownership and Stewardship
+
+Lanternmere is not community-built. Its design, development, product direction, and stewardship remain with its creator. Community feedback is valuable input, not shared ownership or product governance.
+
+> **Listen to the community. Do not outsource the vision to the community.**
+
+Backend and administrative access remain intentionally restricted to the creator and, when needed, one or two specifically trusted people. Testers, guildmates, Discord members, and Founding Travelers do not receive backend access simply because they participate in the community.
 
 Public descriptions must accurately reflect features that are actually available. Planned integrations or future capabilities should be labeled as planned until implemented.
 
@@ -37,8 +45,9 @@ Initial audiences, in order:
 1. Existing friends and guildmates.
 2. Other trusted World of Warcraft players invited for early access.
 3. Relevant WoW Discord communities.
-4. Relevant Reddit communities where project sharing follows community rules.
-5. Developers and hobby builders who discover Lanternmere through GitHub or Eydren.
+4. Developers and hobby builders who discover Lanternmere through GitHub or Eydren.
+
+Reddit is optional/future and is not part of the current active channel plan.
 
 Growth quality matters more than raw user count.
 
@@ -91,7 +100,7 @@ Prepare:
 - Simple getting-started instructions.
 - Feedback process.
 - Known-issues guidance when necessary.
-- Optional community identity for original testers, such as **Founding Travelers**.
+- Optional community identity for original testers, such as **Founding Travelers**. Founding Travelers are trusted early users and testers, not builders, owners, or product decision-makers.
 
 ## Stage 4 — Public Introduction
 
@@ -104,7 +113,6 @@ The Lanternmere Launch Kit should include:
 - High-quality screenshots.
 - 30–60 second demonstration.
 - Discord-ready announcement.
-- Reddit-ready introduction adapted to individual community rules.
 - Polished GitHub README presentation.
 - Banner and social graphics.
 - Feature overview.
