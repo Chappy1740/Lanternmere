@@ -83,3 +83,19 @@ assert.match(raidSql, /raid_role in \('tank', 'healer', 'dps'\)/);
 assert.match(raidSql, /list_guild_raid_operations/);
 assert.match(raidSql, /guild\.raid_operation_authorized/);
 console.log('Guild raid operation checks passed.');
+
+const attendanceSql = fs.readFileSync(
+  'supabase/migrations/20260923092223_guild_raid_attendance.sql',
+  'utf8',
+);
+assert.match(attendanceSql, /create table public\.guild_raid_attendance/);
+assert.match(attendanceSql, /alter table public\.guild_raid_attendance enable row level security/);
+assert.match(
+  attendanceSql,
+  /attendance_status in \('invited', 'confirmed', 'attended', 'late', 'absent', 'benched'\)/,
+);
+assert.match(attendanceSql, /references public\.guild_raid_operations\(id\)/);
+assert.match(attendanceSql, /private\.can_lead_guild\(v_guild_id\)/);
+assert.match(attendanceSql, /guild\.raid_attendance_recorded/);
+assert.match(attendanceSql, /revoke all on public\.guild_raid_attendance from anon, authenticated/);
+console.log('Guild raid attendance checks passed.');

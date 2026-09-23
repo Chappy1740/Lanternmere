@@ -218,9 +218,17 @@ const guildRaidAssignmentSchema = z.object({
   details: z.string(),
   assigned_guild_member_id: z.uuid().nullable(),
 });
+const guildRaidAttendanceSchema = z.object({
+  id: z.uuid(),
+  operation_id: z.uuid(),
+  guild_member_id: z.uuid(),
+  attendance_status: z.enum(['invited', 'confirmed', 'attended', 'late', 'absent', 'benched']),
+  context_note: z.string(),
+});
 export type GuildRaidOperation = z.infer<typeof guildRaidOperationSchema>;
 export type GuildRaidOperationMember = z.infer<typeof guildRaidOperationMemberSchema>;
 export type GuildRaidAssignment = z.infer<typeof guildRaidAssignmentSchema>;
+export type GuildRaidAttendance = z.infer<typeof guildRaidAttendanceSchema>;
 
 export async function loadGuildRaidOperations(guildId: string) {
   const { supabase } = await getViewer();
@@ -228,8 +236,9 @@ export async function loadGuildRaidOperations(guildId: string) {
   const operations = z.array(guildRaidOperationSchema).safeParse(data);
   if (error || !operations.success) return null;
   const ids = operations.data.map((operation) => operation.id);
-  if (!ids.length) return { operations: operations.data, members: [], assignments: [] };
-  const [members, assignments] = await Promise.all([
+  if (!ids.length)
+    return { operations: operations.data, members: [], assignments: [], attendance: [] };
+  const [members, assignments, attendance] = await Promise.all([
     supabase
       .from('guild_raid_operation_members')
       .select('id, operation_id, guild_member_id, planning_status, raid_role')
@@ -238,14 +247,25 @@ export async function loadGuildRaidOperations(guildId: string) {
       .from('guild_raid_assignments')
       .select('id, operation_id, title, details, assigned_guild_member_id')
       .in('operation_id', ids),
+    supabase
+      .from('guild_raid_attendance')
+      .select('id, operation_id, guild_member_id, attendance_status, context_note')
+      .in('operation_id', ids),
   ]);
   const parsedMembers = z.array(guildRaidOperationMemberSchema).safeParse(members.data);
   const parsedAssignments = z.array(guildRaidAssignmentSchema).safeParse(assignments.data);
-  return members.error || assignments.error || !parsedMembers.success || !parsedAssignments.success
+  const parsedAttendance = z.array(guildRaidAttendanceSchema).safeParse(attendance.data);
+  return members.error ||
+    assignments.error ||
+    attendance.error ||
+    !parsedMembers.success ||
+    !parsedAssignments.success ||
+    !parsedAttendance.success
     ? null
     : {
         operations: operations.data,
         members: parsedMembers.data,
         assignments: parsedAssignments.data,
+        attendance: parsedAttendance.data,
       };
 }

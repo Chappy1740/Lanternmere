@@ -6,11 +6,13 @@ import {
   createGuildRaidOperation,
   saveGuildRaidOperationMember,
   saveGuildRaidOperationNotes,
+  saveGuildRaidAttendance,
   type GuildRaidOperationState,
 } from '@/app/(app)/guild-hall/actions';
 import type {
   GuildMember,
   GuildRaidAssignment,
+  GuildRaidAttendance,
   GuildRaidOperation,
   GuildRaidOperationMember,
 } from '@/lib/guilds';
@@ -66,11 +68,13 @@ export function GuildRaidOperations({
   operations,
   members,
   assignments,
+  attendance,
   guildMembers,
 }: {
   operations: GuildRaidOperation[];
   members: GuildRaidOperationMember[];
   assignments: GuildRaidAssignment[];
+  attendance: GuildRaidAttendance[];
   guildMembers: GuildMember[];
 }) {
   if (!operations.length)
@@ -90,6 +94,7 @@ export function GuildRaidOperations({
           operation={operation}
           members={members.filter((row) => row.operation_id === operation.id)}
           assignments={assignments.filter((row) => row.operation_id === operation.id)}
+          attendance={attendance.filter((row) => row.operation_id === operation.id)}
           guildMembers={guildMembers}
           names={names}
         />
@@ -102,12 +107,14 @@ function Operation({
   operation,
   members,
   assignments,
+  attendance,
   guildMembers,
   names,
 }: {
   operation: GuildRaidOperation;
   members: GuildRaidOperationMember[];
   assignments: GuildRaidAssignment[];
+  attendance: GuildRaidAttendance[];
   guildMembers: GuildMember[];
   names: Map<string, string>;
 }) {
@@ -121,6 +128,10 @@ function Operation({
   );
   const [assignmentState, assignmentAction, assignmentPending] = useActionState(
     createGuildRaidAssignment,
+    initial,
+  );
+  const [attendanceState, attendanceAction, attendancePending] = useActionState(
+    saveGuildRaidAttendance,
     initial,
   );
   return (
@@ -156,7 +167,7 @@ function Operation({
         </button>
         <Message state={notesState} />
       </form>
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <form action={memberAction}>
           <input type="hidden" name="operationId" value={operation.id} />
           <p className="text-sm font-medium">Plan Guild roster</p>
@@ -201,6 +212,59 @@ function Operation({
               <li key={member.id}>
                 {names.get(member.guild_member_id)} · {member.planning_status} ·{' '}
                 {member.raid_role.toUpperCase()}
+              </li>
+            ))}
+          </ul>
+        </form>
+        <form action={attendanceAction}>
+          <input type="hidden" name="operationId" value={operation.id} />
+          <p className="text-sm font-medium">Guild attendance</p>
+          <p className="text-text-muted mt-1 text-xs">
+            Operational context only; Quest Board RSVPs are unchanged.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <select
+              name="memberId"
+              required
+              className="border-border bg-background rounded-md border px-2 py-1.5 text-sm"
+            >
+              <option value="">Guild member</option>
+              {guildMembers.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {names.get(member.id)}
+                </option>
+              ))}
+            </select>
+            <select
+              name="status"
+              className="border-border bg-background rounded-md border px-2 py-1.5 text-sm"
+            >
+              <option value="invited">Invited</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="attended">Attended</option>
+              <option value="late">Late</option>
+              <option value="absent">Absent</option>
+              <option value="benched">Benched</option>
+            </select>
+          </div>
+          <input
+            name="note"
+            maxLength={1000}
+            placeholder="Optional attendance context"
+            className="border-border bg-background mt-2 block w-full rounded-md border px-2 py-1.5 text-sm"
+          />
+          <button
+            disabled={attendancePending}
+            className="lodge-button-secondary mt-2 px-3 py-1.5 text-sm disabled:opacity-50"
+          >
+            {attendancePending ? 'Saving…' : 'Record'}
+          </button>
+          <Message state={attendanceState} />
+          <ul className="mt-3 space-y-1 text-sm">
+            {attendance.map((entry) => (
+              <li key={entry.id}>
+                {names.get(entry.guild_member_id)} · {entry.attendance_status}
+                {entry.context_note ? ` — ${entry.context_note}` : ''}
               </li>
             ))}
           </ul>

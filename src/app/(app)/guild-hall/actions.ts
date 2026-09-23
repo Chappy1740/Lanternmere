@@ -116,6 +116,33 @@ export async function createGuildRaidAssignment(_: GuildRaidOperationState, form
   return { error: null, success: 'Assignment added.' };
 }
 
+const guildRaidAttendanceInput = z.object({
+  operationId: z.uuid(),
+  memberId: z.uuid(),
+  status: z.enum(['invited', 'confirmed', 'attended', 'late', 'absent', 'benched']),
+  note: z.string().max(1000),
+});
+export async function saveGuildRaidAttendance(_: GuildRaidOperationState, formData: FormData) {
+  const parsed = guildRaidAttendanceInput.safeParse({
+    operationId: formData.get('operationId'),
+    memberId: formData.get('memberId'),
+    status: formData.get('status'),
+    note: formData.get('note') ?? '',
+  });
+  if (!parsed.success)
+    return { error: 'Choose a valid attendance status and optional note.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('set_guild_raid_attendance', {
+    p_operation_id: parsed.data.operationId,
+    p_guild_member_id: parsed.data.memberId,
+    p_attendance_status: parsed.data.status,
+    p_context_note: parsed.data.note,
+  });
+  if (error) return { error: 'Attendance could not be saved.', success: null };
+  revalidatePath('/guild-hall');
+  return { error: null, success: 'Attendance recorded.' };
+}
+
 export async function updateGuildCharacterSharing(
   _: GuildSharingState,
   formData: FormData,
