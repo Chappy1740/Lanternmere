@@ -34,6 +34,14 @@ assert.equal(guilds.isGuildLeadership(['raid_leader']), true);
 assert.equal(guilds.isGuildLeadership(['loot_council']), false);
 assert.equal(guilds.guildRoleLabel('guild_master'), 'Guild Master');
 assert.equal(guilds.guildRoleLabel('loot_council'), 'Loot Council');
+assert.equal(
+  guilds.isGuildRosterSnapshotFresh('2026-09-23T00:00:00Z', Date.parse('2026-09-23T23:59:59Z')),
+  true,
+);
+assert.equal(
+  guilds.isGuildRosterSnapshotFresh('2026-09-22T00:00:00Z', Date.parse('2026-09-23T00:00:00Z')),
+  false,
+);
 
 const sql = fs.readFileSync('supabase/migrations/20260922043253_guild_foundation.sql', 'utf8');
 for (const table of [
@@ -99,3 +107,17 @@ assert.match(attendanceSql, /private\.can_lead_guild\(v_guild_id\)/);
 assert.match(attendanceSql, /guild\.raid_attendance_recorded/);
 assert.match(attendanceSql, /revoke all on public\.guild_raid_attendance from anon, authenticated/);
 console.log('Guild raid attendance checks passed.');
+
+const rosterFailureSql = fs.readFileSync(
+  'supabase/migrations/20260923100807_guild_roster_refresh_failures.sql',
+  'utf8',
+);
+assert.match(rosterFailureSql, /function public\.record_guild_roster_refresh_failure/);
+assert.match(rosterFailureSql, /private\.can_manage_guild\(p_guild_id\)/);
+assert.match(rosterFailureSql, /set failure_message = btrim\(p_failure_message\)/);
+assert.match(rosterFailureSql, /guild\.official_roster_refresh_failed/);
+assert.match(
+  rosterFailureSql,
+  /revoke all on function public\.record_guild_roster_refresh_failure/,
+);
+console.log('Guild roster refresh-failure checks passed.');

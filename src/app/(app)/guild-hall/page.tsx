@@ -16,6 +16,7 @@ import { GuildRosterImportForm } from '@/components/guild-roster-import-form';
 import { GuildRankLabelForm } from '@/components/guild-rank-label-form';
 import { GuildIdentityForm } from '@/components/guild-identity-form';
 import { GuildRaidOperationCreate, GuildRaidOperations } from '@/components/guild-raid-operations';
+import { CharacterFreshness } from '@/components/character-freshness';
 import {
   getGuildMemberships,
   loadGuildMembers,
@@ -26,6 +27,7 @@ import {
   loadGuildRankLabels,
   loadGuildRaidOperations,
   guildRoleLabel,
+  isGuildRosterSnapshotFresh,
   isGuildLeadership,
   type GuildRole,
 } from '@/lib/guilds';
@@ -261,14 +263,18 @@ export default async function GuildHallPage({
             <ul className="mt-4 space-y-2">
               {readiness.map((character) => (
                 <li key={character.id} className="lodge-list-row p-3 text-sm">
-                  {character.character_name} · {character.class ?? 'Unknown class'} ·{' '}
-                  {character.character_guild_sharing[0]?.visibility === 'members'
-                    ? 'Shared with members'
-                    : 'Leadership-only'}{' '}
-                  ·{' '}
-                  {character.character_snapshots[0]?.last_refreshed_at
-                    ? `Snapshot ${new Date(character.character_snapshots[0].last_refreshed_at).toLocaleDateString('en-US', { timeZone: 'UTC' })} UTC`
-                    : 'No saved snapshot'}
+                  <p className="text-text-primary">
+                    {character.character_name} · {character.class ?? 'Unknown class'} ·{' '}
+                    {character.character_guild_sharing[0]?.visibility === 'members'
+                      ? 'Shared with members'
+                      : 'Leadership-only'}
+                  </p>
+                  <p className="text-text-muted mt-1 text-xs">
+                    Source: {character.character_snapshots[0]?.source ?? 'Unavailable'}
+                  </p>
+                  <CharacterFreshness
+                    refreshedAt={character.character_snapshots[0]?.last_refreshed_at}
+                  />
                 </li>
               ))}
             </ul>
@@ -296,8 +302,25 @@ export default async function GuildHallPage({
               timeStyle: 'short',
               timeZone: 'UTC',
             }).format(new Date(roster.snapshot.refreshed_at))}{' '}
-            UTC. Showing the first {roster.entries.length} entries.
+            UTC ·{' '}
+            {isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at)
+              ? 'Updated within 24 hours'
+              : 'Update is older than 24 hours'}{' '}
+            · Showing the first {roster.entries.length} entries.
           </p>
+          <a
+            href={roster.snapshot.source_url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-accent mt-3 inline-block text-sm underline underline-offset-4"
+          >
+            Open Blizzard source
+          </a>
+          {roster.snapshot.failure_message && (
+            <p className="text-text-muted mt-3 text-sm">
+              Latest refresh: {roster.snapshot.failure_message} Showing the last successful roster.
+            </p>
+          )}
           <nav aria-label="Roster sorting" className="mt-4 flex gap-2 text-sm">
             {(['rank', 'name', 'class'] as const).map((option) => (
               <a

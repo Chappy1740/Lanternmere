@@ -118,7 +118,7 @@ export async function loadGuildReadiness(guildId: string) {
   const { data, error } = await supabase
     .from('characters')
     .select(
-      'id, character_name, realm_slug, class, character_guild_sharing!inner(visibility, guild_id), character_snapshots(last_refreshed_at)',
+      'id, character_name, realm_slug, class, character_guild_sharing!inner(visibility, guild_id), character_snapshots(source, last_refreshed_at)',
     )
     .eq('character_guild_sharing.guild_id', guildId)
     .order('character_name');
@@ -132,7 +132,9 @@ export async function loadGuildReadiness(guildId: string) {
         character_guild_sharing: z.array(
           z.object({ visibility: z.enum(['leadership', 'members']), guild_id: z.uuid() }),
         ),
-        character_snapshots: z.array(z.object({ last_refreshed_at: z.string() })),
+        character_snapshots: z.array(
+          z.object({ source: z.string(), last_refreshed_at: z.string() }),
+        ),
       }),
     )
     .safeParse(data);
@@ -151,14 +153,21 @@ const rosterSnapshotSchema = z.object({
   realm_slug: z.string(),
   region: z.string(),
   refreshed_at: z.string(),
+  source_url: z.string().url(),
+  failure_message: z.string().nullable(),
 });
+
+export function isGuildRosterSnapshotFresh(refreshedAt: string, now = Date.now()) {
+  const refreshed = Date.parse(refreshedAt);
+  return Number.isFinite(refreshed) && now - refreshed < 24 * 60 * 60 * 1000;
+}
 
 export async function loadGuildRoster(guildId: string, sort: 'rank' | 'name' | 'class' = 'rank') {
   const { supabase } = await getViewer();
   const [snapshot, entries] = await Promise.all([
     supabase
       .from('guild_blizzard_roster_snapshots')
-      .select('guild_name, realm_slug, region, refreshed_at')
+      .select('guild_name, realm_slug, region, refreshed_at, source_url, failure_message')
       .eq('guild_id', guildId)
       .maybeSingle(),
     (() => {

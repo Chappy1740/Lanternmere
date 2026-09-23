@@ -436,7 +436,19 @@ export async function importOfficialGuildRoster(
     )
       return { error: 'Only a Guild Master or Officer can import a roster.', success: null };
     const result = await fetchGuildRoster(parsed.data);
-    if (!result.ok) return { error: result.message, success: null };
+    if (!result.ok) {
+      const { data: recorded, error: failureError } = await supabase.rpc(
+        'record_guild_roster_refresh_failure',
+        { p_guild_id: parsed.data.guildId, p_failure_message: result.message },
+      );
+      if (!failureError && recorded) revalidatePath('/guild-hall');
+      return {
+        error: recorded
+          ? `${result.message} The last successful roster remains available.`
+          : result.message,
+        success: null,
+      };
+    }
     const admin = createAdminClient();
     const { error: deleteError } = await admin
       .from('guild_roster_entries')

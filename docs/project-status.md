@@ -12,16 +12,16 @@ These are historical baseline observations. Check Git for current branch and wor
 
 ## Milestones
 
-| Milestone | Recorded state                                                                                                     | Evidence                                                                                                              |
-| --------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| 0         | Complete per user handoff; early history contains setup, formatting, environment validation, and design tokens.    | Repository history; no separate acceptance checklist is preserved.                                                    |
-| 1         | Front door and Lodge onboarding complete.                                                                          | Commit `82b4d70`.                                                                                                     |
-| 2         | Travelers and Characters complete, with recorded verification and limitations.                                     | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
-| 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                       | Hearth checkpoints below; implementation commit `2896833`.                                                            |
-| 4         | Quest Board event and RSVP workflows complete, including party composition.                                        | Quest Board and group-composition checkpoints below.                                                                  |
-| 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                        | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
-| 6         | Adventures complete: canonical planning, preparation notes, campaigns, and consented external progress context.    | [Milestone 6 specification](milestones/milestone-06-adventures.md) and final checkpoint below.                        |
-| 7         | Complete: Guild foundation, consented readiness, canonical-event operations, attendance, and settings are applied. | Guild checkpoints below; Loot Council and awards move to Milestone 8.                                                 |
+| Milestone | Recorded state                                                                                                                           | Evidence                                                                                                              |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 0         | Complete per user handoff; early history contains setup, formatting, environment validation, and design tokens.                          | Repository history; no separate acceptance checklist is preserved.                                                    |
+| 1         | Front door and Lodge onboarding complete.                                                                                                | Commit `82b4d70`.                                                                                                     |
+| 2         | Travelers and Characters complete, with recorded verification and limitations.                                                           | [Checkpoint](milestone-2-checkpoint.md), commit `f1069a9`, and [regression guidance](../tests/milestone-2/README.md). |
+| 3         | The Hearth complete: welcome, Lodge context, Main character, roster, and activity summaries.                                             | Hearth checkpoints below; implementation commit `2896833`.                                                            |
+| 4         | Quest Board event and RSVP workflows complete, including party composition.                                                              | Quest Board and group-composition checkpoints below.                                                                  |
+| 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                                              | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
+| 6         | Adventures complete: canonical planning, preparation notes, campaigns, and consented external progress context.                          | [Milestone 6 specification](milestones/milestone-06-adventures.md) and final checkpoint below.                        |
+| 7         | Complete: Guild foundation, consented readiness, canonical-event operations, attendance, settings, and cache-state handling are applied. | Guild checkpoints below; Loot Council and awards move to Milestone 8.                                                 |
 
 ## Guild foundation checkpoint — September 21, 2026
 
@@ -344,6 +344,11 @@ After a milestone, record the delivered scope, verification actually performed, 
 - The user moved Loot Council workflow, loot awards, and award history to Milestone 8. Milestone 7 retains Guild foundation, permissions, consented readiness, canonical-event operations, attendance, and Guild settings; its specification and roadmap now reflect that boundary.
 
 ## Milestone 7 completion — September 23, 2026
+
+- Guild Hall now renders cache provenance and 24-hour freshness for consented Traveler snapshots and official Blizzard roster data. A permitted failed official-roster refresh records a bounded, auditable failure state while preserving and displaying the last successful roster and its attributed source.
+- Applied `20260923100807_guild_roster_refresh_failures.sql` to the linked Lanternmere database after a dry run. The server-checked function permits only Guild Master/Officer callers to update an existing roster snapshot's failure state; it cannot create a snapshot or replace cached successful data. Remote migration history matches local history.
+- Current-session verification: Milestone 7 regression checks, ESLint, TypeScript, targeted Prettier formatting, and `git diff --check` passed. The repository-wide formatter remains a pre-existing baseline failure across 154 files, including untouched files. The Supabase security advisor reported the intentional authenticated `SECURITY DEFINER` RPC warnings (including the new bounded refresh-status RPC) and the existing leaked-password-protection warning; no new unreviewed RLS finding was introduced.
+- Milestone 7 is complete. Loot Council workflows, awards, award history, and Raid Mode remain reserved for Milestone 8.
 
 - Milestone 7 is complete with independent multi-Guild membership and roles, official roster import, consented Traveler readiness, canonical Quest Board raid operations, selected/bench role planning, Guild assignments and notes, attendance, and Guild settings/ownership safeguards.
 - Loot Council workflow, awards, and award history are intentionally deferred to Milestone 8. Remaining validation limits are live multi-account authorization coverage and authenticated browser capture; no unsupported claims of those checks are made.

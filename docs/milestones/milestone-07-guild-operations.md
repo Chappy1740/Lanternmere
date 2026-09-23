@@ -157,7 +157,7 @@ The first Milestone 7 release should establish:
 8. Guild settings and permissions.
 9. Cached external-data model suitable for later integrations.
 
-Advanced analytics, profession services, deeper Warcraft Logs views, richer Raidbots workflows, and extended reporting may follow after this foundation is stable.
+Advanced analytics, profession services, deeper Warcraft Logs views, richer Raidbots workflows, and extended reporting may follow after this foundation is stable. Loot Council workflow and award history are intentionally Milestone 8 work.
 
 ## Discovery required before implementation
 
