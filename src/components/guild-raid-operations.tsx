@@ -5,6 +5,7 @@ import {
   createGuildRaidAssignment,
   createGuildRaidOperation,
   saveGuildRaidOperationMember,
+  saveGuildRaidOperationMemberCharacter,
   saveGuildRaidOperationNotes,
   saveGuildRaidAttendance,
   type GuildRaidOperationState,
@@ -65,17 +66,21 @@ export function GuildRaidOperationCreate({
 }
 
 export function GuildRaidOperations({
+  guildId,
   operations,
   members,
   assignments,
   attendance,
   guildMembers,
+  readiness,
 }: {
+  guildId: string;
   operations: GuildRaidOperation[];
   members: GuildRaidOperationMember[];
   assignments: GuildRaidAssignment[];
   attendance: GuildRaidAttendance[];
   guildMembers: GuildMember[];
+  readiness: { id: string; profile_id: string; character_name: string; class: string | null }[];
 }) {
   if (!operations.length)
     return (
@@ -91,11 +96,13 @@ export function GuildRaidOperations({
       {operations.map((operation) => (
         <Operation
           key={operation.id}
+          guildId={guildId}
           operation={operation}
           members={members.filter((row) => row.operation_id === operation.id)}
           assignments={assignments.filter((row) => row.operation_id === operation.id)}
           attendance={attendance.filter((row) => row.operation_id === operation.id)}
           guildMembers={guildMembers}
+          readiness={readiness}
           names={names}
         />
       ))}
@@ -104,18 +111,22 @@ export function GuildRaidOperations({
 }
 
 function Operation({
+  guildId,
   operation,
   members,
   assignments,
   attendance,
   guildMembers,
+  readiness,
   names,
 }: {
+  guildId: string;
   operation: GuildRaidOperation;
   members: GuildRaidOperationMember[];
   assignments: GuildRaidAssignment[];
   attendance: GuildRaidAttendance[];
   guildMembers: GuildMember[];
+  readiness: { id: string; profile_id: string; character_name: string; class: string | null }[];
   names: Map<string, string>;
 }) {
   const [notesState, notesAction, notesPending] = useActionState(
@@ -134,8 +145,18 @@ function Operation({
     saveGuildRaidAttendance,
     initial,
   );
+  const [contextState, contextAction, contextPending] = useActionState(
+    saveGuildRaidOperationMemberCharacter,
+    initial,
+  );
   return (
     <article className="lodge-list-row p-5">
+      <a
+        href={`/guild-hall/raid-room?guild=${guildId}&operation=${operation.id}`}
+        className="text-accent float-right text-sm underline underline-offset-4"
+      >
+        Open Raid Mode
+      </a>
       <h3 className="text-text-primary font-display text-lg font-bold">{operation.title}</h3>
       <p className="text-text-muted mt-1 text-sm">
         {operation.event_date}
@@ -215,6 +236,37 @@ function Operation({
               </li>
             ))}
           </ul>
+          <form action={contextAction} className="mt-3 flex flex-wrap gap-2">
+            <input type="hidden" name="operationId" value={operation.id} />
+            <select
+              name="memberId"
+              required
+              className="border-border bg-background rounded-md border px-2 py-1 text-sm"
+            >
+              <option value="">Planned member</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.guild_member_id}>
+                  {names.get(member.guild_member_id)}
+                </option>
+              ))}
+            </select>
+            <select
+              name="characterId"
+              required
+              className="border-border bg-background rounded-md border px-2 py-1 text-sm"
+            >
+              <option value="">Consented Traveler</option>
+              {readiness.map((character) => (
+                <option key={character.id} value={character.id}>
+                  {character.character_name} · {character.class ?? 'Class unavailable'}
+                </option>
+              ))}
+            </select>
+            <button disabled={contextPending} className="lodge-button-secondary px-2 py-1 text-sm">
+              Save context
+            </button>
+          </form>
+          <Message state={contextState} />
         </form>
         <form action={attendanceAction}>
           <input type="hidden" name="operationId" value={operation.id} />

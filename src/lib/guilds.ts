@@ -118,7 +118,7 @@ export async function loadGuildReadiness(guildId: string) {
   const { data, error } = await supabase
     .from('characters')
     .select(
-      'id, character_name, realm_slug, class, character_guild_sharing!inner(visibility, guild_id), character_snapshots(source, last_refreshed_at)',
+      'id, profile_id, character_name, realm_slug, class, character_guild_sharing!inner(visibility, guild_id), character_snapshots(source, last_refreshed_at, snapshot_data)',
     )
     .eq('character_guild_sharing.guild_id', guildId)
     .order('character_name');
@@ -126,6 +126,7 @@ export async function loadGuildReadiness(guildId: string) {
     .array(
       z.object({
         id: z.uuid(),
+        profile_id: z.uuid(),
         character_name: z.string(),
         realm_slug: z.string(),
         class: z.string().nullable(),
@@ -133,7 +134,13 @@ export async function loadGuildReadiness(guildId: string) {
           z.object({ visibility: z.enum(['leadership', 'members']), guild_id: z.uuid() }),
         ),
         character_snapshots: z.array(
-          z.object({ source: z.string(), last_refreshed_at: z.string() }),
+          z.object({
+            source: z.string(),
+            last_refreshed_at: z.string(),
+            snapshot_data: z
+              .object({ active_spec: z.object({ name: z.string() }).optional() })
+              .passthrough(),
+          }),
         ),
       }),
     )
@@ -219,6 +226,7 @@ const guildRaidOperationMemberSchema = z.object({
   guild_member_id: z.uuid(),
   planning_status: z.enum(['selected', 'bench']),
   raid_role: z.enum(['tank', 'healer', 'dps']),
+  character_id: z.uuid().nullable(),
 });
 const guildRaidAssignmentSchema = z.object({
   id: z.uuid(),
@@ -239,6 +247,68 @@ export type GuildRaidOperationMember = z.infer<typeof guildRaidOperationMemberSc
 export type GuildRaidAssignment = z.infer<typeof guildRaidAssignmentSchema>;
 export type GuildRaidAttendance = z.infer<typeof guildRaidAttendanceSchema>;
 
+const guildRaidEncounterSchema = z.object({
+  id: z.uuid(),
+  operation_id: z.uuid(),
+  title: z.string(),
+  encounter_order: z.number().int(),
+  strategy: z.string(),
+  visibility: z.literal('leadership'),
+  created_by: z.uuid(),
+  updated_by: z.uuid(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+const guildRaidEncounterDirectiveSchema = z.object({
+  id: z.uuid(),
+  encounter_id: z.uuid(),
+  directive_type: z.enum(['assignment', 'interrupt', 'cooldown', 'marker', 'note']),
+  title: z.string(),
+  details: z.string(),
+  assigned_guild_member_id: z.uuid().nullable(),
+  directive_order: z.number().int(),
+  visibility: z.literal('leadership'),
+  created_by: z.uuid(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export type GuildRaidEncounter = z.infer<typeof guildRaidEncounterSchema>;
+export type GuildRaidEncounterDirective = z.infer<typeof guildRaidEncounterDirectiveSchema>;
+const guildRaidLootDropSchema = z.object({
+  id: z.uuid(),
+  operation_id: z.uuid(),
+  item_name: z.string(),
+  item_level: z.number().int().nullable(),
+  equipment_slot: z.string(),
+  source_note: z.string(),
+});
+const guildRaidLootCandidateSchema = z.object({
+  id: z.uuid(),
+  loot_drop_id: z.uuid(),
+  guild_member_id: z.uuid(),
+  interest: z.enum(['need', 'offspec', 'pass']),
+  factual_context: z.string(),
+});
+const guildRaidLootVoteSchema = z.object({
+  id: z.uuid(),
+  loot_drop_id: z.uuid(),
+  candidate_id: z.uuid(),
+  voter_id: z.uuid(),
+  rationale: z.string(),
+});
+const guildRaidLootAwardSchema = z.object({
+  id: z.uuid(),
+  loot_drop_id: z.uuid(),
+  candidate_id: z.uuid(),
+  reason: z.string(),
+  awarded_by: z.uuid(),
+  awarded_at: z.string(),
+});
+export type GuildRaidLootDrop = z.infer<typeof guildRaidLootDropSchema>;
+export type GuildRaidLootCandidate = z.infer<typeof guildRaidLootCandidateSchema>;
+export type GuildRaidLootVote = z.infer<typeof guildRaidLootVoteSchema>;
+export type GuildRaidLootAward = z.infer<typeof guildRaidLootAwardSchema>;
+
 export async function loadGuildRaidOperations(guildId: string) {
   const { supabase } = await getViewer();
   const { data, error } = await supabase.rpc('list_guild_raid_operations', { p_guild_id: guildId });
@@ -250,7 +320,7 @@ export async function loadGuildRaidOperations(guildId: string) {
   const [members, assignments, attendance] = await Promise.all([
     supabase
       .from('guild_raid_operation_members')
-      .select('id, operation_id, guild_member_id, planning_status, raid_role')
+      .select('id, operation_id, guild_member_id, planning_status, raid_role, character_id')
       .in('operation_id', ids),
     supabase
       .from('guild_raid_assignments')
@@ -276,5 +346,78 @@ export async function loadGuildRaidOperations(guildId: string) {
         members: parsedMembers.data,
         assignments: parsedAssignments.data,
         attendance: parsedAttendance.data,
+      };
+}
+
+export async function loadGuildRaidEncounters(operationId: string) {
+  const { supabase } = await getViewer();
+  const encounters = await supabase
+    .from('guild_raid_encounters')
+    .select(
+      'id, operation_id, title, encounter_order, strategy, visibility, created_by, updated_by, created_at, updated_at',
+    )
+    .eq('operation_id', operationId)
+    .order('encounter_order')
+    .order('created_at');
+  const parsedEncounters = z.array(guildRaidEncounterSchema).safeParse(encounters.data);
+  if (encounters.error || !parsedEncounters.success) return null;
+  const encounterIds = parsedEncounters.data.map((encounter) => encounter.id);
+  if (!encounterIds.length) return { encounters: parsedEncounters.data, directives: [] };
+  const directives = await supabase
+    .from('guild_raid_encounter_directives')
+    .select(
+      'id, encounter_id, directive_type, title, details, assigned_guild_member_id, directive_order, visibility, created_by, created_at, updated_at',
+    )
+    .in('encounter_id', encounterIds)
+    .order('directive_order')
+    .order('created_at');
+  const parsedDirectives = z.array(guildRaidEncounterDirectiveSchema).safeParse(directives.data);
+  if (directives.error || !parsedDirectives.success) return null;
+  return {
+    encounters: parsedEncounters.data,
+    directives: parsedDirectives.data,
+  };
+}
+
+export async function loadGuildRaidLoot(operationId: string) {
+  const { supabase } = await getViewer();
+  const drops = await supabase
+    .from('guild_raid_loot_drops')
+    .select('id, operation_id, item_name, item_level, equipment_slot, source_note')
+    .eq('operation_id', operationId)
+    .order('created_at');
+  const parsedDrops = z.array(guildRaidLootDropSchema).safeParse(drops.data);
+  if (drops.error || !parsedDrops.success) return null;
+  const ids = parsedDrops.data.map((drop) => drop.id);
+  if (!ids.length) return { drops: parsedDrops.data, candidates: [], votes: [], awards: [] };
+  const [candidates, votes, awards] = await Promise.all([
+    supabase
+      .from('guild_raid_loot_candidates')
+      .select('id, loot_drop_id, guild_member_id, interest, factual_context')
+      .in('loot_drop_id', ids),
+    supabase
+      .from('guild_raid_loot_votes')
+      .select('id, loot_drop_id, candidate_id, voter_id, rationale')
+      .in('loot_drop_id', ids),
+    supabase
+      .from('guild_raid_loot_awards')
+      .select('id, loot_drop_id, candidate_id, reason, awarded_by, awarded_at')
+      .in('loot_drop_id', ids),
+  ]);
+  const parsedCandidates = z.array(guildRaidLootCandidateSchema).safeParse(candidates.data),
+    parsedVotes = z.array(guildRaidLootVoteSchema).safeParse(votes.data),
+    parsedAwards = z.array(guildRaidLootAwardSchema).safeParse(awards.data);
+  return candidates.error ||
+    votes.error ||
+    awards.error ||
+    !parsedCandidates.success ||
+    !parsedVotes.success ||
+    !parsedAwards.success
+    ? null
+    : {
+        drops: parsedDrops.data,
+        candidates: parsedCandidates.data,
+        votes: parsedVotes.data,
+        awards: parsedAwards.data,
       };
 }

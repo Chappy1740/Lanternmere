@@ -121,3 +121,26 @@ assert.match(
   /revoke all on function public\.record_guild_roster_refresh_failure/,
 );
 console.log('Guild roster refresh-failure checks passed.');
+
+const raidRoomSql = fs.readFileSync(
+  'supabase/migrations/20260923102516_raid_room_encounters.sql',
+  'utf8',
+);
+for (const table of ['guild_raid_encounters', 'guild_raid_encounter_directives']) {
+  assert.match(raidRoomSql, new RegExp(`create table public\\.${table}`));
+  assert.match(raidRoomSql, new RegExp(`alter table public\\.${table} enable row level security`));
+}
+assert.match(raidRoomSql, /references public\.guild_raid_operations\(id\)/);
+assert.match(raidRoomSql, /visibility in \('leadership'\)/);
+assert.match(
+  raidRoomSql,
+  /directive_type in \('assignment', 'interrupt', 'cooldown', 'marker', 'note'\)/,
+);
+assert.match(raidRoomSql, /private\.can_lead_guild\(v_guild_id\)/);
+assert.match(raidRoomSql, /guild\.raid_encounter_created/);
+assert.match(raidRoomSql, /guild\.raid_encounter_directive_created/);
+assert.match(
+  raidRoomSql,
+  /revoke all on public\.guild_raid_encounters, public\.guild_raid_encounter_directives from anon, authenticated/,
+);
+console.log('Guild Raid Room checks passed.');

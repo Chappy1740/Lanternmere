@@ -47,6 +47,8 @@ export async function updateGuildIdentity(_: GuildIdentityState, formData: FormD
   return { error: null, success: 'Guild identity updated.' };
 }
 export type GuildRaidOperationState = { error: string | null; success: string | null };
+export type GuildRaidEncounterState = { error: string | null; success: string | null };
+export type GuildRaidLootState = { error: string | null; success: string | null };
 
 const guildRaidOperationInput = z.object({ guildId: z.uuid(), eventId: z.uuid() });
 export async function createGuildRaidOperation(_: GuildRaidOperationState, formData: FormData) {
@@ -114,6 +116,34 @@ export async function saveGuildRaidOperationMember(_: GuildRaidOperationState, f
   revalidatePath('/guild-hall');
   return { error: null, success: 'Raid roster saved.' };
 }
+const guildRaidMemberCharacterInput = z.object({
+  operationId: z.uuid(),
+  memberId: z.uuid(),
+  characterId: z.uuid(),
+});
+export async function saveGuildRaidOperationMemberCharacter(
+  _: GuildRaidOperationState,
+  formData: FormData,
+) {
+  const parsed = guildRaidMemberCharacterInput.safeParse({
+    operationId: formData.get('operationId'),
+    memberId: formData.get('memberId'),
+    characterId: formData.get('characterId'),
+  });
+  if (!parsed.success) return { error: 'Choose a consented Traveler.', success: null };
+  const { error } = await (
+    await createClient()
+  ).rpc('set_guild_raid_operation_member_character', {
+    p_operation_id: parsed.data.operationId,
+    p_guild_member_id: parsed.data.memberId,
+    p_character_id: parsed.data.characterId,
+  });
+  if (error)
+    return { error: 'That Traveler is not available for this Guild member.', success: null };
+  revalidatePath('/guild-hall');
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Raid context selected.' };
+}
 
 const guildRaidAssignmentInput = z.object({
   operationId: z.uuid(),
@@ -167,6 +197,198 @@ export async function saveGuildRaidAttendance(_: GuildRaidOperationState, formDa
   if (error) return { error: 'Attendance could not be saved.', success: null };
   revalidatePath('/guild-hall');
   return { error: null, success: 'Attendance recorded.' };
+}
+
+const guildRaidEncounterInput = z.object({
+  operationId: z.uuid(),
+  title: z.string().trim().min(1).max(160),
+  encounterOrder: z.coerce.number().int().min(0).max(1000),
+  strategy: z.string().max(6000),
+});
+export async function createGuildRaidEncounter(_: GuildRaidEncounterState, formData: FormData) {
+  const parsed = guildRaidEncounterInput.safeParse({
+    operationId: formData.get('operationId'),
+    title: formData.get('title'),
+    encounterOrder: formData.get('encounterOrder') ?? 0,
+    strategy: formData.get('strategy') ?? '',
+  });
+  if (!parsed.success)
+    return {
+      error: 'Enter an encounter title, order, and strategy within the limits.',
+      success: null,
+    };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('create_guild_raid_encounter', {
+    p_operation_id: parsed.data.operationId,
+    p_title: parsed.data.title,
+    p_encounter_order: parsed.data.encounterOrder,
+    p_strategy: parsed.data.strategy,
+  });
+  if (error) return { error: 'Encounter workspace could not be created.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Encounter workspace created.' };
+}
+
+const guildRaidEncounterStrategyInput = z.object({
+  encounterId: z.uuid(),
+  strategy: z.string().max(6000),
+});
+export async function saveGuildRaidEncounterStrategy(
+  _: GuildRaidEncounterState,
+  formData: FormData,
+) {
+  const parsed = guildRaidEncounterStrategyInput.safeParse({
+    encounterId: formData.get('encounterId'),
+    strategy: formData.get('strategy'),
+  });
+  if (!parsed.success)
+    return { error: 'Strategy must be 6,000 characters or fewer.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('set_guild_raid_encounter_strategy', {
+    p_encounter_id: parsed.data.encounterId,
+    p_strategy: parsed.data.strategy,
+  });
+  if (error) return { error: 'Encounter strategy could not be saved.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Encounter strategy saved.' };
+}
+
+const guildRaidEncounterDirectiveInput = z.object({
+  encounterId: z.uuid(),
+  type: z.enum(['assignment', 'interrupt', 'cooldown', 'marker', 'note']),
+  title: z.string().trim().min(1).max(160),
+  details: z.string().max(2000),
+  memberId: z.uuid().or(z.literal('')),
+  directiveOrder: z.coerce.number().int().min(0).max(1000),
+});
+export async function createGuildRaidEncounterDirective(
+  _: GuildRaidEncounterState,
+  formData: FormData,
+) {
+  const parsed = guildRaidEncounterDirectiveInput.safeParse({
+    encounterId: formData.get('encounterId'),
+    type: formData.get('type'),
+    title: formData.get('title'),
+    details: formData.get('details') ?? '',
+    memberId: formData.get('memberId') ?? '',
+    directiveOrder: formData.get('directiveOrder') ?? 0,
+  });
+  if (!parsed.success) return { error: 'Enter a valid encounter callout.', success: null };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('create_guild_raid_encounter_directive', {
+    p_encounter_id: parsed.data.encounterId,
+    p_directive_type: parsed.data.type,
+    p_title: parsed.data.title,
+    p_details: parsed.data.details,
+    p_assigned_guild_member_id: parsed.data.memberId || null,
+    p_directive_order: parsed.data.directiveOrder,
+  });
+  if (error) return { error: 'Encounter callout could not be saved.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Encounter callout added.' };
+}
+
+const lootDropInput = z.object({
+  operationId: z.uuid(),
+  itemName: z.string().trim().min(1).max(160),
+  itemLevel: z.coerce.number().int().min(1).max(1000).or(z.literal('')),
+  slot: z.string().max(80),
+  sourceNote: z.string().max(1000),
+});
+export async function createGuildRaidLootDrop(_: GuildRaidLootState, formData: FormData) {
+  const parsed = lootDropInput.safeParse({
+    operationId: formData.get('operationId'),
+    itemName: formData.get('itemName'),
+    itemLevel: formData.get('itemLevel') ?? '',
+    slot: formData.get('slot') ?? '',
+    sourceNote: formData.get('sourceNote') ?? '',
+  });
+  if (!parsed.success) return { error: 'Enter a valid loot drop.', success: null };
+  const { error } = await (
+    await createClient()
+  ).rpc('create_guild_raid_loot_drop', {
+    p_operation_id: parsed.data.operationId,
+    p_item_name: parsed.data.itemName,
+    p_item_level: parsed.data.itemLevel === '' ? null : parsed.data.itemLevel,
+    p_equipment_slot: parsed.data.slot,
+    p_source_note: parsed.data.sourceNote,
+  });
+  if (error) return { error: 'Loot drop could not be recorded.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Loot drop recorded.' };
+}
+const lootCandidateInput = z.object({
+  dropId: z.uuid(),
+  memberId: z.uuid(),
+  interest: z.enum(['need', 'offspec', 'pass']),
+  context: z.string().max(1000),
+});
+export async function saveGuildRaidLootCandidate(_: GuildRaidLootState, formData: FormData) {
+  const parsed = lootCandidateInput.safeParse({
+    dropId: formData.get('dropId'),
+    memberId: formData.get('memberId'),
+    interest: formData.get('interest'),
+    context: formData.get('context') ?? '',
+  });
+  if (!parsed.success) return { error: 'Enter a valid candidate and interest.', success: null };
+  const { error } = await (
+    await createClient()
+  ).rpc('set_guild_raid_loot_candidate', {
+    p_loot_drop_id: parsed.data.dropId,
+    p_guild_member_id: parsed.data.memberId,
+    p_interest: parsed.data.interest,
+    p_factual_context: parsed.data.context,
+  });
+  if (error) return { error: 'Candidate could not be saved.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Candidate saved.' };
+}
+const lootVoteInput = z.object({
+  dropId: z.uuid(),
+  candidateId: z.uuid(),
+  rationale: z.string().max(1000),
+});
+export async function castGuildRaidLootVote(_: GuildRaidLootState, formData: FormData) {
+  const parsed = lootVoteInput.safeParse({
+    dropId: formData.get('dropId'),
+    candidateId: formData.get('candidateId'),
+    rationale: formData.get('rationale') ?? '',
+  });
+  if (!parsed.success) return { error: 'Choose a valid candidate.', success: null };
+  const { error } = await (
+    await createClient()
+  ).rpc('cast_guild_raid_loot_vote', {
+    p_loot_drop_id: parsed.data.dropId,
+    p_candidate_id: parsed.data.candidateId,
+    p_rationale: parsed.data.rationale,
+  });
+  if (error) return { error: 'Vote could not be saved.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Vote saved.' };
+}
+const lootAwardInput = z.object({
+  dropId: z.uuid(),
+  candidateId: z.uuid(),
+  reason: z.string().trim().min(1).max(1000),
+});
+export async function awardGuildRaidLoot(_: GuildRaidLootState, formData: FormData) {
+  const parsed = lootAwardInput.safeParse({
+    dropId: formData.get('dropId'),
+    candidateId: formData.get('candidateId'),
+    reason: formData.get('reason'),
+  });
+  if (!parsed.success)
+    return { error: 'Choose a candidate and provide an award reason.', success: null };
+  const { error } = await (
+    await createClient()
+  ).rpc('award_guild_raid_loot', {
+    p_loot_drop_id: parsed.data.dropId,
+    p_candidate_id: parsed.data.candidateId,
+    p_reason: parsed.data.reason,
+  });
+  if (error) return { error: 'Award could not be recorded.', success: null };
+  revalidatePath('/guild-hall/raid-room');
+  return { error: null, success: 'Award recorded.' };
 }
 
 export async function updateGuildCharacterSharing(

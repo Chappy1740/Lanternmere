@@ -240,7 +240,12 @@ export default async function GuildHallPage({
             }))}
           />
           {raidOperations ? (
-            <GuildRaidOperations {...raidOperations} guildMembers={guildMembers} />
+            <GuildRaidOperations
+              guildId={selected.guild_id}
+              {...raidOperations}
+              guildMembers={guildMembers}
+              readiness={readiness}
+            />
           ) : (
             <p role="alert" className="text-text-muted mt-4 text-sm">
               Raid operations could not be loaded.
