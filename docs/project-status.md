@@ -338,3 +338,7 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Attendance is operational context only and does not read, overwrite, or synchronize Quest Board RSVPs. The mutation verifies Guild leadership and same-Guild membership in a server-checked RPC, preserves RLS read boundaries, and appends a Guild audit record.
 - Current-session checks passed: focused Prettier, `npx tsc --noEmit`, `npm run lint`, `node tests/milestone-7/check-guild-foundation.cjs`, `git diff --check`, migration dry run/application, linked migration-history verification, and the Supabase security advisor. The advisor reports the intentional authenticated, checked attendance RPC alongside the existing expected checked RPC warnings and leaked-password-protection warning.
 - Browser limitation: the local Guild Hall returned HTTP 200, but the in-app browser CDP bridge timed out while navigating/focusing the visible localhost tab; Chrome is unavailable on this host. No authenticated browser interaction or live attendance record was created.
+
+## Milestone boundary decision — September 23, 2026
+
+- The user moved Loot Council workflow, loot awards, and award history to Milestone 8. Milestone 7 retains Guild foundation, permissions, consented readiness, canonical-event operations, attendance, and Guild settings; its specification and roadmap now reflect that boundary.

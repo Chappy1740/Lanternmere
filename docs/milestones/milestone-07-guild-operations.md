@@ -22,7 +22,7 @@ Guild rules remain configurable. Leadership decisions remain human decisions.
 
 - Dedicated guild workspace and dashboard.
 - Guild identity, progression summary, upcoming raid or event context, readiness indicators, and operational alerts.
-- Fast paths into roster, raids, readiness, attendance, loot council, and guild settings.
+- Fast paths into roster, raids, readiness, attendance, and guild settings.
 
 ### Guild membership and roster
 
@@ -73,30 +73,9 @@ Readiness is information for planning, not an automated judgment about whether a
 - Preserve auditability of leadership edits.
 - Design reporting so context remains visible and leadership retains discretion.
 
-### Loot Council
+### Loot Council and award history
 
-Create a guild-configurable loot workflow that can surface relevant facts such as:
-
-- dropped item;
-- interested / eligible players;
-- current equipped item;
-- item-level difference;
-- main-spec / off-spec intent;
-- tier impact;
-- recent loot history;
-- player-entered notes;
-- supported external report links;
-- council votes.
-
-Lanternmere must not automatically decide who deserves an item.
-
-Guilds may configure their own loot philosophy, including concepts such as main spec, off spec, BIS priority, upgrade size, trial/member status, attendance context, tier priority, recent loot, or council voting.
-
-### Loot history
-
-- Persist awarded item, recipient, raid/event context, award time, council decision metadata, and optional notes.
-- Make history searchable and useful for future council context.
-- Preserve an audit trail appropriate to guild operations.
+Loot Council workflow, awards, and award history are Milestone 8 work. They must remain human-controlled, auditable, and tied to the Guild and canonical event foundations established here; Lanternmere must never automatically choose a recipient.
 
 ### Guild settings
 
@@ -175,10 +154,8 @@ The first Milestone 7 release should establish:
 5. Raid planning foundation.
 6. Raid readiness foundation.
 7. Attendance foundation.
-8. Loot Council foundation.
-9. Loot award history.
-10. Guild settings and permissions.
-11. Cached external-data model suitable for later integrations.
+8. Guild settings and permissions.
+9. Cached external-data model suitable for later integrations.
 
 Advanced analytics, profession services, deeper Warcraft Logs views, richer Raidbots workflows, and extended reporting may follow after this foundation is stable.
 

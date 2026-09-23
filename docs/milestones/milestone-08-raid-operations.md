@@ -21,6 +21,6 @@ Turn a Guild's scheduled raid into a focused operational workspace for raid lead
 ## Guardrails
 
 - Lanternmere provides decision support; it does not automatically choose a raid roster or loot recipient.
-- Reuse Milestone 7 guild membership, permissions, attendance, and loot foundations.
+- Reuse Milestone 7 guild membership, permissions, and attendance foundations.
 - Do not duplicate Quest Board events or RSVP records.
 - Encounter and assignment data must have explicit authorship, visibility, and audit behavior.

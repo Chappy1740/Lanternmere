@@ -7,7 +7,7 @@
 
 ## Guild Operations era
 
-- Milestone 7 — The Guild Hall: Guild Operations — first-class guild foundation, membership, permissions, roster, raid/readiness foundations, attendance, loot history, settings, and multi-guild architecture.
+- Milestone 7 — The Guild Hall: Guild Operations — first-class guild foundation, membership, permissions, roster, raid/readiness foundations, attendance, settings, and multi-guild architecture.
 - Milestone 8 — The Raid Room: Raid Operations — Raid Mode, smart roster support, encounters, assignments, attendance, and operational Loot Council.
 - Milestone 9 — The War Table: Weekly Command Center — personalized weekly priorities, leadership briefing, availability, reset awareness, and guild calendar.
 - Milestone 10 — The Muster: Recruitment & Trials — recruitment needs, applicants, trials, officer workflow, and decision history.
