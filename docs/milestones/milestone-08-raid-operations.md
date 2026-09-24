@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned.
+Complete — September 23, 2026.
 
 ## Purpose
 

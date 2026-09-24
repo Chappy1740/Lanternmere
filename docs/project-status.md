@@ -35,6 +35,7 @@ These are historical baseline observations. Check Git for current branch and wor
 | 5         | Hall of Legends and Chronicles complete, including private Chronicle media.                                                              | Milestones 0–5 integration review and Milestone 5 checkpoints below.                                                  |
 | 6         | Adventures complete: canonical planning, preparation notes, campaigns, and consented external progress context.                          | [Milestone 6 specification](milestones/milestone-06-adventures.md) and final checkpoint below.                        |
 | 7         | Complete: Guild foundation, consented readiness, canonical-event operations, attendance, settings, and cache-state handling are applied. | Guild checkpoints below; Loot Council and awards move to Milestone 8.                                                 |
+| 8         | Complete: Raid Mode, human-directed roster support, encounter workspaces, and Loot Council operations are applied.                        | [Milestone 8 specification](milestones/milestone-08-raid-operations.md), migration history, and checkpoint below.    |
 
 ## Guild foundation checkpoint — September 21, 2026
 
@@ -372,7 +373,9 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Added a leadership-only `/guild-hall/raid-room` route for an authorized Guild raid operation. It reuses the canonical-event operation projection, selected/bench planning, and Guild-owned attendance without reading, duplicating, or synchronizing Quest Board RSVPs.
 - Applied `20260923102516_raid_room_encounters.sql`, `20260923110249_raid_room_loot_council.sql`, and `20260923130823_raid_room_member_character_context.sql` to the linked Lanternmere database after dry runs. Encounter workspaces, Loot Council drops/candidates/votes/human awards, and consented selected-Traveler context are normalized, audited, RLS-protected, and server-authorized.
 - Raid Mode now has operational selected/bench and attendance summaries, Tank/Healer/DPS balance, selected consented Traveler class/spec context, and clearly labeled potential class-based melee/ranged and utility coverage. It never auto-selects a roster or awards loot, and does not read or alter Quest Board RSVPs.
-- Current-session checks: focused Prettier, TypeScript, ESLint, Milestone 7/8 static regression checks, and `git diff --check` passed. The Supabase security advisor reports the intended authenticated, checked `SECURITY DEFINER` Raid Room RPCs with the existing Guild/Lodge RPC warnings and pre-existing leaked-password-protection warning; no separate new RLS warning was reported. Authenticated browser verification remains pending.
+- Current-session checks: focused Prettier, TypeScript, ESLint, Milestone 7/8 static regression checks, and `git diff --check` passed. The Supabase security advisor reports the intended authenticated, checked `SECURITY DEFINER` Raid Room RPCs with the existing Guild/Lodge RPC warnings and pre-existing leaked-password-protection warning; no separate new RLS warning was reported. Supabase Auth health returned its expected unauthenticated `401`; a real desktop sign-in redirected to `/hearth`, and the authenticated Guild Hall route loaded successfully. Multi-account authorization and populated Raid Room operation coverage remain unverified.
+
+- Milestone 8 is complete. It preserves canonical Quest Board event/RSVP ownership, consent-aware Traveler context, leadership-controlled roster and loot decisions, audited server-side authorization, and RLS boundaries.
 
 ## Local sign-in availability clarification — September 23, 2026
 
