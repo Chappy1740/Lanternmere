@@ -31,7 +31,7 @@ export default async function WarTablePage({
   const leadershipGuilds = guildMemberships.filter((membership) =>
     isGuildLeadership(membership.guild_member_roles.map(({ role }) => role)),
   );
-  const [board, mainCharacter, guildOperations, availabilityResult] = await Promise.all([
+  const [board, mainCharacter, guildOperations, availabilityResult, leadershipAvailabilityResult] = await Promise.all([
     loadQuestBoard(supabase, selected.lodge_id, today),
     loadMainCharacter(supabase, user.id),
     Promise.all(
@@ -47,6 +47,16 @@ export default async function WarTablePage({
       .gte('ends_on', today)
       .order('starts_on')
       .order('id'),
+    leadershipGuilds.length
+      ? supabase
+          .from('guild_member_availability')
+          .select('id, guild_id, profile_id, starts_on, ends_on, availability_status, note, profiles(display_name)')
+          .in('guild_id', leadershipGuilds.map((membership) => membership.guild_id))
+          .gte('ends_on', today)
+          .neq('availability_status', 'available')
+          .order('starts_on')
+          .limit(20)
+      : Promise.resolve({ data: [], error: null }),
   ]);
   const weekEnd = weekEndDate();
   const upcoming = (board.upcoming ?? []).filter((event) => event.event_date <= weekEnd);
@@ -59,6 +69,7 @@ export default async function WarTablePage({
       .map((operation) => ({ ...operation, guildId: guild.id, guildName: guild.name })),
   );
   const availability = availabilityResult.error ? null : availabilityResult.data;
+  const leadershipAvailability = leadershipAvailabilityResult.error ? null : leadershipAvailabilityResult.data;
 
   return (
     <div className="mx-auto max-w-5xl space-y-7">
@@ -184,6 +195,8 @@ export default async function WarTablePage({
               ))}
             </ul>
           )}
+          <h3 className="font-display text-text-primary mt-7 text-lg font-bold">Upcoming availability signals</h3>
+          {leadershipAvailability === null ? <p role="alert" className="text-text-muted mt-3 text-sm">Availability signals could not be loaded.</p> : leadershipAvailability.length === 0 ? <p className="text-text-muted mt-3 text-sm">No upcoming tentative or unavailable periods recorded.</p> : <ul className="mt-3 grid gap-2">{leadershipAvailability.map((period) => <li key={period.id} className="lodge-list-row p-3 text-sm"><span className="text-text-primary font-medium">{period.profiles?.[0]?.display_name ?? 'Guild member'}</span> · {period.availability_status} · {period.starts_on} to {period.ends_on}</li>)}</ul>}
         </section>
       )}
     </div>
