@@ -382,6 +382,7 @@ After a milestone, record the delivered scope, verification actually performed, 
 - Started the weekly-view slice: `/war-table` presents the next seven days of canonical Lodge events, authorized leadership Guild raid operations, and links back to their owner workflows. It does not copy Quest Board events or RSVPs.
 - Weekly reset presentation derives only from the verified Main WoW character's game region: `us` maps to the North America schedule and `eu` maps to the Europe schedule. Unsupported or missing regions remain explicitly unavailable rather than guessing from browser locale.
 - Availability/absence records, Vault context, calendar publication/subscription, and expanded leadership follow-ups remain later Milestone 9 slices.
+- Applied `20260924041750_guild_member_availability.sql` after a linked-project dry run. It provides self-recorded, date-bounded availability periods for Guild members; only the recording member and Guild leadership can read them, and creation is authenticated, server-checked, and audited. No availability record was created during the migration.
 
 ## Local sign-in availability clarification — September 23, 2026
 
