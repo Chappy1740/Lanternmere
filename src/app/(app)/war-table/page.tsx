@@ -31,7 +31,7 @@ export default async function WarTablePage({
   const leadershipGuilds = guildMemberships.filter((membership) =>
     isGuildLeadership(membership.guild_member_roles.map(({ role }) => role)),
   );
-  const [board, mainCharacter, guildOperations] = await Promise.all([
+  const [board, mainCharacter, guildOperations, availabilityResult] = await Promise.all([
     loadQuestBoard(supabase, selected.lodge_id, today),
     loadMainCharacter(supabase, user.id),
     Promise.all(
@@ -40,6 +40,13 @@ export default async function WarTablePage({
         operations: await loadGuildRaidOperations(membership.guild_id),
       })),
     ),
+    supabase
+      .from('guild_member_availability')
+      .select('id, guild_id, starts_on, ends_on, availability_status, note')
+      .eq('profile_id', user.id)
+      .gte('ends_on', today)
+      .order('starts_on')
+      .order('id'),
   ]);
   const weekEnd = weekEndDate();
   const upcoming = (board.upcoming ?? []).filter((event) => event.event_date <= weekEnd);
@@ -51,6 +58,7 @@ export default async function WarTablePage({
       .filter((operation) => operation.event_date >= today && operation.event_date <= weekEnd)
       .map((operation) => ({ ...operation, guildId: guild.id, guildName: guild.name })),
   );
+  const availability = availabilityResult.error ? null : availabilityResult.data;
 
   return (
     <div className="mx-auto max-w-5xl space-y-7">
@@ -108,6 +116,18 @@ export default async function WarTablePage({
             <button className="lodge-button px-4 py-2 font-medium">Save period</button>
             <input name="note" maxLength={500} placeholder="Optional note" className="lodge-field px-3 py-2 sm:col-span-2 lg:col-span-5" />
           </form>
+          {availability === null ? (
+            <p role="alert" className="text-text-muted mt-5 text-sm">Your recorded availability could not be loaded.</p>
+          ) : availability.length === 0 ? (
+            <p className="text-text-muted mt-5 text-sm">No upcoming availability periods recorded.</p>
+          ) : (
+            <ul className="mt-5 grid gap-2" aria-label="Your recorded availability">
+              {availability.map((period) => {
+                const guild = guildMemberships.find((membership) => membership.guild_id === period.guild_id);
+                return <li key={period.id} className="lodge-list-row p-3 text-sm"><span className="text-text-primary font-medium">{period.availability_status}</span> · {period.starts_on} to {period.ends_on} · {guild?.guilds.name ?? 'Guild'}{period.note ? ` · ${period.note}` : ''}</li>;
+              })}
+            </ul>
+          )}
         </section>
       )}
 
