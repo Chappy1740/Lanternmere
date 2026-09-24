@@ -6,6 +6,7 @@ import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 import { loadMainCharacter } from '@/lib/hearth/main-character';
 import { eventDateTime, loadQuestBoard } from '@/lib/quest-board/events';
 import { weekEndDate, weeklyResetForRegion } from '@/lib/war-table';
+import { createAvailability } from './actions';
 
 export default async function WarTablePage({
   searchParams,
@@ -94,6 +95,21 @@ export default async function WarTablePage({
           </p>
         </article>
       </section>
+
+      {guildMemberships.length > 0 && (
+        <section className="lodge-panel p-6" aria-labelledby="availability-heading">
+          <h2 id="availability-heading" className="font-display text-text-primary text-2xl font-bold">Availability</h2>
+          <p className="text-text-muted mt-2 text-sm">Share a dated availability period with Guild leadership. This does not change any Quest Board RSVP.</p>
+          <form action={createAvailability} className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <select name="guildId" className="lodge-field px-3 py-2">{guildMemberships.map((membership) => <option key={membership.guild_id} value={membership.guild_id}>{membership.guilds.name}</option>)}</select>
+            <input name="startsOn" type="date" required className="lodge-field px-3 py-2" />
+            <input name="endsOn" type="date" required className="lodge-field px-3 py-2" />
+            <select name="status" defaultValue="unavailable" className="lodge-field px-3 py-2"><option value="available">Available</option><option value="tentative">Tentative</option><option value="unavailable">Unavailable</option></select>
+            <button className="lodge-button px-4 py-2 font-medium">Save period</button>
+            <input name="note" maxLength={500} placeholder="Optional note" className="lodge-field px-3 py-2 sm:col-span-2 lg:col-span-5" />
+          </form>
+        </section>
+      )}
 
       <section className="lodge-panel p-6" aria-labelledby="week-events-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
