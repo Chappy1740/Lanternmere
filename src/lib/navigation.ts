@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Home,
+  Compass,
   Users,
   Swords,
   CalendarDays,
@@ -21,6 +22,7 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { label: 'The Hearth', subtitle: 'Dashboard', href: '/hearth', icon: Home },
+  { label: 'War Table', subtitle: 'Weekly Command', href: '/war-table', icon: Compass },
   { label: 'Travelers', subtitle: 'Members', href: '/travelers', icon: Users },
   { label: 'Guild Hall', subtitle: 'Guild Operations', href: '/guild-hall', icon: Building2 },
   {

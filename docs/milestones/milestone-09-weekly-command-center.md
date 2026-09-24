@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned.
+In progress — first weekly-view slice underway September 23, 2026.
 
 ## Purpose
 

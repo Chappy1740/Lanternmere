@@ -377,6 +377,12 @@ After a milestone, record the delivered scope, verification actually performed, 
 
 - Milestone 8 is complete. It preserves canonical Quest Board event/RSVP ownership, consent-aware Traveler context, leadership-controlled roster and loot decisions, audited server-side authorization, and RLS boundaries.
 
+## Milestone 9 War Table — September 23, 2026
+
+- Started the weekly-view slice: `/war-table` presents the next seven days of canonical Lodge events, authorized leadership Guild raid operations, and links back to their owner workflows. It does not copy Quest Board events or RSVPs.
+- Weekly reset presentation derives only from the verified Main WoW character's game region: `us` maps to the North America schedule and `eu` maps to the Europe schedule. Unsupported or missing regions remain explicitly unavailable rather than guessing from browser locale.
+- Availability/absence records, Vault context, calendar publication/subscription, and expanded leadership follow-ups remain later Milestone 9 slices.
+
 ## Local sign-in availability clarification — September 23, 2026
 
 - The local application logged `AuthRetryableFetchError: fetch failed` when it could not reach Supabase, but the sign-in action incorrectly presented every auth error as invalid credentials. It now preserves the invalid-credentials message only for `invalid_credentials`; other auth failures display a safe temporary-availability message.
