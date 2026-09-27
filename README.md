@@ -8,6 +8,7 @@ Lanternmere is a World of Warcraft community app organized around Lodges and Tra
 - [Current status and milestone handoff](docs/project-status.md)
 - [Architecture and security boundaries](docs/architecture.md)
 - [Development and verification](docs/development.md)
+- [Cloudflare Workers preview hosting](docs/cloudflare-hosting.md)
 - [Agent instructions](AGENTS.md)
 
 Milestones 0–6 are implemented. Milestone 6, **Adventures**, delivers Lodge-scoped planning on canonical Quest Board events, recurring plans, campaigns, preparation notes, and opt-in Raider.IO and Raidbots progress context. Milestone 7, **The Guild Hall: Guild Operations**, is next. Warcraft Logs integration is deferred to Milestone 13, **The Chronicle Lens: Progression Intelligence**, where it can use a supported OAuth/client-credential path. See the [product roadmap](docs/milestones/ROADMAP.md), [Milestone 6 specification](docs/milestones/milestone-06-adventures.md), [Milestone 7 specification](docs/milestones/milestone-07-guild-operations.md), and status document for verification evidence and remaining coverage limits.

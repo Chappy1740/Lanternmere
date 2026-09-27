@@ -1,5 +1,14 @@
 # Project status and handoff
 
+## Cloudflare Workers preview setup — September 27, 2026
+
+- Added a non-production vinext/Cloudflare Workers path alongside the unchanged Next.js development and production-build commands. The configuration adds `vite.config.ts`, `wrangler.jsonc`, explicit preview/build/start/deploy scripts, and ignored vinext, Wrangler, and `dist` output.
+- The preview deliberately enables no CDN cache, data cache, KV, R2, D1, Durable Objects, Workers AI, or Cloudflare Images. `nodejs_compat` is enabled for the Workers runtime. No Cloudflare account resource or deployment was created.
+- vinext initialization exposed an upstream dependency-resolution issue: the unversioned installer selected `react-server-dom-webpack` 19.3.0 against Lanternmere's React 19.2.8. The setup pins the React server package to compatible 19.2.8 and explicitly records the Vite/RSC/Cloudflare build dependencies required by the generated configuration.
+- Current-session verification passed: vinext Workers build, normal Next.js production build, ESLint, TypeScript, and diff-whitespace checks. A local Wrangler Worker returned HTTP 200 for `/` and `/sign-in`; unauthenticated `/hearth` and an empty `/auth/callback` returned the expected 307 redirects to sign-in. Authenticated flows and a real Cloudflare preview remain pending.
+- `npm audit --omit=dev` reports five moderate findings in vinext's transitive `@vercel/og`/Satori/fflate path. npm's suggested fix is an incompatible vinext downgrade, so no automated audit fix was applied. Review this again before production promotion.
+- See [Cloudflare Workers preview hosting](cloudflare-hosting.md) for commands, environment-variable boundaries, and the remaining production gate.
+
 ## Lodge management checkpoint — September 23, 2026
 
 - Added an owner-only “Edit this Lodge” link on the Hearth and an editable name/description form in the Caretaker's Office. It uses the existing owner-checked Lodge update policy; no migration is required.
