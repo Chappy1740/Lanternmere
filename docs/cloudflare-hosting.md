@@ -11,7 +11,7 @@ Lanternmere has a non-production vinext configuration for evaluating Cloudflare 
 - `npm run deploy:vinext` exists for a future approved deployment. Do not run it until the Cloudflare project, secrets, preview workflow, and target branch are approved.
 - The preview uses no CDN cache, data cache, KV, R2, D1, Durable Objects, Workers AI, or Cloudflare Images. Remote images pass through without Workers-side optimization.
 
-The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite integration is in `vite.config.ts`. Generated output and local Wrangler state are ignored by Git. A local build may create `dist/server/.dev.vars` from `.env.local`; it stays ignored and must never be committed.
+The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite integration is in `vite.config.ts`. `keep_vars` preserves runtime variables configured through the Cloudflare dashboard when Wrangler deploys a new version. Generated output and local Wrangler state are ignored by Git. A local build may create `dist/server/.dev.vars` from `.env.local`; it stays ignored and must never be committed.
 
 ## Required environment configuration
 
