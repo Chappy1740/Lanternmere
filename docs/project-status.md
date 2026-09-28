@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Milestones 0–7 audit readiness — September 28, 2026
+
+- Reconciled stale milestone summaries: Milestones 0–8 are recorded as implemented, while Milestone 9 remains in progress. The Milestone 1 invitation/role and Milestone 4 party-composition gaps were closed by later September 19 follow-ups; Milestone 5's old “not started” status was historical.
+- Corrected the Milestone 3 Hearth-context regression fixture to include the membership ID required by the current loader. This changes test data only; all 11 Hearth-context checks now pass.
+- Current-session local verification: all 14 `tests/milestone-*/check-*.cjs` scripts passed; `npm run lint` passed; `npm run build` passed with its TypeScript phase after a network-enabled retry fetched the existing Google Fonts; `npm run build:vinext` completed with a nonfatal Wrangler debug-log permission warning; and `git diff --check` passed. Targeted Prettier still reports formatting differences in five edited files, and each of those files also failed the same check at `HEAD` before these edits. No repository-wide formatting change was made.
+- This is local build and mocked-regression evidence, not a fresh live acceptance audit. The hosted Supabase Auth URL settings and a fresh confirmation-email check remain pending, as do the recorded live multi-account authorization and populated Raid Room checks. Cloudflare preview deployment and authenticated Worker flows remain unverified.
+
 ## Confirmation-email redirect fix — September 28, 2026
 
 - A recipient's confirmation link returned to `localhost:3000`, which is unreachable on their computer. The signup action had not supplied `emailRedirectTo`, so Supabase used its configured Site URL.

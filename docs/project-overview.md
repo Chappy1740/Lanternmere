@@ -18,9 +18,9 @@ Lanternmere uses a fantasy Lodge theme for a World of Warcraft community applica
 - WoW character lookup by region, realm, and name using official public profile data fetched on the server.
 - Character and snapshot persistence, refresh, Main selection, and selected-Lodge sharing.
 - Theme tokens and a shared sidebar/topbar shell.
-- The Hearth dashboard, Quest Board event/RSVP workflows, Hall of Legends, Chronicles, and the Adventures planning hub.
+- The Hearth dashboard, Quest Board event/RSVP workflows, Hall of Legends, Chronicles, the Adventures planning hub, Guild Hall operations, and Raid Room.
 
-Milestone 6, Adventures, is complete. It provides Lodge-scoped planning, recurring plans, campaigns, canonical Quest Board preparation notes, opt-in Raider.IO snapshots, and player-submitted Raidbots handoffs. Milestone 7, The Guild Hall: Guild Operations, is next; supported Warcraft Logs integration is deferred to Milestone 13, The Chronicle Lens: Progression Intelligence. Milestones 7–14 establish the planned Guild Operations era: Guild Hall foundation, Raid Room, weekly command center, recruitment/trials, professions/services, Mythic+ operations, progression intelligence, and the future Lanternkeeper assistant. The Supply Chest remains the home for deliberately verified external resources and specialist-site links. See `docs/milestones/ROADMAP.md`. Navigation labels do not establish implementation on their own.
+Milestones 0–8 are implemented. Milestone 6 provides Lodge-scoped planning, recurring plans, campaigns, canonical Quest Board preparation notes, opt-in Raider.IO snapshots, and player-submitted Raidbots handoffs. Milestone 7 delivers Guild Hall operations, and Milestone 8 delivers Raid Room operations. Milestone 9, the weekly command center, is in progress. Supported Warcraft Logs integration is deferred to Milestone 13, The Chronicle Lens: Progression Intelligence. Later milestones plan recruitment/trials, professions/services, Mythic+ operations, progression intelligence, and the Lanternkeeper assistant. The Supply Chest remains the home for deliberately verified external resources and specialist-site links. See `docs/milestones/ROADMAP.md`. Navigation labels do not establish implementation on their own.
 
 ## Boundaries of this documentation
 

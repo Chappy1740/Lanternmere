@@ -2,8 +2,8 @@
 
 ## Current
 
-- Milestones 0–7 — implemented.
-- Next planned milestone: Milestone 8 — The Raid Room: Raid Operations.
+- Milestones 0–8 — implemented.
+- Milestone 9 — The War Table: Weekly Command Center — is in progress; see `docs/project-status.md` for the delivered slice and remaining scope.
 
 ## Guild Operations era
 

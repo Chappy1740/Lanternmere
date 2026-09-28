@@ -85,4 +85,4 @@ Quest Board should feel like a Lodge quest board rather than a corporate calenda
 Milestone 4 owns event and attendance workflows; later milestones should reuse this canonical event data.
 
 ## Reconciliation note
-The original roadmap also calls for participant role and character selection plus a group-composition summary. The current implementation supports RSVP and optional character association, but explicit role selection and group-composition presentation have not been verified as complete. Keep them recorded as remaining original-scope gaps rather than changing event behavior in this documentation pass.
+Participant role and owned-character selection plus the confirmed-party composition summary were delivered in the September 19, 2026 follow-up recorded in `docs/project-status.md`. This specification's earlier gap was closed after the initial Quest Board implementation.

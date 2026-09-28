@@ -1,7 +1,7 @@
 # Milestone 5 — Hall of Legends and Chronicles
 
 ## Status
-Next / not started.
+Complete. See the September 19, 2026 Milestones 0–5 integration review in `docs/project-status.md` for delivered scope and verification limits.
 
 ## Purpose
 Preserve accomplishments, memorable moments, and the shared history of each Lodge.
