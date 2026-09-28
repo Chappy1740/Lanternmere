@@ -24,6 +24,15 @@ The local preview reads the existing private `.env.local`. A future Cloudflare p
 
 Never expose the Supabase service-role key or Blizzard credentials through a `NEXT_PUBLIC_` variable or commit them to Git.
 
+## Supabase Auth email redirects
+
+Before sending confirmation emails from the deployed Worker, set the linked Supabase project's **Authentication → URL Configuration → Site URL** to `https://lanternmere.lanternmere-wow.workers.dev`. Add these exact production URLs to **Redirect URLs**:
+
+- `https://lanternmere.lanternmere-wow.workers.dev/sign-in?confirmEmail=1` for signup confirmation.
+- `https://lanternmere.lanternmere-wow.workers.dev/auth/callback?next=/reset-password` for password recovery.
+
+Keep `http://localhost:3000/sign-in?confirmEmail=1` and `http://localhost:3000/auth/callback?next=/reset-password` allowed only when local email testing is needed. The signup action selects its current origin, but Supabase falls back to Site URL if that redirect is not allowed. After changing the hosted Auth settings, request a fresh confirmation email; old links may already be consumed or expired.
+
 ## Preview validation
 
 Run:

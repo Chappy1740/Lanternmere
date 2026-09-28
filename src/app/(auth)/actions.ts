@@ -66,11 +66,14 @@ export async function signUp(
   }
 
   const supabase = await createClient();
+  const origin = (await headers()).get('origin');
+  if (!origin) return { error: 'Sign-up is temporarily unavailable. Please try again.' };
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { display_name: displayName || undefined },
+      emailRedirectTo: `${origin}/sign-in?confirmEmail=1`,
     },
   });
 

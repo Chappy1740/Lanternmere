@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Confirmation-email redirect fix — September 28, 2026
+
+- A recipient's confirmation link returned to `localhost:3000`, which is unreachable on their computer. The signup action had not supplied `emailRedirectTo`, so Supabase used its configured Site URL.
+- The local signup action now sends users back to the signup request's origin at `/sign-in?confirmEmail=1`. This is a local code change; it is not deployed or confirmed against a live email.
+- The hosted Supabase Auth Site URL and exact redirect allow-list entries still need updating as described in [Cloudflare Workers preview hosting](cloudflare-hosting.md#supabase-auth-email-redirects). The dashboard required sign-in in this session, so those settings could not be inspected or changed. A fresh email and remote browser check remain pending.
+- Current-session verification: `git diff --check` passed. `npx tsc --noEmit` was blocked by existing generated `.next/types/validator.ts` imports missing from `.next/types/routes.js`; no clean TypeScript result is claimed.
+
 ## Cloudflare Workers preview setup — September 27, 2026
 
 - Added a non-production vinext/Cloudflare Workers path alongside the unchanged Next.js development and production-build commands. The configuration adds `vite.config.ts`, `wrangler.jsonc`, explicit preview/build/start/deploy scripts, and ignored vinext, Wrangler, and `dist` output.
