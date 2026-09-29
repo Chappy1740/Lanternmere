@@ -73,7 +73,7 @@ export async function signUp(
     password,
     options: {
       data: { display_name: displayName || undefined },
-      emailRedirectTo: `${origin}/sign-in?confirmEmail=1`,
+      emailRedirectTo: `${origin}/auth/callback?next=/hearth`,
     },
   });
 

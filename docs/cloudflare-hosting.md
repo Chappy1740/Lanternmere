@@ -28,10 +28,12 @@ Never expose the Supabase service-role key or Blizzard credentials through a `NE
 
 Before sending confirmation emails from the deployed Worker, set the linked Supabase project's **Authentication → URL Configuration → Site URL** to `https://lanternmere.lanternmere-wow.workers.dev`. Add these exact production URLs to **Redirect URLs**:
 
-- `https://lanternmere.lanternmere-wow.workers.dev/sign-in?confirmEmail=1` for signup confirmation.
+- `https://lanternmere.lanternmere-wow.workers.dev/auth/callback?next=/hearth` for signup confirmation and session exchange.
 - `https://lanternmere.lanternmere-wow.workers.dev/auth/callback?next=/reset-password` for password recovery.
 
-Keep `http://localhost:3000/sign-in?confirmEmail=1` and `http://localhost:3000/auth/callback?next=/reset-password` allowed only when local email testing is needed. The signup action selects its current origin, but Supabase falls back to Site URL if that redirect is not allowed. After changing the hosted Auth settings, request a fresh confirmation email; old links may already be consumed or expired.
+Keep `http://localhost:3000/auth/callback?next=/hearth` and `http://localhost:3000/auth/callback?next=/reset-password` allowed only when local email testing is needed. The signup action selects its current origin, but Supabase falls back to Site URL if that redirect is not allowed. The email template must use Supabase's confirmation URL (or otherwise honor `RedirectTo`) so the code reaches `/auth/callback`. The PKCE code verifier is stored in the browser that submitted signup, so complete confirmation in that same browser for this retest. After changing the hosted Auth settings and deploying the callback change, request a fresh confirmation email; old links may already be consumed or expired.
+
+For the deployed-origin retest, use an account you control without creating fixture data: submit signup only when an actual new account is intended, open its new confirmation link in the signup browser, confirm that `/auth/callback` exchanges the code and reaches `/hearth` (or Lodge onboarding), reload a protected route to check session persistence, then sign out and confirm the protected route returns to sign-in. Record browser results only after each step succeeds.
 
 ## Preview validation
 
