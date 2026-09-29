@@ -8,31 +8,67 @@ const roleSchema = z.enum(['guild_master', 'officer', 'raid_leader', 'loot_counc
 const membershipSchema = z.object({
   id: z.uuid(),
   guild_id: z.uuid(),
-  guild_member_roles: z.array(z.object({ role: roleSchema })),
+  guild_member_roles: z.array(z.object({ role: roleSchema, granted_at: z.string() })),
   guilds: z.object({
     id: z.uuid(),
     name: z.string(),
     description: z.string().nullable(),
     member_portal_enabled: z.boolean(),
+    created_by: z.uuid(),
   }),
 });
 
 export type GuildRole = z.infer<typeof roleSchema>;
-export type GuildMembership = z.infer<typeof membershipSchema>;
+export type GuildMembership = z.infer<typeof membershipSchema> & { verified: boolean };
 
 export const getGuildMemberships = cache(async () => {
   const { supabase, user } = await getViewer();
   const { data, error } = await supabase
     .from('guild_members')
     .select(
-      'id, guild_id, guilds!inner(id, name, description, member_portal_enabled), guild_member_roles(role)',
+      'id, guild_id, guilds!inner(id, name, description, member_portal_enabled, created_by), guild_member_roles(role, granted_at)',
     )
     .eq('profile_id', user.id)
     .order('joined_at', { ascending: true })
     .order('id', { ascending: true });
   const parsed = z.array(membershipSchema).safeParse(data);
   if (error || !parsed.success) throw new Error('Unable to verify Guild membership.');
-  return parsed.data;
+  if (!parsed.data.length) return [] as GuildMembership[];
+  const { data: claims, error: claimError } = await supabase
+    .from('guild_verified_claims')
+    .select('guild_id, profile_id, claimed_at, expires_at')
+    .in(
+      'guild_id',
+      parsed.data.map((membership) => membership.guild_id),
+    );
+  const verifiedClaims = z
+    .array(
+      z.object({
+        guild_id: z.uuid(),
+        profile_id: z.uuid(),
+        claimed_at: z.string(),
+        expires_at: z.string(),
+      }),
+    )
+    .safeParse(claims);
+  if (claimError || !verifiedClaims.success) throw new Error('Unable to verify Guild authority.');
+  const byGuild = new Map(verifiedClaims.data.map((claim) => [claim.guild_id, claim]));
+  const now = Date.now();
+  return parsed.data.map((membership) => {
+    const claim = byGuild.get(membership.guild_id);
+    const verified = !!claim && Date.parse(claim.expires_at) > now;
+    return {
+      ...membership,
+      verified,
+      guild_member_roles: verified
+        ? membership.guild_member_roles.filter(({ role, granted_at }) =>
+            role === 'guild_master'
+              ? claim.profile_id === user.id
+              : Date.parse(granted_at) >= Date.parse(claim.claimed_at),
+          )
+        : [],
+    };
+  });
 });
 
 export function isGuildLeadership(roles: GuildRole[]) {

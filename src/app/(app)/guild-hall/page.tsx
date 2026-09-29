@@ -49,8 +49,9 @@ export default async function GuildHallPage({
             Establish a Guild workspace
           </h1>
           <p className="text-text-muted mt-4 leading-7">
-            Guilds are independent of Lodges. Creating one makes you its Guild Master; character and
-            external-data sharing remain opt-in for every member.
+            Guilds are independent of Lodges. Creating a workspace does not make you its in-game
+            Guild Master. Leadership requires Battle.net character verification; character and
+            external-data sharing remain opt-in.
           </p>
           <GuildCreationForm />
         </section>
@@ -68,6 +69,8 @@ export default async function GuildHallPage({
   const roles = selected.guild_member_roles.map((entry) => entry.role as GuildRole);
   const leadership = isGuildLeadership(roles);
   const canManage = roles.includes('guild_master') || roles.includes('officer');
+  const pendingCreator =
+    !selected.verified && selected.guilds.created_by === (await getViewer()).user.id;
   const sort = params.sort === 'name' || params.sort === 'class' ? params.sort : 'rank';
   const [
     roster,
@@ -136,7 +139,38 @@ export default async function GuildHallPage({
           Your role{roles.length === 1 ? '' : 's'}:{' '}
           {roles.map(guildRoleLabel).join(' · ') || 'Member'}
         </p>
+        {!selected.verified && (
+          <p
+            role="status"
+            className="mt-4 rounded-lg border border-amber-400/40 p-4 text-sm text-amber-200"
+          >
+            In-game leadership is unverified. Guild and Raid Room leadership actions are locked;
+            this workspace and its existing records are preserved. The actual Guild Master must
+            connect Battle.net to claim rank 0.
+          </p>
+        )}
       </header>
+
+      {!selected.verified && pendingCreator && (
+        <section className="lodge-panel p-6 sm:p-8">
+          <p className="lodge-kicker">Verification setup</p>
+          <h2 className="font-display text-text-primary mt-2 text-xl font-bold">
+            Locate the official Guild roster
+          </h2>
+          <p className="text-text-muted mt-2 text-sm">
+            Importing a roster does not grant any role. After import, share this verification link
+            with the actual Guild Master; only a rank-0 character on their Battle.net account can
+            claim leadership.
+          </p>
+          <GuildRosterImportForm guildId={selected.guild_id} />
+          <a
+            href={`/api/guild-claim/start?guild=${selected.guild_id}`}
+            className="lodge-button-secondary mt-4 inline-block px-4 py-2 text-sm"
+          >
+            Verify Guild Master with Battle.net
+          </a>
+        </section>
+      )}
 
       {memberships.length > 1 && (
         <nav aria-label="Your Guilds" className="flex flex-wrap gap-3">

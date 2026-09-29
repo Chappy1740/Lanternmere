@@ -7,6 +7,7 @@ import { createInvitationToken, hashInvitationToken } from '@/lib/lodge-invitati
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { fetchGuildRoster } from '@/lib/wow/guild-roster';
+import { getGuildMemberships } from '@/lib/guilds';
 
 export type GuildCreationState = { error: string | null };
 export type GuildMemberPortalState = { error: string | null; success: string | null };
@@ -643,20 +644,37 @@ export async function importOfficialGuildRoster(
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return { error: 'Please sign in before importing a roster.', success: null };
-    const { data: membership } = await supabase
-      .from('guild_members')
-      .select('guild_member_roles(role)')
-      .eq('guild_id', parsed.data.guildId)
-      .eq('profile_id', user.id)
-      .maybeSingle();
-    const roles = z
-      .array(z.object({ role: z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council']) }))
-      .safeParse(membership?.guild_member_roles);
-    if (
-      !roles.success ||
-      !roles.data.some((r) => r.role === 'guild_master' || r.role === 'officer')
-    )
-      return { error: 'Only a Guild Master or Officer can import a roster.', success: null };
+    const membership = (await getGuildMemberships()).find(
+      (entry) => entry.guild_id === parsed.data.guildId,
+    );
+    if (!membership) return { error: 'Guild membership required.', success: null };
+    const canManage = membership.guild_member_roles.some(
+      (entry) => entry.role === 'guild_master' || entry.role === 'officer',
+    );
+    const pendingCreator = !membership.verified && membership.guilds.created_by === user.id;
+    if (!canManage && !pendingCreator)
+      return {
+        error: 'Only the pending workspace creator or verified leadership can import a roster.',
+        success: null,
+      };
+    if (membership.verified) {
+      const { data: claim, error: claimError } = await supabase
+        .from('guild_verified_claims')
+        .select('region, realm_slug, guild_name')
+        .eq('guild_id', parsed.data.guildId)
+        .single();
+      if (
+        claimError ||
+        !claim ||
+        claim.region !== parsed.data.region ||
+        claim.realm_slug.toLowerCase() !== parsed.data.realm.toLowerCase() ||
+        claim.guild_name.toLowerCase() !== parsed.data.guildName.toLowerCase()
+      )
+        return {
+          error: 'The verified Guild identity cannot be changed by a roster refresh.',
+          success: null,
+        };
+    }
     const result = await fetchGuildRoster(parsed.data);
     if (!result.ok) {
       const { data: recorded, error: failureError } = await supabase.rpc(

@@ -2,7 +2,9 @@
 
 ## Status
 
-Complete — September 23, 2026.
+Feature scope implemented — September 23, 2026. Security acceptance remains open until the
+Battle.net Guild Master claim flow is exercised with a real rank-0 account and a second member
+account. Unverified Guild leadership is locked as of September 28, 2026.
 
 ## Purpose
 

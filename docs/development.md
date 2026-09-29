@@ -24,7 +24,7 @@ The environment validators name these settings:
 - `SUPABASE_SERVICE_ROLE_KEY`: private server credential.
 - `BLIZZARD_CLIENT_ID` and `BLIZZARD_CLIENT_SECRET`: required for actual Blizzard profile requests, although optional in the general environment schema.
 - `BLIZZARD_REGION`: defaults to `us` in the server schema.
-- `BLIZZARD_REDIRECT_URI`: optional in the schema; the inspected token client uses client credentials, not a user redirect flow.
+- `BLIZZARD_REDIRECT_URI`: the exact registered Battle.net callback URL for Guild Master claims (for local testing, `http://localhost:3000/api/guild-claim/callback`). It must match the browser origin used to start verification. Without it, the claim route fails closed; ordinary Blizzard profile and roster reads still use client credentials.
 
 Start the local server with `npm run dev` and open http://localhost:3000. Supabase access and private integration configuration are needed for the connected application flows; installing dependencies does not provision a database.
 
