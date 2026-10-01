@@ -15,6 +15,14 @@ The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite inte
 
 ## Required environment configuration
 
+### Git-connected Workers Builds
+
+In the Worker dashboard under **Settings → Builds → Build configuration**, use `npm run build:vinext` as the build command. `npm run build` produces the separate Next.js build and eagerly validates server environment variables; it is not the Workers bundle command.
+
+Deployment commands must use the generated `dist/server/wrangler.json` configuration. The existing production script is `npm run deploy:vinext`. For a non-production branch that should upload a version without changing production traffic, use `npx wrangler versions upload --config dist/server/wrangler.json`.
+
+The Workers bundle builds without a Supabase service-role key in the build environment. Keep that private key in the Worker's runtime secrets; do not add it to a public variable to work around a build error. Public `NEXT_PUBLIC_` values still need the correct build/runtime configuration for connected browser flows. Confirm both deployment commands before retrying a branch build. See [Cloudflare build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
+
 The local preview reads the existing private `.env.local`. A future Cloudflare preview or production environment must configure these separately in Cloudflare:
 
 - Public build/runtime values: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
