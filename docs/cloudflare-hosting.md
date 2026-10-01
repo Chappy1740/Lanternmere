@@ -21,6 +21,8 @@ In the Worker dashboard under **Settings → Builds → Build configuration**, u
 
 Deployment commands must use the generated `dist/server/wrangler.json` configuration. The existing production script is `npm run deploy:vinext`. For a non-production branch that should upload a version without changing production traffic, use `npx wrangler versions upload --config dist/server/wrangler.json`.
 
+The checked-in empty `previews` block also supports Workers Builds' default `npx wrangler preview` command. Keep it in the source configuration so the Vite-generated deployment configuration retains it.
+
 The Workers bundle builds without a Supabase service-role key in the build environment. Keep that private key in the Worker's runtime secrets; do not add it to a public variable to work around a build error. Public `NEXT_PUBLIC_` values still need the correct build/runtime configuration for connected browser flows. Confirm both deployment commands before retrying a branch build. See [Cloudflare build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
 
 The local preview reads the existing private `.env.local`. A future Cloudflare preview or production environment must configure these separately in Cloudflare:
