@@ -24,8 +24,17 @@ export default function Home() {
         <p className="mt-6 max-w-md text-lg leading-relaxed text-[#e8d6b0] sm:text-xl">
           Where weary travelers come to forget the troubles of their day.
         </p>
-        <Link href="/sign-in" className="lodge-button mt-8 px-8 py-3 text-sm tracking-[0.12em] uppercase">
+        <Link
+          href="/sign-in"
+          className="lodge-button mt-8 px-8 py-3 text-sm tracking-[0.12em] uppercase"
+        >
           Enter the Hearth
+        </Link>
+        <Link
+          href="/status"
+          className="mt-5 text-sm text-[#e8d6b0] underline underline-offset-4 hover:text-[#f2b13d]"
+        >
+          View project status
         </Link>
       </div>
     </main>

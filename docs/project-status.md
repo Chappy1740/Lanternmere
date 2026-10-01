@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Project status dashboard — September 30, 2026
+
+- Prepared a public `/status` page backed by [`project-tracker.json`](project-tracker.json). It shows the 9 of 15 implemented milestone baseline (60%), Milestone 9 work, planned Milestones 10–14, open acceptance checks, and user-requested scope changes.
+- The page checks the published `main` tracker every five minutes while open and falls back to its bundled snapshot. Repository edits are visible there only after a focused commit and push. The dashboard is prepared locally in an isolated worktree; it is not yet deployed or live-verified.
+- New requests made during future milestone work are recorded under the durable procedure in [`project-tracker.md`](project-tracker.md). The milestone percentage counts implemented feature scope, while live acceptance remains separately visible.
+- Current-session verification: focused ESLint and TypeScript passed; the production Next.js build passed with nonsecret placeholder environment values; local `/status` returned HTTP 200 and `/api/project-status` returned 15 milestones and one request from the bundled snapshot. A first build attempt failed because the isolated worktree had no private environment configuration. No deployed browser or GitHub-`main` refresh check has run.
+- Next step: push the isolated `codex/project-status` branch after GitHub export approval, review and merge the focused change, then follow the documented Cloudflare preview and deployment gate. The public page cannot refresh from GitHub until its tracker reaches `main`.
+
 ## Milestones 0–7 audit readiness — September 28, 2026
 
 - Reconciled stale milestone summaries: Milestones 0–8 are recorded as implemented, while Milestone 9 remains in progress. The Milestone 1 invitation/role and Milestone 4 party-composition gaps were closed by later September 19 follow-ups; Milestone 5's old “not started” status was historical.
