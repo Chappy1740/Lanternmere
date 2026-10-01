@@ -4,7 +4,7 @@ Lanternmere has a non-production vinext configuration for evaluating Cloudflare 
 
 ## Current boundary
 
-- `npm run dev` and `npm run build` continue to use Next.js directly.
+- `npm run dev` uses Next.js directly. `npm run build` uses Next.js locally and vinext when Cloudflare's `WORKERS_CI=1` marker is present.
 - `npm run dev:vinext` starts the vinext development server on port 3001.
 - `npm run build:vinext` produces the ignored `dist/` Workers bundle.
 - `npm run start:vinext` runs that bundle in the local Workers runtime.
@@ -17,7 +17,7 @@ The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite inte
 
 ### Git-connected Workers Builds
 
-In the Worker dashboard under **Settings → Builds → Build configuration**, use `npm run build:vinext` as the build command. `npm run build` produces the separate Next.js build and eagerly validates server environment variables; it is not the Workers bundle command.
+In the Worker dashboard under **Settings → Builds → Build configuration**, use `npm run build:vinext` as the explicit build command. `npm run build` also selects vinext inside Workers Builds using Cloudflare's documented `WORKERS_CI=1` marker, so a retained default build command produces the correct Workers bundle. Outside Workers Builds, it keeps the normal Next.js build behavior.
 
 Deployment commands must use the generated `dist/server/wrangler.json` configuration. The existing production script is `npm run deploy:vinext`. For a non-production branch that should upload a version without changing production traffic, use `npx wrangler versions upload --config dist/server/wrangler.json`.
 
