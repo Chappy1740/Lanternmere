@@ -22,7 +22,7 @@ const membershipSchema = z.object({
   lodges: z.object({ id: z.uuid(), name: z.string(), description: z.string().nullable() }),
 });
 
-export const getLodgeMemberships = cache(async () => {
+export const getOptionalLodgeMemberships = cache(async () => {
   const { supabase, user } = await getViewer();
   const { data, error } = await supabase
     .from('lodge_members')
@@ -32,6 +32,11 @@ export const getLodgeMemberships = cache(async () => {
     .order('id', { ascending: true });
   const parsed = z.array(membershipSchema).safeParse(data);
   if (error || !parsed.success) throw new Error('Unable to verify Lodge membership.');
-  if (!parsed.data.length) redirect('/lodges/new');
   return parsed.data;
+});
+
+export const getLodgeMemberships = cache(async () => {
+  const memberships = await getOptionalLodgeMemberships();
+  if (!memberships.length) redirect('/lodges/new');
+  return memberships;
 });
