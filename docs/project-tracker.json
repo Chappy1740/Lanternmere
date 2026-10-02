@@ -1,61 +1,79 @@
 {
   "schemaVersion": 1,
-  "revision": 3,
+  "revision": 4,
   "updatedAt": "2026-10-01",
   "milestones": [
     {
       "number": 0,
       "name": "Foundation",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Application setup, design foundations, database structure, and access controls.",
+      "specification": "milestone-00-foundation.md"
     },
     {
       "number": 1,
       "name": "Front Door",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Account registration, email confirmation, sign-in, and secure Lodge invitations.",
+      "specification": "milestone-01-front-door.md"
     },
     {
       "number": 2,
       "name": "Travelers and Characters",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Verified World of Warcraft characters, profiles, and consented Lodge sharing.",
+      "specification": "milestone-02-travelers-and-characters.md"
     },
     {
       "number": 3,
       "name": "The Hearth",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "A personalized home for your selected Lodge and upcoming activity.",
+      "specification": "milestone-03-the-hearth.md"
     },
     {
       "number": 4,
       "name": "Quest Board",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Canonical Lodge events, RSVPs, and party planning.",
+      "specification": "milestone-04-quest-board.md"
     },
     {
       "number": 5,
       "name": "Hall of Legends and Chronicles",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Achievements, shared accomplishments, and the stories of your Lodge.",
+      "specification": "milestone-05-hall-of-legends-and-chronicles.md"
     },
     {
       "number": 6,
       "name": "Adventures",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Recurring plans, campaigns, and preparation linked to Quest Board events.",
+      "specification": "milestone-06-adventures.md"
     },
     {
       "number": 7,
       "name": "The Guild Hall",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Guild membership, verified leadership, consented readiness, and Guild operations.",
+      "specification": "milestone-07-guild-operations.md"
     },
     {
       "number": 8,
       "name": "The Raid Room",
       "status": "implemented",
-      "work": []
+      "work": [],
+      "description": "Raid planning, encounters, attendance, and human-directed Loot Council decisions.",
+      "specification": "milestone-08-raid-operations.md"
     },
     {
       "number": 9,
@@ -102,7 +120,9 @@
           "title": "Authenticated Lodge/Guild calendar snapshot exports",
           "status": "done"
         }
-      ]
+      ],
+      "description": "Weekly priorities, reset-aware Vault notes, availability, and private calendar exports.",
+      "specification": "milestone-09-weekly-command-center.md"
     },
     {
       "number": 10,
@@ -124,7 +144,9 @@
           "title": "Recruiter permissions, applicant privacy, retention, and audit",
           "status": "todo"
         }
-      ]
+      ],
+      "description": "Recruitment needs, applications, trials, officer notes, and decision history.",
+      "specification": "milestone-10-recruitment.md"
     },
     {
       "number": 11,
@@ -141,7 +163,9 @@
           "title": "Crafting requests and optional Guild supply goals",
           "status": "todo"
         }
-      ]
+      ],
+      "description": "Professions, crafting discovery, service requests, and Guild supply goals.",
+      "specification": "milestone-11-guild-services.md"
     },
     {
       "number": 12,
@@ -163,7 +187,9 @@
           "title": "Dungeon and route resources through the Supply Chest",
           "status": "todo"
         }
-      ]
+      ],
+      "description": "Mythic+ groups, role matching, weekly goals, and key-night planning.",
+      "specification": "milestone-12-mythic-plus.md"
     },
     {
       "number": 13,
@@ -185,7 +211,9 @@
           "title": "Post-raid review with attendance, loot, and progression context",
           "status": "todo"
         }
-      ]
+      ],
+      "description": "Supported performance integrations, progression trends, and post-raid review.",
+      "specification": "milestone-13-progression-intelligence.md"
     },
     {
       "number": 14,
@@ -207,7 +235,9 @@
           "title": "Explainable assistance with privacy and consent boundaries",
           "status": "todo"
         }
-      ]
+      ],
+      "description": "Permission-aware assistance, weekly summaries, and operational briefings.",
+      "specification": "milestone-14-lanternkeeper.md"
     }
   ],
   "requests": [
@@ -234,6 +264,14 @@
       "milestone": null,
       "status": "done",
       "note": "Members control an optional owner-visible alias; the configured application owner sees signup dates and pseudonyms without emails or game data."
+    },
+    {
+      "id": "CR-004",
+      "title": "Full roadmap on the status page",
+      "requestedAt": "2026-10-01",
+      "milestone": null,
+      "status": "done",
+      "note": "Show every milestone in order with descriptions, status, specification links, expandable work and scope changes, and a next-milestone marker."
     }
   ],
   "acceptance": [

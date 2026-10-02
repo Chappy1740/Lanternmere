@@ -15,6 +15,11 @@ export const trackerSchema = z.object({
     z.object({
       number: z.number().int().nonnegative(),
       name: z.string(),
+      description: z.string().optional(),
+      specification: z
+        .string()
+        .regex(/^milestone-\d{2}-[a-z-]+\.md$/)
+        .optional(),
       status: z.enum(['planned', 'in_progress', 'implemented']),
       work: z.array(workSchema),
     }),
