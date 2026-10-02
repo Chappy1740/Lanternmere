@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Milestone 3 independent audit triage — October 2, 2026
+
+- The user supplied Claude Code's read-only Milestone 3 report from `main` at `cd5a174`, before the Milestone 2 audit fixes. It found no high- or medium-severity defects. Claude reported 11 Hearth-context, 9 activity, 9 Main-character, 8 roster, 21 character-enhancement, and 13 profile-error checks passing. Claude did not run lint, build, a live database rehearsal, or a browser check.
+- The evening-event observation is reproducible from the date-only `events.event_date` model: the Hearth and Quest Board both use UTC today, and the Hearth labels that convention. A one-day grace period would list elapsed dates as upcoming and could displace the three nearest events; a viewer/Lodge timezone requires a product choice and stored timezone. Keep this low-severity UX limitation visible for a future event-date design decision rather than silently changing the current cutoff.
+- Hearth's explicit `?lodge=` selection is membership-checked and updates the selected Lodge's summaries as specified. Global navigation does not persist that selection across sections, so a return without the parameter uses the first membership. Record cross-section Lodge persistence as a low-severity UX follow-up, not a Milestone 3 acceptance failure. The existing `guest` role is a Lodge membership and receives member-scoped reads under the current policy; no policy change was made during this audit.
+- Current Codex-session checks on the updated checkout passed: 11 Hearth-context, 9 activity, 9 Main-character, 8 roster, 23 character-enhancement, and 13 profile-error checks; lint; and a Next.js production build using the existing private local configuration. No credentials were read or printed. These mocked checks and build do not establish live RLS, multi-Lodge switching, second-account Main sharing, or responsive/accessibility acceptance. Those live gaps remain open. Milestone 3 audit is triaged; proceed to the Milestone 4 Claude Code prompt.
+
 ## Milestone 2 independent audit triage — October 2, 2026
 
 - The user supplied Claude Code's read-only Milestone 2 report from `main` at `cd5a174`. It found one medium-severity consent defect and three low-severity items. Claude reported its focused profile, Main, and character-enhancement checks passing; it did not run a database rehearsal, lint, build, or hosted import.
