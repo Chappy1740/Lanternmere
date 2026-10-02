@@ -89,7 +89,7 @@ const guildMemberSchema = z.object({
   profile_id: z.uuid(),
   joined_at: z.string(),
   profiles: z.object({ display_name: z.string() }).nullable(),
-  guild_member_roles: z.array(z.object({ role: roleSchema })),
+  guild_member_roles: z.array(z.object({ role: roleSchema, granted_at: z.string() })),
 });
 
 export type GuildMember = z.infer<typeof guildMemberSchema>;
@@ -98,32 +98,28 @@ export async function loadGuildMembers(guildId: string) {
   const { supabase } = await getViewer();
   const { data, error } = await supabase
     .from('guild_members')
-    .select('id, profile_id, joined_at, profiles(display_name), guild_member_roles(role)')
+    .select('id, profile_id, joined_at, profiles(display_name), guild_member_roles(role, granted_at)')
     .eq('guild_id', guildId)
     .order('joined_at', { ascending: true });
   const parsed = z.array(guildMemberSchema).safeParse(data);
-  return error || !parsed.success ? null : parsed.data;
-}
-
-const ownershipTransferSchema = z.object({
-  id: z.uuid(),
-  from_member_id: z.uuid(),
-  to_member_id: z.uuid(),
-  expires_at: z.string(),
-});
-
-export async function loadPendingGuildOwnershipTransfer(guildId: string) {
-  const { supabase } = await getViewer();
-  const { data, error } = await supabase
-    .from('guild_ownership_transfers')
-    .select('id, from_member_id, to_member_id, expires_at')
+  if (error || !parsed.success) return null;
+  const { data: claim, error: claimError } = await supabase
+    .from('guild_verified_claims')
+    .select('profile_id, claimed_at, expires_at')
     .eq('guild_id', guildId)
-    .is('accepted_at', null)
-    .is('canceled_at', null)
-    .gt('expires_at', new Date().toISOString())
     .maybeSingle();
-  const parsed = ownershipTransferSchema.safeParse(data);
-  return error || !parsed.success ? null : parsed.data;
+  if (claimError) return null;
+  const verified = claim && Date.parse(claim.expires_at) > Date.now();
+  return parsed.data.map((member) => ({
+    ...member,
+    guild_member_roles: verified
+      ? member.guild_member_roles.filter(({ role, granted_at }) =>
+          role === 'guild_master'
+            ? claim.profile_id === member.profile_id
+            : Date.parse(granted_at) >= Date.parse(claim.claimed_at),
+        )
+      : [],
+  }));
 }
 
 const ownGuildCharacterSchema = z.object({
@@ -185,6 +181,7 @@ export async function loadGuildReadiness(guildId: string) {
 }
 
 const rosterEntrySchema = z.object({
+  blizzard_character_id: z.number().int(),
   character_name: z.string(),
   realm_slug: z.string(),
   class_name: z.string().nullable(),
@@ -205,8 +202,13 @@ export function isGuildRosterSnapshotFresh(refreshedAt: string, now = Date.now()
   return Number.isFinite(refreshed) && now - refreshed < 24 * 60 * 60 * 1000;
 }
 
-export async function loadGuildRoster(guildId: string, sort: 'rank' | 'name' | 'class' = 'rank') {
+export async function loadGuildRoster(
+  guildId: string,
+  sort: 'rank' | 'name' | 'class' = 'rank',
+  page = 1,
+) {
   const { supabase } = await getViewer();
+  const start = (page - 1) * 50;
   const [snapshot, entries] = await Promise.all([
     supabase
       .from('guild_blizzard_roster_snapshots')
@@ -216,20 +218,20 @@ export async function loadGuildRoster(guildId: string, sort: 'rank' | 'name' | '
     (() => {
       const query = supabase
         .from('guild_roster_entries')
-        .select('character_name, realm_slug, class_name, rank_index, source_refreshed_at')
+        .select('blizzard_character_id, character_name, realm_slug, class_name, rank_index, source_refreshed_at', { count: 'exact' })
         .eq('guild_id', guildId);
       return sort === 'name'
-        ? query.order('character_name').limit(50)
+        ? query.order('character_name').order('blizzard_character_id').range(start, start + 49)
         : sort === 'class'
-          ? query.order('class_name').order('character_name').limit(50)
-          : query.order('rank_index').order('character_name').limit(50);
+          ? query.order('class_name').order('character_name').order('blizzard_character_id').range(start, start + 49)
+          : query.order('rank_index').order('character_name').order('blizzard_character_id').range(start, start + 49);
     })(),
   ]);
   const parsedSnapshot = rosterSnapshotSchema.safeParse(snapshot.data);
   const parsedEntries = z.array(rosterEntrySchema).safeParse(entries.data);
   return snapshot.error || entries.error || !parsedSnapshot.success || !parsedEntries.success
     ? null
-    : { snapshot: parsedSnapshot.data, entries: parsedEntries.data };
+    : { snapshot: parsedSnapshot.data, entries: parsedEntries.data, total: entries.count ?? 0 };
 }
 
 export async function loadGuildRankLabels(guildId: string) {

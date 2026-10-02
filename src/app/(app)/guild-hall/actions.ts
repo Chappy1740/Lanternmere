@@ -18,7 +18,6 @@ export type GuildInvitationState = {
 };
 export type GuildRosterImportState = { error: string | null; success: string | null };
 export type GuildMemberRoleState = { error: string | null; success: string | null };
-export type GuildOwnershipTransferState = { error: string | null; success: string | null };
 export type GuildDepartureState = { error: string | null; success: string | null };
 export type GuildSharingState = { error: string | null; success: string | null };
 export type GuildIdentityState = { error: string | null; success: string | null };
@@ -420,18 +419,11 @@ export async function updateGuildCharacterSharing(
     .eq('profile_id', user.id)
     .maybeSingle();
   if (!character) return { error: 'You can only share your own Traveler.', success: null };
-  const result =
-    parsed.data.visibility === 'off'
-      ? await supabase
-          .from('character_guild_sharing')
-          .delete()
-          .eq('character_id', parsed.data.characterId)
-          .eq('guild_id', parsed.data.guildId)
-      : await supabase.from('character_guild_sharing').upsert({
-          character_id: parsed.data.characterId,
-          guild_id: parsed.data.guildId,
-          visibility: parsed.data.visibility,
-        });
+  const result = await supabase.rpc('set_guild_character_sharing', {
+    p_guild_id: parsed.data.guildId,
+    p_character_id: parsed.data.characterId,
+    p_visibility: parsed.data.visibility,
+  });
   if (result.error) return { error: 'Guild sharing could not be updated.', success: null };
   revalidatePath('/guild-hall');
   return { error: null, success: 'Guild sharing updated.' };
@@ -445,7 +437,13 @@ export async function leaveGuild(
   if (!guildId.success) return { error: 'That Guild is unavailable.', success: null };
   const supabase = await createClient();
   const { error } = await supabase.rpc('leave_guild', { p_guild_id: guildId.data });
-  if (error) return { error: 'Transfer Guild Master ownership before leaving.', success: null };
+  if (error)
+    return {
+      error: error.message.includes('transfer Guild Master ownership')
+        ? 'Have the new in-game rank-0 leader verify and claim this Guild before leaving.'
+        : 'You could not leave this Guild. Please try again.',
+      success: null,
+    };
   revalidatePath('/guild-hall');
   redirect('/guild-hall');
 }
@@ -461,65 +459,6 @@ export async function removeGuildMember(
   if (error) return { error: 'Only the Guild Master can remove this member.', success: null };
   revalidatePath('/guild-hall');
   return { error: null, success: 'Guild member removed and Guild sharing revoked.' };
-}
-
-const ownershipTransferInput = z.object({ transferId: z.uuid() });
-
-export async function requestGuildOwnershipTransfer(
-  _: GuildOwnershipTransferState,
-  formData: FormData,
-): Promise<GuildOwnershipTransferState> {
-  const memberId = z.uuid().safeParse(formData.get('toMemberId'));
-  if (!memberId.success) return { error: 'Choose another Guild member.', success: null };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Sign in required.', success: null };
-  const { error } = await supabase.rpc('request_guild_ownership_transfer', {
-    p_to_member_id: memberId.data,
-  });
-  if (error) return { error: 'The ownership transfer could not be started.', success: null };
-  revalidatePath('/guild-hall');
-  return { error: null, success: 'Transfer requested. The recipient must explicitly accept it.' };
-}
-
-export async function acceptGuildOwnershipTransfer(
-  _: GuildOwnershipTransferState,
-  formData: FormData,
-): Promise<GuildOwnershipTransferState> {
-  const parsed = ownershipTransferInput.safeParse({ transferId: formData.get('transferId') });
-  if (!parsed.success) return { error: 'That ownership transfer is unavailable.', success: null };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Sign in required.', success: null };
-  const { error } = await supabase.rpc('accept_guild_ownership_transfer', {
-    p_transfer_id: parsed.data.transferId,
-  });
-  if (error) return { error: 'That ownership transfer is unavailable.', success: null };
-  revalidatePath('/guild-hall');
-  return { error: null, success: 'Guild Master ownership accepted.' };
-}
-
-export async function cancelGuildOwnershipTransfer(
-  _: GuildOwnershipTransferState,
-  formData: FormData,
-): Promise<GuildOwnershipTransferState> {
-  const parsed = ownershipTransferInput.safeParse({ transferId: formData.get('transferId') });
-  if (!parsed.success) return { error: 'That ownership transfer is unavailable.', success: null };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: 'Sign in required.', success: null };
-  const { error } = await supabase.rpc('cancel_guild_ownership_transfer', {
-    p_transfer_id: parsed.data.transferId,
-  });
-  if (error) return { error: 'The ownership transfer could not be canceled.', success: null };
-  revalidatePath('/guild-hall');
-  return { error: null, success: 'Ownership transfer canceled.' };
 }
 
 const guildMemberRoleInput = z.object({
@@ -690,34 +629,23 @@ export async function importOfficialGuildRoster(
       };
     }
     const admin = createAdminClient();
-    const { error: deleteError } = await admin
-      .from('guild_roster_entries')
-      .delete()
-      .eq('guild_id', parsed.data.guildId);
-    if (deleteError) throw new Error('Unable to replace roster');
     const rows = result.roster.members.map((member) => ({
-      guild_id: parsed.data.guildId,
       blizzard_character_id: member.character.id,
       character_name: member.character.name,
       realm_slug: member.character.realm.slug,
       class_name: member.character.playable_class?.name ?? null,
       rank_index: member.rank,
-      source_refreshed_at: result.fetchedAt,
     }));
-    if (rows.length) {
-      const { error } = await admin.from('guild_roster_entries').insert(rows);
-      if (error) throw new Error('Unable to save roster');
-    }
-    const { error: snapshotError } = await admin.from('guild_blizzard_roster_snapshots').upsert({
-      guild_id: parsed.data.guildId,
-      region: result.region,
-      realm_slug: parsed.data.realm,
-      guild_name: parsed.data.guildName,
-      source_url: result.sourceUrl,
-      refreshed_at: result.fetchedAt,
-      failure_message: null,
+    const { error: replaceError } = await admin.rpc('replace_guild_official_roster', {
+      p_guild_id: parsed.data.guildId,
+      p_region: result.region,
+      p_realm_slug: parsed.data.realm,
+      p_guild_name: parsed.data.guildName,
+      p_source_url: result.sourceUrl,
+      p_refreshed_at: result.fetchedAt,
+      p_members: rows,
     });
-    if (snapshotError) throw new Error('Unable to save snapshot');
+    if (replaceError) throw new Error('Unable to replace roster');
     revalidatePath('/guild-hall');
     return { error: null, success: `Imported ${rows.length} official roster entries.` };
   } catch {

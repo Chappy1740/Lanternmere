@@ -68,7 +68,7 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 | 4 | Audited October 2: two medium and three low findings | Linked migration applied and rehearsed: Guild-linked events cannot be deleted, former creators lose delete access, departing RSVPs are cleared, and content bounds are enforced. UI/actions fixes passed focused checks, lint, and build; live acceptance remains open | Run Milestone 5 prompt |
 | 5 | Audited October 2: three medium and four low findings | Repair committed as `8e0bf67` and pushed to `main`. Migration applied after one-file dry run and rollback rehearsal; post-apply rollback checks, focused tests, lint, TypeScript, and build passed. Blizzard ingestion, cascade Storage cleanup, and live acceptance remain open | Run Milestone 6 prompt |
 | 6 | Audited October 2: one medium and five low findings | Repair committed as `f96886b` and pushed to `main`. The migration was applied after a one-file dry run; pre- and post-apply rollback checks passed, as did focused tests, lint, TypeScript, build, and the error-level security advisor. Live acceptance remains open | Run Milestone 7 prompt |
-| 7 | Pending | Pending | After 6 |
+| 7 | Audited October 2: two medium, two low-to-medium, and three low findings; additional low observations | Consent, roster atomicity, claim handoff, role writes, sharing updates, and Lodge authorization repaired. Migration applied after a one-file dry run; pre- and post-apply rollback checks, focused scripts, lint, TypeScript, build, and error-level security advisor passed. Live acceptance and settings coverage remain open | Run Milestone 8 prompt; retain Milestone 7 follow-ups |
 | 8 | Pending | Pending | After 7 |
 | 9 | Pending | Pending | After 8 |
 

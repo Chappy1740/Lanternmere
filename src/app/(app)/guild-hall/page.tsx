@@ -6,11 +6,6 @@ import { GuildMemberRemovalControl } from '@/components/guild-member-removal-con
 import { GuildLeaveControl } from '@/components/guild-leave-control';
 import { GuildCharacterSharingControl } from '@/components/guild-character-sharing-control';
 import { GuildMemberRoleControl } from '@/components/guild-member-role-control';
-import {
-  GuildOwnershipTransferAccept,
-  GuildOwnershipTransferCancel,
-  GuildOwnershipTransferRequest,
-} from '@/components/guild-ownership-transfer-controls';
 import { GuildInvitationForm } from '@/components/guild-invitation-form';
 import { GuildRosterImportForm } from '@/components/guild-roster-import-form';
 import { GuildRankLabelForm } from '@/components/guild-rank-label-form';
@@ -22,7 +17,6 @@ import {
   loadGuildMembers,
   loadGuildReadiness,
   loadOwnGuildCharacters,
-  loadPendingGuildOwnershipTransfer,
   loadGuildRoster,
   loadGuildRankLabels,
   loadGuildRaidOperations,
@@ -36,7 +30,7 @@ import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 export default async function GuildHallPage({
   searchParams,
 }: {
-  searchParams: Promise<{ guild?: string | string[]; sort?: string | string[] }>;
+  searchParams: Promise<{ guild?: string | string[]; sort?: string | string[]; page?: string | string[] }>;
 }) {
   const [memberships, params] = await Promise.all([getGuildMemberships(), searchParams]);
   if (!memberships.length) {
@@ -72,11 +66,12 @@ export default async function GuildHallPage({
   const pendingCreator =
     !selected.verified && selected.guilds.created_by === (await getViewer()).user.id;
   const sort = params.sort === 'name' || params.sort === 'class' ? params.sort : 'rank';
+  const parsedPage = typeof params.page === 'string' ? Number(params.page) : 1;
+  const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000 ? parsedPage : 1;
   const [
     roster,
     rankLabels,
     guildMembers,
-    ownershipTransfer,
     ownCharacters,
     readiness,
     raidOperations,
@@ -84,11 +79,10 @@ export default async function GuildHallPage({
     viewer,
   ] = await Promise.all([
     leadership || selected.guilds.member_portal_enabled
-      ? await loadGuildRoster(selected.guild_id, sort)
+      ? await loadGuildRoster(selected.guild_id, sort, page)
       : null,
     loadGuildRankLabels(selected.guild_id),
     leadership ? loadGuildMembers(selected.guild_id) : null,
-    loadPendingGuildOwnershipTransfer(selected.guild_id),
     loadOwnGuildCharacters(selected.guild_id),
     leadership ? loadGuildReadiness(selected.guild_id) : Promise.resolve([]),
     leadership ? loadGuildRaidOperations(selected.guild_id) : Promise.resolve(null),
@@ -354,7 +348,7 @@ export default async function GuildHallPage({
             {isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at)
               ? 'Updated within 24 hours'
               : 'Update is older than 24 hours'}{' '}
-            · Showing the first {roster.entries.length} entries.
+            · Showing {roster.entries.length} of {roster.total} entries (page {page}).
           </p>
           <a
             href={roster.snapshot.source_url}
@@ -373,7 +367,7 @@ export default async function GuildHallPage({
             {(['rank', 'name', 'class'] as const).map((option) => (
               <a
                 key={option}
-                href={`/guild-hall?guild=${selected.guild_id}&sort=${option}`}
+                href={`/guild-hall?guild=${selected.guild_id}&sort=${option}&page=1`}
                 className="lodge-button-secondary px-3 py-1.5 capitalize"
               >
                 Sort: {option}
@@ -383,7 +377,7 @@ export default async function GuildHallPage({
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {roster.entries.map((entry) => (
               <li
-                key={`${entry.character_name}-${entry.realm_slug}`}
+                key={entry.blizzard_character_id}
                 className="lodge-list-row p-4"
               >
                 <p className="text-text-primary font-medium">{entry.character_name}</p>
@@ -395,6 +389,21 @@ export default async function GuildHallPage({
               </li>
             ))}
           </ul>
+          {roster.total > 50 && (
+            <nav aria-label="Roster pages" className="mt-5 flex items-center gap-3 text-sm">
+              {page > 1 && (
+                <a className="lodge-button-secondary px-3 py-1.5" href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page - 1}`}>
+                  Previous
+                </a>
+              )}
+              <span>Page {page} of {Math.ceil(roster.total / 50)}</span>
+              {page * 50 < roster.total && (
+                <a className="lodge-button-secondary px-3 py-1.5" href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page + 1}`}>
+                  Next
+                </a>
+              )}
+            </nav>
+          )}
         </section>
       )}
 
@@ -456,7 +465,7 @@ export default async function GuildHallPage({
         </section>
       )}
 
-      {(roles.includes('guild_master') || ownershipTransfer?.to_member_id === selected.id) && (
+      {roles.includes('guild_master') && (
         <section className="lodge-panel p-6" aria-labelledby="ownership-heading">
           <p className="lodge-kicker">Guild stewardship</p>
           <h2
@@ -465,40 +474,11 @@ export default async function GuildHallPage({
           >
             Guild Master ownership
           </h2>
-          {ownershipTransfer ? (
-            <>
-              <p className="text-text-muted mt-3 text-sm">
-                {ownershipTransfer.to_member_id === selected.id
-                  ? 'You have a pending Guild Master ownership transfer. Accepting it is permanent until you explicitly transfer ownership again.'
-                  : `A Guild Master transfer is awaiting the recipient’s acceptance until ${new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(ownershipTransfer.expires_at))} UTC.`}
-              </p>
-              {ownershipTransfer.to_member_id === selected.id ? (
-                <GuildOwnershipTransferAccept transferId={ownershipTransfer.id} />
-              ) : (
-                <GuildOwnershipTransferCancel transferId={ownershipTransfer.id} />
-              )}
-            </>
-          ) : (
-            <>
-              <p className="text-text-muted mt-3 text-sm">
-                Transfer ownership only to a current Guild member. They must explicitly accept
-                within seven days.
-              </p>
-              {roles.includes('guild_master') && guildMembers && (
-                <GuildOwnershipTransferRequest
-                  members={guildMembers
-                    .filter(
-                      (member) =>
-                        !member.guild_member_roles.some((entry) => entry.role === 'guild_master'),
-                    )
-                    .map((member) => ({
-                      id: member.id,
-                      name: member.profiles?.display_name ?? 'Guild member',
-                    }))}
-                />
-              )}
-            </>
-          )}
+          <p className="text-text-muted mt-3 text-sm">
+            Guild Master authority follows a verified in-game rank-0 character. To change leaders,
+            update the in-game Guild rank, then have the new rank-0 leader connect Battle.net and
+            verify this Guild. The new claim replaces the old leadership grant.
+          </p>
         </section>
       )}
 
@@ -507,7 +487,7 @@ export default async function GuildHallPage({
           <p className="text-text-muted flex items-center gap-2 text-sm">
             <Crown size={16} className="text-accent" aria-hidden="true" />
             {roles.includes('guild_master')
-              ? 'You are the sole Guild Master. Ownership transfer will require an explicit acceptance flow.'
+              ? 'You are the verified Guild Master. Leadership changes require a new in-game rank-0 claim.'
               : 'Officers can configure member-facing Guild access.'}
           </p>
           <GuildMemberPortalControl

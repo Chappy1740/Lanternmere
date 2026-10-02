@@ -16,7 +16,7 @@ export function GuildLeaveControl({
   if (isGuildMaster)
     return (
       <p className="text-text-muted mt-3 text-sm">
-        Transfer Guild Master ownership before you can leave this Guild.
+        Have the new in-game rank-0 leader verify and claim this Guild before you can leave.
       </p>
     );
   return (
