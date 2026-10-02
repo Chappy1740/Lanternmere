@@ -36,7 +36,7 @@ export default async function EditAchievementPage({
     (achievement.created_by === user.id ||
       selected.role === 'owner' ||
       selected.role === 'caretaker');
-  if (!achievement || !canManage) notFound();
+  if (!achievement || !canManage || achievement.source !== 'manual') notFound();
   const { data, error } = await supabase
     .from('characters')
     .select('id, character_name, realm_slug')
@@ -63,7 +63,8 @@ export default async function EditAchievementPage({
           action={updateAchievement}
           lodgeId={selected.lodge_id}
           entry={achievement}
-          characters={characters}
+          characters={achievement.created_by === user.id ? characters : []}
+          canChangeCredit={achievement.created_by === user.id}
         />
       </div>
     </div>

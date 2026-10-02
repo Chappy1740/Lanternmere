@@ -29,19 +29,28 @@ const authorId = '33333333-3333-4333-8333-333333333333';
 let calls = [];
 let rows = [];
 let detail = null;
+let searchIds = [];
 
 const client = {
+  rpc(name, args) {
+    calls.push(['rpc', name, args]);
+    return Promise.resolve({ data: searchIds, error: null });
+  },
   from(table) {
     const query = {};
-    for (const method of ['select', 'eq', 'gte', 'lte', 'order', 'limit']) {
+    for (const method of ['select', 'eq', 'gte', 'lte', 'order', 'range', 'in']) {
       query[method] = (...args) => {
         calls.push([table, method, ...args]);
+        if (method === 'in') query.ids = args[1];
         return query;
       };
     }
     query.maybeSingle = () => Promise.resolve({ data: detail, error: null });
     query.then = (resolve, reject) =>
-      Promise.resolve({ data: rows, error: null }).then(resolve, reject);
+      Promise.resolve({
+        data: query.ids ? rows.filter((row) => query.ids.includes(row.id)) : rows,
+        error: null,
+      }).then(resolve, reject);
     return query;
   },
 };
@@ -66,6 +75,7 @@ async function check(label, run) {
   calls = [];
   rows = [entry()];
   detail = entry();
+  searchIds = [];
   await run();
   passed++;
   console.log(`PASS: ${label}`);
@@ -74,7 +84,7 @@ async function check(label, run) {
 (async () => {
   await check('list reads are scoped to the selected Lodge and bounded', async () => {
     const result = await chronicles.loadChronicles(client, lodgeId);
-    assert.equal(result[0].id, entryId);
+    assert.equal(result.entries[0].id, entryId);
     assert.ok(
       calls.some(
         (call) =>
@@ -84,7 +94,7 @@ async function check(label, run) {
           call[3] === lodgeId,
       ),
     );
-    assert.ok(calls.some((call) => call[1] === 'limit' && call[2] === 100));
+    assert.ok(calls.some((call) => call[1] === 'range' && call[2] === 0 && call[3] === 100));
   });
 
   await check('detail reads require both Chronicle and Lodge identifiers', async () => {
@@ -95,7 +105,7 @@ async function check(label, run) {
     );
   });
 
-  await check('search runs only after the Lodge-scoped read', async () => {
+  await check('search runs before the Lodge-scoped page read', async () => {
     rows = [
       entry(),
       entry({
@@ -104,10 +114,12 @@ async function check(label, run) {
         body: 'The Lodge met for breakfast before the journey.',
       }),
     ];
+    searchIds = [{ id: entryId }];
     const result = await chronicles.loadChronicles(client, lodgeId, 'victory');
-    assert.equal(result.length, 1);
-    assert.equal(result[0].id, entryId);
-    assert.equal(calls.filter((call) => call[1] === 'eq').length, 1);
+    assert.equal(result.entries.length, 1);
+    assert.equal(result.entries[0].id, entryId);
+    assert.ok(calls.some((call) => call[1] === 'search_lodge_chronicle_ids'));
+    assert.ok(calls.some((call) => call[1] === 'in' && call[2] === 'id'));
   });
 
   await check('date filters remain within the selected Lodge query', async () => {

@@ -41,8 +41,40 @@ export async function loadChronicles(
   lodgeId: string,
   query = '',
   range?: { from?: string; to?: string },
+  page = 1,
 ) {
   try {
+    const pageSize = 100;
+    const offset = (Math.max(1, page) - 1) * pageSize;
+    if (query.trim()) {
+      const { data: matches, error: searchError } = await supabase.rpc(
+        'search_lodge_chronicle_ids',
+        {
+          p_lodge_id: lodgeId,
+          p_query: query.trim(),
+          p_from: range?.from ? `${range.from}T00:00:00.000Z` : null,
+          p_to: range?.to ? `${range.to}T23:59:59.999Z` : null,
+          p_limit: pageSize + 1,
+          p_offset: offset,
+        },
+      );
+      const ids = z.array(z.object({ id: z.uuid() })).safeParse(matches);
+      if (searchError || !ids.success) return null;
+      const pageIds = ids.data.slice(0, pageSize).map((match) => match.id);
+      if (pageIds.length === 0) return { entries: [], hasMore: false };
+      const { data, error } = await supabase
+        .from('chronicle_entries')
+        .select(chronicleFields)
+        .eq('lodge_id', lodgeId)
+        .in('id', pageIds);
+      const rows = !error ? parseRows(data) : null;
+      if (!rows) return null;
+      const order = new Map(pageIds.map((id, index) => [id, index]));
+      return {
+        entries: rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)),
+        hasMore: ids.data.length > pageSize,
+      };
+    }
     let request = supabase
       .from('chronicle_entries')
       .select(chronicleFields)
@@ -52,15 +84,10 @@ export async function loadChronicles(
     const { data, error } = await request
       .order('created_at', { ascending: false })
       .order('id', { ascending: false })
-      .limit(100);
+      .range(offset, offset + pageSize);
     const rows = !error ? parseRows(data) : null;
     if (!rows) return null;
-    const needle = query.trim().toLocaleLowerCase();
-    return needle
-      ? rows.filter((entry) =>
-          `${entry.title ?? ''}\n${entry.body ?? ''}`.toLocaleLowerCase().includes(needle),
-        )
-      : rows;
+    return { entries: rows.slice(0, pageSize), hasMore: rows.length > pageSize };
   } catch {
     return null;
   }

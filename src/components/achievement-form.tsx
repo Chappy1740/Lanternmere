@@ -13,14 +13,20 @@ export function AchievementForm({
   lodgeId,
   entry,
   characters,
+  canChangeCredit = true,
 }: {
   action: Action;
   lodgeId: string;
   entry?: Achievement;
   characters: AchievementCharacterOption[];
+  canChangeCredit?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const date = entry?.achieved_at?.slice(0, 10) ?? '';
+  const currentCredit =
+    entry?.character_id && !characters.some((character) => character.id === entry.character_id)
+      ? entry.character_id
+      : null;
   return (
     <form action={formAction} className="lodge-panel p-6 sm:p-8">
       <input type="hidden" name="lodgeId" value={lodgeId} />
@@ -53,6 +59,14 @@ export function AchievementForm({
             className="lodge-field px-3 py-2 font-normal"
           >
             <option value="">This is a Lodge milestone</option>
+            {currentCredit && (
+              <option value={currentCredit}>
+                {entry?.characters
+                  ? `${entry.characters.character_name} · ${entry.characters.realm_slug}`
+                  : 'Previously credited Traveler'}{' '}
+                (current credit)
+              </option>
+            )}
             {characters.map((character) => (
               <option key={character.id} value={character.id}>
                 {character.character_name} · {character.realm_slug}
@@ -60,7 +74,9 @@ export function AchievementForm({
             ))}
           </select>
           <span className="text-text-muted text-xs font-normal">
-            You can credit one of your own Travelers, or celebrate the whole Lodge.
+            {!canChangeCredit
+              ? 'Keep the current credit or change this to a Lodge milestone.'
+              : 'You can credit one of your own Travelers, or celebrate the whole Lodge.'}
           </span>
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">

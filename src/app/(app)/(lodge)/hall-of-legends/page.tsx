@@ -7,7 +7,11 @@ import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 export default async function HallOfLegendsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ lodge?: string | string[]; q?: string | string[] }>;
+  searchParams: Promise<{
+    lodge?: string | string[];
+    q?: string | string[];
+    p?: string | string[];
+  }>;
 }) {
   const [memberships, params, { supabase }] = await Promise.all([
     getLodgeMemberships(),
@@ -22,7 +26,18 @@ export default async function HallOfLegendsPage({
         : undefined;
   if (!selected) notFound();
   const query = typeof params.q === 'string' ? params.q.trim().slice(0, 80) : '';
-  const achievements = await loadAchievements(supabase, selected.lodge_id, query);
+  const page =
+    typeof params.p === 'string' && /^[1-9]\d{0,6}$/.test(params.p) && Number(params.p) <= 1000000
+      ? Number(params.p)
+      : 1;
+  const result = await loadAchievements(supabase, selected.lodge_id, query, page);
+  const achievements = result?.entries ?? [];
+  const pageHref = (nextPage: number) =>
+    `/hall-of-legends?${new URLSearchParams({
+      lodge: selected.lodge_id,
+      ...(query ? { q: query } : {}),
+      p: String(nextPage),
+    })}`;
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header className="lodge-panel flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-end sm:p-8">
@@ -76,7 +91,7 @@ export default async function HallOfLegendsPage({
         >
           {query ? 'Matching achievements' : 'Recent achievements'}
         </h2>
-        {achievements === null ? (
+        {result === null ? (
           <p role="alert" className="text-text-muted mt-5">
             Achievements could not be loaded. Please try again later.
           </p>
@@ -116,6 +131,25 @@ export default async function HallOfLegendsPage({
           </ul>
         )}
       </section>
+      {result && (page > 1 || result.hasMore) && (
+        <nav aria-label="Achievement pages" className="flex items-center justify-between gap-4">
+          {page > 1 ? (
+            <Link href={pageHref(page - 1)} className="text-accent underline">
+              Previous page
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="text-text-muted text-sm">Page {page}</span>
+          {result.hasMore && page < 1000000 ? (
+            <Link href={pageHref(page + 1)} className="text-accent underline">
+              Next page
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
     </div>
   );
 }

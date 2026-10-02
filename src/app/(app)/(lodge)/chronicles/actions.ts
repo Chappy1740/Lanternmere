@@ -188,13 +188,20 @@ export async function updateChronicle(
       entry &&
       (entry.author_id === session.user.id ||
         (await isLodgeAdmin(session.supabase, entry.lodge_id, session.user.id)));
-    if (readError || !permitted || entry.lodge_id !== parsed.data.lodgeId)
+    if (
+      readError ||
+      !permitted ||
+      entry.lodge_id !== parsed.data.lodgeId ||
+      !(await isLodgeMember(session.supabase, entry.lodge_id, session.user.id))
+    )
       return { error: 'You do not have permission to edit this Chronicle.', success: null };
-    const { error } = await session.supabase
+    const { data: updated, error } = await session.supabase
       .from('chronicle_entries')
       .update({ title: parsed.data.title, body: parsed.data.body })
-      .eq('id', entry.id);
-    if (error)
+      .eq('id', entry.id)
+      .select('id')
+      .maybeSingle();
+    if (error || !updated)
       return { error: 'The Chronicle could not be updated. Please try again.', success: null };
     if (!(await addChronicleMedia(session.supabase, entry, session.user.id, media)))
       return {
@@ -226,7 +233,11 @@ export async function deleteChronicle(
       entry &&
       (entry.author_id === session.user.id ||
         (await isLodgeAdmin(session.supabase, entry.lodge_id, session.user.id)));
-    if (readError || !permitted)
+    if (
+      readError ||
+      !permitted ||
+      !(await isLodgeMember(session.supabase, entry.lodge_id, session.user.id))
+    )
       return { error: 'You do not have permission to remove this Chronicle.', success: null };
     const { data: media, error: mediaReadError } = await session.supabase
       .from('chronicle_media')
@@ -244,8 +255,13 @@ export async function deleteChronicle(
           success: null,
         };
     }
-    const { error } = await session.supabase.from('chronicle_entries').delete().eq('id', entry.id);
-    if (error)
+    const { data: removed, error } = await session.supabase
+      .from('chronicle_entries')
+      .delete()
+      .eq('id', entry.id)
+      .select('id')
+      .maybeSingle();
+    if (error || !removed)
       return { error: 'The Chronicle could not be removed. Please try again.', success: null };
     refreshChronicleViews();
     return { error: null, success: 'Chronicle removed.' };
@@ -280,15 +296,26 @@ export async function deleteChronicleMedia(
       (media.uploaded_by === session.user.id ||
         entry?.author_id === session.user.id ||
         (await isLodgeAdmin(session.supabase, media.lodge_id, session.user.id)));
-    if (readError || entryError || !permitted)
+    if (
+      readError ||
+      entryError ||
+      !permitted ||
+      !(await isLodgeMember(session.supabase, media.lodge_id, session.user.id))
+    )
       return { error: 'You do not have permission to remove this image.', success: null };
     const { error: storageError } = await session.supabase.storage
       .from('chronicle-media')
       .remove([media.storage_path]);
     if (storageError)
       return { error: 'The image could not be removed. Please try again.', success: null };
-    const { error } = await session.supabase.from('chronicle_media').delete().eq('id', media.id);
-    if (error) return { error: 'The image could not be removed. Please try again.', success: null };
+    const { data: removed, error } = await session.supabase
+      .from('chronicle_media')
+      .delete()
+      .eq('id', media.id)
+      .select('id')
+      .maybeSingle();
+    if (error || !removed)
+      return { error: 'The image could not be removed. Please try again.', success: null };
     refreshChronicleViews();
     return { error: null, success: 'Chronicle image removed.' };
   } catch {

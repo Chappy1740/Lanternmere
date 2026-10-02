@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Milestone 5 independent audit triage — October 2, 2026
+
+- Will supplied Claude Code's read-only Milestone 5 report from `main` at `2b5c5ff`. Claude found three medium and four low issues, ran three mocked loader/media checks, and did not run SQL, lint, build, or browser checks. Its reported uncommitted Milestone 4 work was historical; this Codex session began on clean `main` at `dbe0f48`.
+- Migration `20261002194714_harden_legends_and_chronicles_audit.sql` binds Chronicle media to the same Lodge and entry as its private Storage path; requires current Lodge membership for achievement, Chronicle, media, and Storage deletes; requires the achievement creator to own a credited Traveler; protects Blizzard-sourced records from browser updates/deletes; and enforces the existing text limits in validated database constraints. Aggregate-only linked checks found zero existing boundary, content, or orphaned-object violations and zero Blizzard achievement rows. A linked dry run listed only this migration. The synthetic rehearsal passed before application inside a rolled-back transaction; the migration was then applied, and the same rollback-only fixture passed against the installed rules. No real account or record was changed by the fixture.
+- Local app changes keep a member's character credit when a caretaker edits text, reject stale or denied mutations instead of reporting success, search the full Lodge history before paginating, reject impossible Chronicle filter dates, and link Hearth items to their detail pages. Focused checks passed: 4 achievement-loader, 6 Chronicle-loader, 7 achievement-action, and 7 Chronicle-action cases, plus the existing Chronicle media check; TypeScript, lint, production build, and diff-whitespace validation also passed.
+- Blizzard achievement import is still unavailable: the label and provenance boundary exist, but there is no Blizzard achievement writer. It is a conditional milestone feature and remains a documented low-severity gap. Storage objects can be orphaned by Lodge or Chronicle cascades; the aggregate count was zero at preflight, and a cleanup path remains a follow-up. Live signed-URL, second-account, responsive, keyboard, and screen-reader acceptance was not rerun in this audit.
+- **Next:** commit and push the matched migration/app changes under Will's explicit approval, then send the Milestone 6 Claude prompt. Live acceptance gaps remain open.
+
 ## Milestone 4 independent audit triage — October 2, 2026
 
 - Will supplied Claude Code's read-only Milestone 4 report from `main` at `68ea550`. It found two medium and three low issues. Claude reported six mocked Quest Board checks passing; it did not run a database rehearsal, lint, build, or hosted/browser check.

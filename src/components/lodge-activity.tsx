@@ -83,7 +83,14 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
             <ul className={listClass}>
               {achievements.rows.map((achievement) => (
                 <li key={achievement.id} className="lodge-list-row p-4">
-                  <h3 className={titleClass}>{achievement.title.trim() || 'Lodge achievement'}</h3>
+                  <h3 className={titleClass}>
+                    <Link
+                      href={`/hall-of-legends/${achievement.id}?lodge=${lodgeId}`}
+                      className="hover:text-accent underline-offset-4 hover:underline"
+                    >
+                      {achievement.title.trim() || 'Lodge achievement'}
+                    </Link>
+                  </h3>
                   {excerpt(achievement.description) && (
                     <p className={textClass}>{excerpt(achievement.description)}</p>
                   )}
@@ -116,7 +123,14 @@ export async function LodgeActivity({ lodgeId }: { lodgeId: string }) {
           <ul className={listClass}>
             {chronicles.rows.map((entry) => (
               <li key={entry.id} className="lodge-list-row p-4">
-                <h3 className={titleClass}>{entry.title?.trim() || 'Untitled Chronicle'}</h3>
+                <h3 className={titleClass}>
+                  <Link
+                    href={`/chronicles/${entry.id}?lodge=${lodgeId}`}
+                    className="hover:text-accent underline-offset-4 hover:underline"
+                  >
+                    {entry.title?.trim() || 'Untitled Chronicle'}
+                  </Link>
+                </h3>
                 <p className={textClass}>
                   {excerpt(entry.body) ||
                     (entry.image_url

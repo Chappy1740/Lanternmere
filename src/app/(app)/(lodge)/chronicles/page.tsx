@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BookOpen, Plus, Search } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { z } from 'zod';
 import { chronicleDate, chronicleExcerpt, loadChronicles } from '@/lib/chronicles';
 import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
@@ -12,6 +13,7 @@ export default async function ChroniclesPage({
     q?: string | string[];
     from?: string | string[];
     to?: string | string[];
+    p?: string | string[];
   }>;
 }) {
   const [memberships, params, { supabase }] = await Promise.all([
@@ -27,11 +29,25 @@ export default async function ChroniclesPage({
         : undefined;
   if (!selected) notFound();
   const query = typeof params.q === 'string' ? params.q.trim().slice(0, 80) : '';
-  const date = /^\d{4}-\d{2}-\d{2}$/;
-  const from = typeof params.from === 'string' && date.test(params.from) ? params.from : '';
-  const to = typeof params.to === 'string' && date.test(params.to) ? params.to : '';
-  const entries = await loadChronicles(supabase, selected.lodge_id, query, { from, to });
+  const date = z.iso.date();
+  const from =
+    typeof params.from === 'string' && date.safeParse(params.from).success ? params.from : '';
+  const to = typeof params.to === 'string' && date.safeParse(params.to).success ? params.to : '';
+  const page =
+    typeof params.p === 'string' && /^[1-9]\d{0,6}$/.test(params.p) && Number(params.p) <= 1000000
+      ? Number(params.p)
+      : 1;
+  const result = await loadChronicles(supabase, selected.lodge_id, query, { from, to }, page);
+  const entries = result?.entries ?? [];
   const lodgeId = selected.lodge_id;
+  const pageHref = (nextPage: number) =>
+    `/chronicles?${new URLSearchParams({
+      lodge: lodgeId,
+      ...(query ? { q: query } : {}),
+      ...(from ? { from } : {}),
+      ...(to ? { to } : {}),
+      p: String(nextPage),
+    })}`;
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header className="lodge-panel flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-end sm:p-8">
@@ -96,7 +112,7 @@ export default async function ChroniclesPage({
         >
           {query || from || to ? 'Matching memories' : 'Recent memories'}
         </h2>
-        {entries === null ? (
+        {result === null ? (
           <p role="alert" className="text-text-muted mt-5">
             Chronicles could not be loaded. Please try again later.
           </p>
@@ -137,6 +153,25 @@ export default async function ChroniclesPage({
           </ul>
         )}
       </section>
+      {result && (page > 1 || result.hasMore) && (
+        <nav aria-label="Chronicle pages" className="flex items-center justify-between gap-4">
+          {page > 1 ? (
+            <Link href={pageHref(page - 1)} className="text-accent underline">
+              Previous page
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="text-text-muted text-sm">Page {page}</span>
+          {result.hasMore && page < 1000000 ? (
+            <Link href={pageHref(page + 1)} className="text-accent underline">
+              Next page
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
       {memberships.length > 1 && (
         <nav aria-label="Choose a Lodge">
           <h2 className="font-display text-text-primary text-lg">

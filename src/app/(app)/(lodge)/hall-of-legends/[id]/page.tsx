@@ -54,7 +54,7 @@ export default async function AchievementDetailPage({
             {achievement.description}
           </div>
         )}
-        {canManage && (
+        {canManage && achievement.source === 'manual' && (
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
               href={`/hall-of-legends/${achievement.id}/edit?lodge=${selected.lodge_id}`}

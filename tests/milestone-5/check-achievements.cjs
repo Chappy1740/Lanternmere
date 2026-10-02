@@ -25,6 +25,7 @@ const achievementId = '22222222-2222-4222-8222-222222222222';
 let calls = [];
 let rows = [];
 let detail = null;
+let searchIds = [];
 const entry = (overrides = {}) => ({
   id: achievementId,
   lodge_id: lodgeId,
@@ -40,16 +41,24 @@ const entry = (overrides = {}) => ({
   ...overrides,
 });
 const client = {
+  rpc(name, args) {
+    calls.push(['rpc', name, args]);
+    return Promise.resolve({ data: searchIds, error: null });
+  },
   from(table) {
     const query = {};
-    for (const method of ['select', 'eq', 'order', 'limit'])
+    for (const method of ['select', 'eq', 'order', 'range', 'in'])
       query[method] = (...args) => {
         calls.push([table, method, ...args]);
+        if (method === 'in') query.ids = args[1];
         return query;
       };
     query.maybeSingle = () => Promise.resolve({ data: detail, error: null });
     query.then = (resolve, reject) =>
-      Promise.resolve({ data: rows, error: null }).then(resolve, reject);
+      Promise.resolve({
+        data: query.ids ? rows.filter((row) => query.ids.includes(row.id)) : rows,
+        error: null,
+      }).then(resolve, reject);
     return query;
   },
 };
@@ -58,6 +67,7 @@ async function check(label, run) {
   calls = [];
   rows = [entry()];
   detail = entry();
+  searchIds = [];
   await run();
   passed++;
   console.log(`PASS: ${label}`);
@@ -65,11 +75,14 @@ async function check(label, run) {
 
 (async () => {
   await check('list reads stay in the selected Lodge and are bounded', async () => {
-    assert.equal((await achievements.loadAchievements(client, lodgeId))[0].id, achievementId);
+    assert.equal(
+      (await achievements.loadAchievements(client, lodgeId)).entries[0].id,
+      achievementId,
+    );
     assert.ok(
       calls.some((call) => call[1] === 'eq' && call[2] === 'lodge_id' && call[3] === lodgeId),
     );
-    assert.ok(calls.some((call) => call[1] === 'limit' && call[2] === 100));
+    assert.ok(calls.some((call) => call[1] === 'range' && call[2] === 0 && call[3] === 100));
   });
   await check('detail reads require achievement and Lodge identifiers', async () => {
     await achievements.loadAchievement(client, achievementId, lodgeId);
@@ -80,7 +93,7 @@ async function check(label, run) {
       calls.some((call) => call[1] === 'eq' && call[2] === 'lodge_id' && call[3] === lodgeId),
     );
   });
-  await check('search happens after the scoped database read', async () => {
+  await check('search runs across the Lodge before the bounded page read', async () => {
     rows = [
       entry(),
       entry({
@@ -89,9 +102,11 @@ async function check(label, run) {
         description: 'Breakfast before the journey.',
       }),
     ];
+    searchIds = [{ id: achievementId }];
     const result = await achievements.loadAchievements(client, lodgeId, 'victory');
-    assert.equal(result.length, 1);
-    assert.equal(calls.filter((call) => call[1] === 'eq').length, 1);
+    assert.equal(result.entries.length, 1);
+    assert.ok(calls.some((call) => call[1] === 'search_lodge_achievement_ids'));
+    assert.ok(calls.some((call) => call[1] === 'in' && call[2] === 'id'));
   });
   await check('malformed rows fail safely and display labels retain the date', async () => {
     rows = [entry({ created_by: 'not-a-uuid' })];

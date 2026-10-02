@@ -78,7 +78,7 @@ async function permittedToManage(
   userId: string,
 ) {
   const role = await roleFor(supabase, lodgeId, userId);
-  return createdBy === userId || role === 'owner' || role === 'caretaker';
+  return Boolean(role) && (createdBy === userId || role === 'owner' || role === 'caretaker');
 }
 
 export async function createAchievement(
@@ -131,12 +131,13 @@ export async function updateAchievement(
   if (!current) return { error: 'Please sign in before editing an achievement.', success: null };
   const { data: existing, error: readError } = await current.supabase
     .from('achievements')
-    .select('id, lodge_id, created_by')
+    .select('id, lodge_id, created_by, character_id, source')
     .eq('id', id.data)
     .maybeSingle();
   if (
     readError ||
     !existing ||
+    existing.source !== 'manual' ||
     existing.lodge_id !== parsed.data.lodgeId ||
     !(await permittedToManage(
       current.supabase,
@@ -148,13 +149,15 @@ export async function updateAchievement(
     return { error: 'You do not have permission to edit this achievement.', success: null };
   if (
     parsed.data.characterId &&
-    !(await ownsCharacter(current.supabase, parsed.data.characterId, current.user.id))
+    parsed.data.characterId !== existing.character_id &&
+    (existing.created_by !== current.user.id ||
+      !(await ownsCharacter(current.supabase, parsed.data.characterId, current.user.id)))
   )
     return { error: 'You can only credit one of your own Travelers.', success: null };
   const achievedAt = parsed.data.achievedAt ? new Date(parsed.data.achievedAt) : null;
   if (achievedAt && Number.isNaN(achievedAt.getTime()))
     return { error: 'Choose a valid achievement date.', success: null };
-  const { error } = await current.supabase
+  const { data: updated, error } = await current.supabase
     .from('achievements')
     .update({
       title: parsed.data.title,
@@ -162,8 +165,10 @@ export async function updateAchievement(
       character_id: parsed.data.characterId || null,
       achieved_at: achievedAt?.toISOString() ?? null,
     })
-    .eq('id', existing.id);
-  if (error)
+    .eq('id', existing.id)
+    .select('id')
+    .maybeSingle();
+  if (error || !updated)
     return { error: 'The achievement could not be updated. Please try again.', success: null };
   refresh();
   return { error: null, success: 'Achievement updated.' };
@@ -179,12 +184,13 @@ export async function deleteAchievement(
   if (!current) return { error: 'Please sign in before removing an achievement.', success: null };
   const { data: existing, error: readError } = await current.supabase
     .from('achievements')
-    .select('id, lodge_id, created_by')
+    .select('id, lodge_id, created_by, source')
     .eq('id', id.data)
     .maybeSingle();
   if (
     readError ||
     !existing ||
+    existing.source !== 'manual' ||
     !(await permittedToManage(
       current.supabase,
       existing.lodge_id,
@@ -193,8 +199,13 @@ export async function deleteAchievement(
     ))
   )
     return { error: 'You do not have permission to remove this achievement.', success: null };
-  const { error } = await current.supabase.from('achievements').delete().eq('id', existing.id);
-  if (error)
+  const { data: removed, error } = await current.supabase
+    .from('achievements')
+    .delete()
+    .eq('id', existing.id)
+    .select('id')
+    .maybeSingle();
+  if (error || !removed)
     return { error: 'The achievement could not be removed. Please try again.', success: null };
   refresh();
   return { error: null, success: 'Achievement removed.' };

@@ -66,7 +66,7 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 | 2 | Audited October 2: one medium and three low findings | Consent deletion repaired, old orphan cleared, and SQL rehearsed; public-import ownership label, fetch cooldown, snapshot retention, and canonical-result failure lookup added. Pre-fetch alias failures and true realm-transfer identity remain a documented low-severity limit; hosted checks remain open | Complete; continue in order |
 | 3 | Audited October 2: no high/medium defects; two low UX limitations | UTC event cutoff is the documented date convention; Hearth Lodge switching meets its specified flow, while cross-section persistence is future scope. Live multi-Lodge, second-account sharing, and responsive/accessibility acceptance remain open | Complete; continue in order |
 | 4 | Audited October 2: two medium and three low findings | Linked migration applied and rehearsed: Guild-linked events cannot be deleted, former creators lose delete access, departing RSVPs are cleared, and content bounds are enforced. UI/actions fixes passed focused checks, lint, and build; live acceptance remains open | Run Milestone 5 prompt |
-| 5 | Pending | Pending | Next |
+| 5 | Audited October 2: three medium and four low findings | Migration applied after one-file dry run and rollback rehearsal; post-apply rollback checks, focused tests, lint, TypeScript, and build passed. Blizzard ingestion, cascade Storage cleanup, and live acceptance remain open | Commit and push approved repair, then run Milestone 6 prompt |
 | 6 | Pending | Pending | After 5 |
 | 7 | Pending | Pending | After 6 |
 | 8 | Pending | Pending | After 7 |
