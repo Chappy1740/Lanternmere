@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 5,
+  "revision": 6,
   "updatedAt": "2026-10-01",
   "milestones": [
     {
@@ -279,7 +279,15 @@
       "requestedAt": "2026-10-01",
       "milestone": 1,
       "status": "done",
-      "note": "Add a visible Sign out button to the authenticated topbar on desktop and mobile, discovered during live session acceptance. Live sign-out acceptance remains separately open."
+      "note": "Added a visible Sign out button to the authenticated topbar on desktop and mobile. The user confirmed sign-out followed by a protected-route redirect; A-03 is verified."
+    },
+    {
+      "id": "CR-006",
+      "title": "Resolve Membership Worker resource-limit failure",
+      "requestedAt": "2026-10-01",
+      "milestone": null,
+      "status": "in_progress",
+      "note": "Investigate live Cloudflare Error 1102 on Membership, reduce avoidable CPU work, and verify the owner/non-owner privacy page after deployment."
     }
   ],
   "acceptance": [
@@ -296,7 +304,7 @@
     {
       "id": "A-03",
       "title": "Authenticated Worker sign-in, sign-out, and session persistence",
-      "status": "open"
+      "status": "verified"
     },
     {
       "id": "A-04",

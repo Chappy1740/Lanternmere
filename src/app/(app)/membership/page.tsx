@@ -62,6 +62,10 @@ export default async function MembershipPage({
     if (directoryError || !parsedPreferences.success)
       throw new Error('Unable to load app membership preferences.');
     const aliasById = new Map(parsedPreferences.data.map((entry) => [entry.profile_id, entry]));
+    const signupDateFormatter = new Intl.DateTimeFormat('en-US', {
+      dateStyle: 'medium',
+      timeZone: 'UTC',
+    });
     memberRows = parsedProfiles.data.map((profile) => {
       const choice = aliasById.get(profile.id);
       return {
@@ -69,10 +73,7 @@ export default async function MembershipPage({
           choice?.visible_to_owner && choice.alias
             ? choice.alias
             : `Member ${createHash('sha256').update(profile.id).digest('hex').slice(0, 10).toUpperCase()}`,
-        signedUpOn: new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'medium',
-          timeZone: 'UTC',
-        }).format(new Date(profile.created_at)),
+        signedUpOn: signupDateFormatter.format(new Date(profile.created_at)),
       };
     });
   }
