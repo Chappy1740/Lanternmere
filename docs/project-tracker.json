@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "revision": 1,
+  "updatedAt": "2026-09-30",
+  "milestones": [
+    { "number": 0, "name": "Foundation", "status": "implemented", "work": [] },
+    { "number": 1, "name": "Front Door", "status": "implemented", "work": [] },
+    { "number": 2, "name": "Travelers and Characters", "status": "implemented", "work": [] },
+    { "number": 3, "name": "The Hearth", "status": "implemented", "work": [] },
+    { "number": 4, "name": "Quest Board", "status": "implemented", "work": [] },
+    { "number": 5, "name": "Hall of Legends and Chronicles", "status": "implemented", "work": [] },
+    { "number": 6, "name": "Adventures", "status": "implemented", "work": [] },
+    { "number": 7, "name": "The Guild Hall", "status": "implemented", "work": [] },
+    { "number": 8, "name": "The Raid Room", "status": "implemented", "work": [] },
+    {
+      "number": 9,
+      "name": "The War Table",
+      "status": "in_progress",
+      "work": [
+        {
+          "id": "M9-01",
+          "title": "Seven-day view of canonical Lodge events and authorized Guild raids",
+          "status": "done"
+        },
+        {
+          "id": "M9-02",
+          "title": "Weekly reset display based on the verified Main character region",
+          "status": "done"
+        },
+        {
+          "id": "M9-03",
+          "title": "Player availability and planned absences",
+          "status": "in_progress"
+        },
+        { "id": "M9-04", "title": "Personalized weekly priorities", "status": "todo" },
+        {
+          "id": "M9-05",
+          "title": "Leadership briefing and operational follow-ups",
+          "status": "todo"
+        },
+        { "id": "M9-06", "title": "Vault progress context", "status": "todo" },
+        { "id": "M9-07", "title": "Guild calendar across event types", "status": "todo" },
+        {
+          "id": "M9-08",
+          "title": "Calendar export or subscription where supported",
+          "status": "todo"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "name": "The Muster",
+      "status": "planned",
+      "work": [
+        { "id": "M10-01", "title": "Recruitment needs and applicant intake", "status": "todo" },
+        {
+          "id": "M10-02",
+          "title": "Applicant and trial workflow with officer notes and decision history",
+          "status": "todo"
+        },
+        {
+          "id": "M10-03",
+          "title": "Recruiter permissions, applicant privacy, retention, and audit",
+          "status": "todo"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "name": "The Artisan Hall",
+      "status": "planned",
+      "work": [
+        {
+          "id": "M11-01",
+          "title": "Character professions, recipes, and crafting discovery",
+          "status": "todo"
+        },
+        {
+          "id": "M11-02",
+          "title": "Crafting requests and optional Guild supply goals",
+          "status": "todo"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "name": "The Expedition Board",
+      "status": "planned",
+      "work": [
+        {
+          "id": "M12-01",
+          "title": "Mythic+ group posts, role matching, and key-night planning",
+          "status": "todo"
+        },
+        {
+          "id": "M12-02",
+          "title": "Weekly goals, Vault context, and consented Raider.IO context",
+          "status": "todo"
+        },
+        {
+          "id": "M12-03",
+          "title": "Dungeon and route resources through the Supply Chest",
+          "status": "todo"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "name": "The Chronicle Lens",
+      "status": "planned",
+      "work": [
+        { "id": "M13-01", "title": "Supported Warcraft Logs integration", "status": "todo" },
+        {
+          "id": "M13-02",
+          "title": "Progression snapshots and source-attributed trend views",
+          "status": "todo"
+        },
+        {
+          "id": "M13-03",
+          "title": "Post-raid review with attendance, loot, and progression context",
+          "status": "todo"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "name": "The Lanternkeeper",
+      "status": "planned",
+      "work": [
+        { "id": "M14-01", "title": "Permission-aware raid and weekly briefings", "status": "todo" },
+        {
+          "id": "M14-02",
+          "title": "Change summaries and links to authoritative records",
+          "status": "todo"
+        },
+        {
+          "id": "M14-03",
+          "title": "Explainable assistance with privacy and consent boundaries",
+          "status": "todo"
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "id": "CR-001",
+      "title": "Project status dashboard and ongoing change log",
+      "requestedAt": "2026-09-30",
+      "milestone": null,
+      "status": "in_progress",
+      "note": "Show roadmap progress and remaining work on the site; record new scope requests during milestone builds."
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "A-01",
+      "title": "Live Battle.net rank-zero claim and rank-nonzero denial",
+      "status": "open"
+    },
+    {
+      "id": "A-02",
+      "title": "Live multi-account authorization and populated Raid Room workflows",
+      "status": "open"
+    },
+    {
+      "id": "A-03",
+      "title": "Cloudflare preview and authenticated Worker flows",
+      "status": "open"
+    },
+    {
+      "id": "A-04",
+      "title": "Fresh confirmation-email and hosted callback check",
+      "status": "open"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ Lanternmere is a World of Warcraft community app organized around Lodges and Tra
 
 - [Project overview and terminology](docs/project-overview.md)
 - [Current status and milestone handoff](docs/project-status.md)
+- [Public status dashboard and tracking rules](docs/project-tracker.md)
 - [Architecture and security boundaries](docs/architecture.md)
 - [Development and verification](docs/development.md)
 - [Cloudflare Workers preview hosting](docs/cloudflare-hosting.md)

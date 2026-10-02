@@ -4,7 +4,7 @@ Lanternmere has a non-production vinext configuration for evaluating Cloudflare 
 
 ## Current boundary
 
-- `npm run dev` and `npm run build` continue to use Next.js directly.
+- `npm run dev` uses Next.js directly. `npm run build` uses Next.js locally and vinext when Cloudflare's `WORKERS_CI=1` marker is present.
 - `npm run dev:vinext` starts the vinext development server on port 3001.
 - `npm run build:vinext` produces the ignored `dist/` Workers bundle.
 - `npm run start:vinext` runs that bundle in the local Workers runtime.
@@ -14,6 +14,18 @@ Lanternmere has a non-production vinext configuration for evaluating Cloudflare 
 The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite integration is in `vite.config.ts`. `keep_vars` preserves runtime variables configured through the Cloudflare dashboard when Wrangler deploys a new version. Generated output and local Wrangler state are ignored by Git. A local build may create `dist/server/.dev.vars` from `.env.local`; it stays ignored and must never be committed.
 
 ## Required environment configuration
+
+### Git-connected Workers Builds
+
+In the Worker dashboard under **Settings → Builds → Build configuration**, use `npm run build:vinext` as the explicit build command. `npm run build` also selects vinext inside Workers Builds using Cloudflare's documented `WORKERS_CI=1` marker, so a retained default build command produces the correct Workers bundle. Outside Workers Builds, it keeps the normal Next.js build behavior.
+
+Deployment commands must use the generated `dist/server/wrangler.json` configuration. The existing production script is `npm run deploy:vinext`. This Git integration uses isolated Worker Previews: keep its Preview command as `npx wrangler preview`. Switching this isolated build to `wrangler versions upload` produced a CI Worker identity mismatch; do not rename the production Worker or bypass that check.
+
+The checked-in empty `previews` block also supports Workers Builds' default `npx wrangler preview` command. Keep it in the source configuration so the Vite-generated deployment configuration retains it.
+
+Both Workers build entry points use `scripts/build.mjs`. In Workers CI it checks that the two public Supabase build variables exist, then copies only those public variables into `dist/server/wrangler.json` under `previews.vars` after bundling. This generated artifact is ignored and must not be committed. Private runtime secrets are never copied by this script; configure required private secrets in Cloudflare Previews Base. Base secret changes apply to newly created Previews, so an existing Preview may need its own secret update. Dashboard ordinary variable settings must be reflected in Wrangler configuration, as described in [Preview configuration](https://developers.cloudflare.com/workers/previews/configuration/).
+
+The Workers bundle builds without a Supabase service-role key in the build environment. Keep that private key in the Worker's runtime secrets; do not add it to a public variable to work around a build error. Public `NEXT_PUBLIC_` values still need the correct build/runtime configuration for connected browser flows. Confirm both deployment commands before retrying a branch build. See [Cloudflare build configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/).
 
 The local preview reads the existing private `.env.local`. A future Cloudflare preview or production environment must configure these separately in Cloudflare:
 

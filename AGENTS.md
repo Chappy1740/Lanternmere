@@ -25,6 +25,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Keep documentation-only tasks limited to documentation. During the initial documentation handoff, review the diff with the user and commit it before beginning Milestone 3 product work.
 - Milestones 0–4 are implemented. The pre-Milestone-5 consolidation and UI/design-alignment checkpoint must preserve product behavior; navigation labels are not a feature specification.
 - Update the handoff when scope, implementation status, or verification results change. Distinguish recorded results from checks run in the current session.
+- During milestone work, record new user requests and scope decisions in `docs/project-tracker.json` using `docs/project-tracker.md`. Update tracked work and acceptance states when evidence changes so the public `/status` page remains useful across sessions.
 
 ## Security and verification
 
