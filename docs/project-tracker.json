@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 8,
+  "revision": 9,
   "updatedAt": "2026-10-02",
   "milestones": [
     {
@@ -311,7 +311,7 @@
       "requestedAt": "2026-10-02",
       "milestone": null,
       "status": "done",
-      "note": "Your account connects Battle.net and displays the member's private available WoW character list for a selected region. Ownership and OAuth state are verified on the server; Guild roles and sharing remain separate. Real Battle.net acceptance remains open under A-09."
+      "note": "Your account connects Battle.net and displays private available WoW characters for a selected region. Locale-aware parsing and safe failure feedback address a callback defect found during acceptance. Ownership and Guild roles remain separate. Hosted retry remains open under A-09."
     }
   ],
   "acceptance": [

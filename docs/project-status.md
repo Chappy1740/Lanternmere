@@ -1,5 +1,10 @@
 # Project status and handoff
 
+## Personal Battle.net callback follow-up — October 2, 2026
+
+- The user reached the personal connection failure page; A-09 is not passed. Found a parsing defect: account-profile requests omitted locale while new display fields required string realm names. Added a locale and safe normalization of localized names without relaxing character-ID/realm-slug ownership checks. This is a confirmed parser defect, not a confirmed diagnosis of the user's particular callback without a hosted retry.
+- Failure feedback now distinguishes expired/cancelled authorization, changed Lanternmere sessions, token/profile retrieval, response format, and snapshot saving. Server diagnostics record only a fixed stage, HTTP status, or database error code; never tokens, cookies, profile payloads, or account identities.
+
 ## Account management implementation — October 2, 2026
 
 - Implemented CR-007–CR-009: required signup game nickname with unchecked optional directory consent; `/account` for existing-member nickname setup and private Battle.net character snapshots; `/owner/accounts` for the configured app owner, with registered/recently seen/suspended counts and confirmed suspension/restoration. Membership and navigation link to the appropriate pages. Confirmation callbacks accept the account onboarding destination.
