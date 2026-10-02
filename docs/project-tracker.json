@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 7,
+  "revision": 8,
   "updatedAt": "2026-10-02",
   "milestones": [
     {
@@ -294,24 +294,24 @@
       "title": "Required game nickname at signup",
       "requestedAt": "2026-10-02",
       "milestone": null,
-      "status": "accepted",
-      "note": "Require a game nickname at registration, explain its use, and preserve optional owner-directory sharing. Existing accounts need a nickname setup path. Implementation and milestone placement remain pending."
+      "status": "done",
+      "note": "Signup requires a game nickname with optional owner sharing. Existing accounts can edit their nickname on Your account. Fresh signup and consent acceptance remains open under A-10."
     },
     {
       "id": "CR-008",
       "title": "Owner account management and usage counts",
       "requestedAt": "2026-10-02",
       "milestone": null,
-      "status": "accepted",
-      "note": "Provide an owner-only management page with registered account counts, separately defined active usage, and audited suspension/restoration. The user chose suspension instead of permanent deletion. Block existing sessions and data access while suspended; protect the owner account. Implementation and milestone placement remain pending."
+      "status": "done",
+      "note": "Owner-only account management shows registered, recently seen, and suspended counts. Confirmed access changes are audited; suspension is enforced against current database state, including stale JWTs. Owner self-suspension is blocked. Hosted second-account acceptance remains open under A-08."
     },
     {
       "id": "CR-009",
       "title": "Member Battle.net character onboarding",
       "requestedAt": "2026-10-02",
       "milestone": null,
-      "status": "accepted",
-      "note": "After registration, let each member authorize their own Battle.net account and view its available WoW characters. Keep account ownership server-verified, personal character access private, and Guild leadership verification separate. Implementation and milestone placement remain pending."
+      "status": "done",
+      "note": "Your account connects Battle.net and displays the member's private available WoW character list for a selected region. Ownership and OAuth state are verified on the server; Guild roles and sharing remain separate. Real Battle.net acceptance remains open under A-09."
     }
   ],
   "acceptance": [
@@ -349,6 +349,21 @@
       "id": "A-07",
       "title": "Signed-out protected pages, private calendar access, and Guild claim entry denial",
       "status": "verified"
+    },
+    {
+      "id": "A-08",
+      "title": "Hosted owner account management, stale-session suspension, and restoration",
+      "status": "open"
+    },
+    {
+      "id": "A-09",
+      "title": "Live personal Battle.net connection and private character-list visibility",
+      "status": "open"
+    },
+    {
+      "id": "A-10",
+      "title": "Fresh signup nickname, confirmation, and optional directory-sharing consent",
+      "status": "open"
     }
   ]
 }

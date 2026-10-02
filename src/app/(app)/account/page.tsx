@@ -1,0 +1,95 @@
+import Link from 'next/link';
+import { z } from 'zod';
+import { getViewer } from '@/lib/hearth/context';
+import { GameNicknameForm } from '@/components/game-nickname-form';
+import { ownedWowCharacterSchema } from '@/lib/wow/guild-claim';
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ battleNet?: string }>;
+}) {
+  const { supabase, user } = await getViewer();
+  const params = await searchParams;
+  const [{ data: profile, error: profileError }, { data: snapshot, error: snapshotError }] =
+    await Promise.all([
+      supabase.from('profiles').select('display_name').eq('id', user.id).single(),
+      supabase
+        .from('app_owned_wow_snapshots')
+        .select('region,characters,refreshed_at')
+        .eq('profile_id', user.id)
+        .maybeSingle(),
+    ]);
+  if (profileError || snapshotError) throw new Error('Unable to load your account.');
+  const characters = z.array(ownedWowCharacterSchema).safeParse(snapshot?.characters ?? []);
+  if (!characters.success) throw new Error('Unable to load your character list.');
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <section className="lodge-panel p-6">
+        <p className="lodge-kicker">Your account</p>
+        <h1 className="font-display mt-2 text-3xl">Nickname and characters</h1>
+        <GameNicknameForm nickname={profile?.display_name ?? ''} />
+        <Link href="/membership" className="text-accent mt-5 inline-block">
+          Directory privacy
+        </Link>
+      </section>
+      <section className="lodge-panel p-6">
+        <h2 className="font-display text-2xl">Your Battle.net characters</h2>
+        <p className="text-text-muted mt-3 text-sm">
+          Authorize your own Battle.net account to see available WoW characters in your selected
+          region. This list is private to your Lanternmere account. Connecting does not grant Guild
+          leadership or share characters with a Guild or Lodge.
+        </p>
+        <form
+          action="/api/battle-net/start"
+          method="get"
+          className="mt-4 flex flex-wrap items-center gap-3"
+        >
+          <label>
+            Region{' '}
+            <select
+              name="region"
+              defaultValue={snapshot?.region ?? 'us'}
+              className="lodge-field px-3 py-2"
+            >
+              <option value="us">US</option>
+              <option value="eu">EU</option>
+              <option value="kr">KR</option>
+              <option value="tw">TW</option>
+            </select>
+          </label>
+          <button className="lodge-button px-4 py-2">
+            {snapshot ? 'Refresh Battle.net characters' : 'Connect Battle.net'}
+          </button>
+        </form>
+        {params.battleNet === 'failed' && (
+          <p role="alert" className="mt-3">
+            Battle.net connection failed or expired. Try connecting again.
+          </p>
+        )}
+        {params.battleNet === 'connected' && (
+          <p role="status" className="mt-3">
+            Your character list is refreshed.
+          </p>
+        )}
+        {snapshot && (
+          <p className="text-text-muted mt-4 text-sm">
+            {characters.data.length} available characters · {snapshot.region.toUpperCase()} ·
+            updated {new Date(snapshot.refreshed_at).toISOString().slice(0, 10)}
+          </p>
+        )}
+        <ul className="mt-4 space-y-2">
+          {characters.data.map((character) => (
+            <li className="lodge-list-row p-3" key={`${character.realm.slug}:${character.id}`}>
+              {character.name ?? `Character ${character.id}`} ·{' '}
+              {character.realm.name ?? character.realm.slug}
+              {character.level !== undefined ? ` · Level ${character.level}` : ''}
+            </li>
+          ))}
+        </ul>
+        {snapshot && !characters.data.length && (
+          <p className="mt-3">Battle.net returned no available characters in this region.</p>
+        )}
+      </section>
+    </div>
+  );
+}

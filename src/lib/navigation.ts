@@ -68,4 +68,5 @@ export const navItems: NavItem[] = [
     icon: PlusCircle,
   },
   { label: 'Membership', subtitle: 'Your directory privacy', href: '/membership', icon: Users },
+  { label: 'Your account', subtitle: 'Nickname & Battle.net', href: '/account', icon: Users },
 ];

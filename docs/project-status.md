@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Account management implementation — October 2, 2026
+
+- Implemented CR-007–CR-009: required signup game nickname with unchecked optional directory consent; `/account` for existing-member nickname setup and private Battle.net character snapshots; `/owner/accounts` for the configured app owner, with registered/recently seen/suspended counts and confirmed suspension/restoration. Membership and navigation link to the appropriate pages. Confirmation callbacks accept the account onboarding destination.
+- Applied `20261002092258_account_access_management.sql` after rollback-only rehearsal and a dry run showing only that migration. It adds access flags, activity, access audit, private-to-member character snapshots, signup consent initialization, a caller-permission PostgREST hook, and 54 restrictive table/Storage policies. No real account was suspended; installed checks reported zero suspended accounts and zero access changes. Future exposed tables and request-hook changes must preserve suspension enforcement; see `docs/account-management.md`.
+- Verification: focused ESLint, TypeScript after regenerating route types overwritten by vinext, nickname/consent/owner-action/personal-OAuth/shared-auth-client tests, existing membership regression, and fixture Worker build passed. Database assertions passed before and after application and rolled back their test changes. Security advisors at error level reported no issues. The Supabase connector rejected SQL access; authenticated CLI queries and migration commands were used instead. Changelog fetching failed due unsupported content type; current official signup, request-hook, Storage, and Blizzard account-profile guidance was checked.
+- A-08–A-10 distinguish remaining hosted multi-account, real Battle.net, and fresh confirmation checks from implementation. Existing A-06 privacy and CR-006 intermittent resource diagnosis remain open. Previously issued signed URLs and already-running requests are not revoked by suspension; public assets remain public. Activity is recorded from feature rollout, not reconstructed history.
+- Publication follows the verified preview workflow. No browser automation or hosted owner/session test is claimed from local checks.
+
 ## Account management scope — October 2, 2026
 
 - The production owner binding was applied directly with Wrangler, creating a Secret Change deployment. The user confirmed that Registered members now appears. Owner access is verified by that report; cross-account alias visibility and revocation remain open under A-06. Do not treat the intermittent Error 1102 as resolved.

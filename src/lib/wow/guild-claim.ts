@@ -15,15 +15,16 @@ export const guildClaimStateSchema = z.object({
   issuedAt: z.number().int(),
 });
 
+export const ownedWowCharacterSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().max(128).optional(),
+  level: z.number().int().nonnegative().optional(),
+  realm: z.object({ slug: z.string().min(1).max(128), name: z.string().max(128).optional() }),
+});
 const accountProfileSchema = z.object({
   wow_accounts: z.array(
     z.object({
-      characters: z.array(
-        z.object({
-          id: z.number().int().positive(),
-          realm: z.object({ slug: z.string().min(1) }),
-        }),
-      ),
+      characters: z.array(ownedWowCharacterSchema).max(5000),
     }),
   ),
 });
