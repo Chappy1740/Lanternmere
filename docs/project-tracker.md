@@ -4,7 +4,7 @@
 
 ## Counting rule
 
-The overall percentage is **implemented milestones / all roadmap milestones**. Each milestone counts once, so the current baseline is 9 / 15 = 60%. This is feature-scope progress, not a time estimate or a claim that live acceptance has passed. The active milestone's work items and the separate acceptance list provide the finer detail. A new request assigned to a milestone is added to that milestone's work list; it must be finished before the milestone is marked implemented.
+The overall percentage is **implemented milestones / all roadmap milestones**. Each milestone counts once, so the current baseline is 10 / 15 = approximately 67%. This is feature-scope progress, not a time estimate or a claim that live acceptance has passed. The active milestone's work items and the separate acceptance list provide the finer detail. A new request assigned to a milestone is added to that milestone's work list; it must be finished before the milestone is marked implemented.
 
 ## Updating the tracker
 

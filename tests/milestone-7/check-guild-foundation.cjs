@@ -144,3 +144,65 @@ assert.match(
   /revoke all on public\.guild_raid_encounters, public\.guild_raid_encounter_directives from anon, authenticated/,
 );
 console.log('Guild Raid Room checks passed.');
+
+const lootSql = fs.readFileSync(
+  'supabase/migrations/20260923110249_raid_room_loot_council.sql',
+  'utf8',
+);
+for (const table of [
+  'guild_raid_loot_drops',
+  'guild_raid_loot_candidates',
+  'guild_raid_loot_votes',
+  'guild_raid_loot_awards',
+]) {
+  assert.match(lootSql, new RegExp(`create table public\\.${table}`));
+  assert.match(lootSql, new RegExp(`alter table public\\.${table} enable row level security`));
+}
+assert.match(
+  lootSql,
+  /private\.can_lead_guild\(p_guild_id\) or private\.has_guild_role\(p_guild_id, 'loot_council'\)/,
+);
+assert.match(lootSql, /unique \(loot_drop_id, voter_id\)/);
+assert.match(lootSql, /loot_drop_id uuid not null unique/);
+for (const action of [
+  'loot_drop_recorded',
+  'loot_candidate_recorded',
+  'loot_vote_cast',
+  'loot_awarded',
+])
+  assert.match(lootSql, new RegExp(`guild\\.${action}`));
+assert.match(
+  lootSql,
+  /revoke all on public\.guild_raid_loot_drops, public\.guild_raid_loot_candidates, public\.guild_raid_loot_votes, public\.guild_raid_loot_awards from anon, authenticated/,
+);
+
+const lootAccessSql = fs.readFileSync(
+  'supabase/migrations/20260929010621_raid_loot_council_operation_list.sql',
+  'utf8',
+);
+const projection = lootAccessSql.match(
+  /create or replace function public\.list_guild_raid_loot_operations\(p_guild_id uuid\)[\s\S]*?\$\$;/,
+)?.[0];
+assert.ok(projection);
+assert.match(
+  projection,
+  /select operation\.id, event\.title, event\.event_date, event\.event_time/,
+);
+assert.match(projection, /operation\.guild_id = p_guild_id/);
+assert.match(projection, /private\.can_manage_guild_loot\(p_guild_id\)/);
+assert.doesNotMatch(projection, /operational_notes|rsvp|lodge_id/);
+assert.match(
+  lootAccessSql,
+  /revoke all on function public\.list_guild_raid_loot_operations\(uuid\) from public, anon/,
+);
+assert.match(
+  lootAccessSql,
+  /grant execute on function public\.list_guild_raid_loot_operations\(uuid\) to authenticated/,
+);
+
+const lootPage = fs.readFileSync('src/app/(app)/guild-hall/loot-council/page.tsx', 'utf8');
+assert.match(lootPage, /roles\.includes\('loot_council'\)/);
+assert.match(lootPage, /loadGuildRaidLootOperations\(membership\.guild_id\)/);
+assert.match(lootPage, /operations\.find\(\(entry\) => entry\.id === params\.operation\)/);
+assert.doesNotMatch(lootPage, /loadGuildRaidOperations|loadGuildRaidEncounters|loadGuildReadiness/);
+console.log('Loot Council role and narrow projection checks passed.');

@@ -1,21 +1,66 @@
 {
   "schemaVersion": 1,
-  "revision": 2,
+  "revision": 3,
   "updatedAt": "2026-10-01",
   "milestones": [
-    { "number": 0, "name": "Foundation", "status": "implemented", "work": [] },
-    { "number": 1, "name": "Front Door", "status": "implemented", "work": [] },
-    { "number": 2, "name": "Travelers and Characters", "status": "implemented", "work": [] },
-    { "number": 3, "name": "The Hearth", "status": "implemented", "work": [] },
-    { "number": 4, "name": "Quest Board", "status": "implemented", "work": [] },
-    { "number": 5, "name": "Hall of Legends and Chronicles", "status": "implemented", "work": [] },
-    { "number": 6, "name": "Adventures", "status": "implemented", "work": [] },
-    { "number": 7, "name": "The Guild Hall", "status": "implemented", "work": [] },
-    { "number": 8, "name": "The Raid Room", "status": "implemented", "work": [] },
+    {
+      "number": 0,
+      "name": "Foundation",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 1,
+      "name": "Front Door",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 2,
+      "name": "Travelers and Characters",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 3,
+      "name": "The Hearth",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 4,
+      "name": "Quest Board",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 5,
+      "name": "Hall of Legends and Chronicles",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 6,
+      "name": "Adventures",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 7,
+      "name": "The Guild Hall",
+      "status": "implemented",
+      "work": []
+    },
+    {
+      "number": 8,
+      "name": "The Raid Room",
+      "status": "implemented",
+      "work": []
+    },
     {
       "number": 9,
       "name": "The War Table",
-      "status": "in_progress",
+      "status": "implemented",
       "work": [
         {
           "id": "M9-01",
@@ -30,20 +75,32 @@
         {
           "id": "M9-03",
           "title": "Player availability and planned absences",
-          "status": "in_progress"
+          "status": "done"
         },
-        { "id": "M9-04", "title": "Personalized weekly priorities", "status": "todo" },
+        {
+          "id": "M9-04",
+          "title": "Personalized weekly priorities",
+          "status": "done"
+        },
         {
           "id": "M9-05",
           "title": "Leadership briefing and operational follow-ups",
-          "status": "todo"
+          "status": "done"
         },
-        { "id": "M9-06", "title": "Vault progress context", "status": "todo" },
-        { "id": "M9-07", "title": "Guild calendar across event types", "status": "todo" },
+        {
+          "id": "M9-06",
+          "title": "Vault progress context",
+          "status": "done"
+        },
+        {
+          "id": "M9-07",
+          "title": "Guild calendar across event types",
+          "status": "done"
+        },
         {
           "id": "M9-08",
-          "title": "Calendar export or subscription where supported",
-          "status": "todo"
+          "title": "Authenticated Lodge/Guild calendar snapshot exports",
+          "status": "done"
         }
       ]
     },
@@ -52,7 +109,11 @@
       "name": "The Muster",
       "status": "planned",
       "work": [
-        { "id": "M10-01", "title": "Recruitment needs and applicant intake", "status": "todo" },
+        {
+          "id": "M10-01",
+          "title": "Recruitment needs and applicant intake",
+          "status": "todo"
+        },
         {
           "id": "M10-02",
           "title": "Applicant and trial workflow with officer notes and decision history",
@@ -109,7 +170,11 @@
       "name": "The Chronicle Lens",
       "status": "planned",
       "work": [
-        { "id": "M13-01", "title": "Supported Warcraft Logs integration", "status": "todo" },
+        {
+          "id": "M13-01",
+          "title": "Supported Warcraft Logs integration",
+          "status": "todo"
+        },
         {
           "id": "M13-02",
           "title": "Progression snapshots and source-attributed trend views",
@@ -127,7 +192,11 @@
       "name": "The Lanternkeeper",
       "status": "planned",
       "work": [
-        { "id": "M14-01", "title": "Permission-aware raid and weekly briefings", "status": "todo" },
+        {
+          "id": "M14-01",
+          "title": "Permission-aware raid and weekly briefings",
+          "status": "todo"
+        },
         {
           "id": "M14-02",
           "title": "Change summaries and links to authoritative records",
@@ -149,6 +218,22 @@
       "milestone": null,
       "status": "done",
       "note": "Show roadmap progress and remaining work on the site; record new scope requests during milestone builds."
+    },
+    {
+      "id": "CR-002",
+      "title": "Scoped Loot Council workspace",
+      "requestedAt": "2026-09-28",
+      "milestone": 8,
+      "status": "done",
+      "note": "Allow verified Loot Council members to manage Guild raid loot without access to Raid Mode plans, encounters, or Lodge RSVPs."
+    },
+    {
+      "id": "CR-003",
+      "title": "Membership directory privacy and owner registration view",
+      "requestedAt": "2026-09-28",
+      "milestone": null,
+      "status": "done",
+      "note": "Members control an optional owner-visible alias; the configured application owner sees signup dates and pseudonyms without emails or game data."
     }
   ],
   "acceptance": [
@@ -164,12 +249,22 @@
     },
     {
       "id": "A-03",
-      "title": "Cloudflare preview and authenticated Worker flows",
+      "title": "Authenticated Worker sign-in, sign-out, and session persistence",
       "status": "open"
     },
     {
       "id": "A-04",
       "title": "Fresh confirmation-email and hosted callback check",
+      "status": "open"
+    },
+    {
+      "id": "A-05",
+      "title": "Live War Table interactions, real calendar import, and cross-account Vault consent",
+      "status": "open"
+    },
+    {
+      "id": "A-06",
+      "title": "Live non-owner directory denial and alias opt-in/revocation",
       "status": "open"
     }
   ]

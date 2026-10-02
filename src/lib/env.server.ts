@@ -3,9 +3,9 @@ import { z } from 'zod';
 
 const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase secret key is required'),
+  APP_OWNER_PROFILE_ID: z.uuid().optional(),
 
-  // Blizzard OAuth credentials — optional until OAuth integration begins.
-  // Once the OAuth flow is implemented, remove .optional() to make these required.
+  // Optional globally; Guild Master claims fail closed when these are unset.
   BLIZZARD_CLIENT_ID: z.string().min(1).optional(),
   BLIZZARD_CLIENT_SECRET: z.string().min(1).optional(),
   BLIZZARD_REDIRECT_URI: z.string().url().optional(),

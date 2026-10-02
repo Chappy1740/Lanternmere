@@ -142,7 +142,7 @@ export function GuildRaidRoom({
         </form>
         <Message state={createState} />
       </section>
-      <LootCouncil operationId={operation.id} guildMembers={guildMembers} names={names} {...loot} />
+      <GuildLootCouncil operationId={operation.id} guildMembers={guildMembers} {...loot} />
 
       {encounters.length ? (
         encounters.map((encounter) => (
@@ -260,23 +260,24 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function LootCouncil({
+export function GuildLootCouncil({
   operationId,
   guildMembers,
-  names,
   drops,
   candidates,
   votes,
   awards,
 }: {
   operationId: string;
-  guildMembers: GuildMember[];
-  names: Map<string, string>;
+  guildMembers: Pick<GuildMember, 'id' | 'profiles'>[];
   drops: GuildRaidLootDrop[];
   candidates: GuildRaidLootCandidate[];
   votes: GuildRaidLootVote[];
   awards: GuildRaidLootAward[];
 }) {
+  const names = new Map(
+    guildMembers.map((member) => [member.id, member.profiles?.display_name ?? 'Guild member']),
+  );
   const [dropState, dropAction, dropPending] = useActionState(createGuildRaidLootDrop, initial);
   const [candidateState, candidateAction, candidatePending] = useActionState(
     saveGuildRaidLootCandidate,
