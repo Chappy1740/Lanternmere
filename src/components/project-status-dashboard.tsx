@@ -64,6 +64,8 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
     (milestone) => milestone.status === 'planned',
   );
   const openAcceptance = tracker.acceptance.filter((item) => item.status === 'open');
+  const roadmap = [...tracker.milestones].sort((a, b) => a.number - b.number);
+  const nextMilestone = roadmap.find((milestone) => milestone.status === 'planned');
 
   return (
     <div className="space-y-8">
@@ -147,17 +149,17 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
         </section>
       )}
 
-      <section aria-labelledby="future-milestones">
+      <section aria-labelledby="project-roadmap">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <h2 id="future-milestones" className="font-display text-2xl">
-            Still to create
+          <h2 id="project-roadmap" className="font-display text-2xl">
+            Project roadmap
           </h2>
           <span className="text-text-muted text-sm">
             {plannedMilestones.length} planned milestones
           </span>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
-          {plannedMilestones.map((milestone) => (
+          {roadmap.map((milestone) => (
             <details key={milestone.number} className="lodge-panel group p-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
                 <span>
@@ -165,16 +167,67 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
                     Milestone {milestone.number} · {milestoneState[milestone.status]}
                   </span>
                   <span className="font-display mt-1 block text-lg">{milestone.name}</span>
+                  {milestone.number === nextMilestone?.number && (
+                    <span className="text-accent mt-2 block text-xs font-semibold">
+                      Next milestone
+                    </span>
+                  )}
+                  {milestone.description && (
+                    <span className="text-text-muted mt-2 block text-sm leading-relaxed">
+                      {milestone.description}
+                    </span>
+                  )}
                 </span>
                 <span aria-hidden="true" className="text-accent text-xl group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <ul className="text-text-muted mt-4 list-inside list-disc space-y-2 text-sm">
-                {milestone.work.map((item) => (
-                  <li key={item.id}>{item.title}</li>
-                ))}
-              </ul>
+              <div className="mt-4 space-y-4 border-t border-[color:var(--border-ornate)] pt-4">
+                {milestone.work.length > 0 && (
+                  <ul className="space-y-2 text-sm">
+                    {milestone.work.map((item) => (
+                      <li key={item.id} className="flex flex-wrap justify-between gap-2">
+                        <span>{item.title}</span>
+                        <span
+                          className={item.status === 'done' ? 'text-green-300' : 'text-text-muted'}
+                        >
+                          {workState[item.status]}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {tracker.requests.some((request) => request.milestone === milestone.number) && (
+                  <div>
+                    <h3 className="text-text-muted text-xs font-semibold tracking-wide uppercase">
+                      Linked scope changes
+                    </h3>
+                    <ul className="mt-2 space-y-2 text-sm">
+                      {tracker.requests
+                        .filter((request) => request.milestone === milestone.number)
+                        .map((request) => (
+                          <li key={request.id}>
+                            <a
+                              href={`#${request.id}`}
+                              className="text-accent underline underline-offset-4"
+                            >
+                              {request.id} · {request.title}
+                            </a>{' '}
+                            · {requestState[request.status]}
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+                {milestone.specification && (
+                  <a
+                    className="text-accent inline-block text-sm underline underline-offset-4"
+                    href={`https://github.com/Chappy1740/Lanternmere/blob/main/docs/milestones/${milestone.specification}`}
+                  >
+                    Read Milestone {milestone.number} specification
+                  </a>
+                )}
+              </div>
             </details>
           ))}
         </div>
@@ -188,7 +241,11 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
           </h2>
           <ul className="mt-4 space-y-3">
             {tracker.requests.map((request) => (
-              <li key={request.id} className="lodge-list-row p-4 text-sm">
+              <li
+                key={request.id}
+                id={request.id}
+                className="lodge-list-row scroll-mt-6 p-4 text-sm"
+              >
                 <div className="flex flex-wrap justify-between gap-2">
                   <strong className="font-medium">{request.title}</strong>
                   <span className="text-accent text-xs">{requestState[request.status]}</span>

@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Status page roadmap — October 1, 2026
+
+- Added the full ordered Milestones 0–14 roadmap to `/status`, with descriptions, implementation states, specification links, expandable tracked tasks, and linked scope changes. Milestone 10 is marked next. Tracker revision 4 records CR-004 and supplies the roadmap metadata; existing five-minute refresh behavior also updates the roadmap.
+- Milestones 0–9 remain implemented (67%); open live acceptance checks remain separately visible. Roadmap metadata is optional in validation so older tracker snapshots remain readable.
+- Current-session verification: focused ESLint, TypeScript, diff whitespace checks, and the vinext Worker build passed. A rendered React smoke check confirmed all 15 cards, descriptions, existing specification targets, the next-milestone marker, scope-request links, and unchanged 67% progress. Hosted publication follows the verified preview workflow.
+
 ## Project status dashboard production release — October 1, 2026
 
 - Merged PR #5 (`4d9b6a0`), superseding PR #3 after the fresh preview inherited the saved Base secret and passed its Cloudflare check. The user opened the preview status page and approved production publication.

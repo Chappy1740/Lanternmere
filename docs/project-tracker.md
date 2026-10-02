@@ -2,6 +2,10 @@
 
 [`project-tracker.json`](project-tracker.json) supplies the public `/status` page. The page checks the published `main` copy every five minutes and shows a bundled copy if GitHub is unavailable. Changes become visible after they are committed and pushed to `main`; local edits and chat messages alone cannot update the published page.
 
+## Roadmap display
+
+Each milestone includes a concise `description` and the filename of its `specification` in `docs/milestones/`. The status page shows all milestones in numerical order, marks the first planned milestone as next, and expands each card to show tracked tasks and linked requests. Keep these descriptions aligned with the milestone specifications when scope changes.
+
 ## Counting rule
 
 The overall percentage is **implemented milestones / all roadmap milestones**. Each milestone counts once, so the current baseline is 10 / 15 = approximately 67%. This is feature-scope progress, not a time estimate or a claim that live acceptance has passed. The active milestone's work items and the separate acceptance list provide the finer detail. A new request assigned to a milestone is added to that milestone's work list; it must be finished before the milestone is marked implemented.
