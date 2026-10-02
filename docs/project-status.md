@@ -1,5 +1,10 @@
 # Project status and handoff
 
+## Project status dashboard production release — October 1, 2026
+
+- Merged PR #5 (`4d9b6a0`), superseding PR #3 after the fresh preview inherited the saved Base secret and passed its Cloudflare check. The user opened the preview status page and approved production publication.
+- The merged production Workers Build passed. Current-session checks confirmed HTTP 200 and dashboard content at https://lanternmere.lanternmere-wow.workers.dev/status; `/api/project-status` reported `published main` as its source. Marked CR-001 done in tracker revision 2. Authenticated product acceptance remains separately open.
+- Published tracker changes refresh on the open dashboard every five minutes. Future scope requests must continue to be recorded through `docs/project-tracker.md`.
 ## Milestone 9 War Table feature completion — September 30, 2026
 
 - Implemented the remaining War Table feature scope on `codex/milestone-9-war-table`: personal RSVP priorities, Guild-only access, Guild-owned non-raid calendar plans, selected-member confirmation gaps and unassigned tasks, consented readiness and source freshness, private player-entered Vault notes with explicit per-Guild leadership sharing, availability removal, and authenticated Lodge/Guild `.ics` snapshots. Existing raid operations still link to their canonical Quest Board event and do not copy RSVP records.
