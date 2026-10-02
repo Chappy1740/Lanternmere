@@ -28,6 +28,8 @@ The import action verifies the user through the cookie-based server client, acce
 
 Preserve that trust boundary: the browser must not supply trusted ownership or authoritative profile data. A privileged service-role write relies on server-verified ownership; it must not be described as protected by ordinary row-level security alone. Character and snapshot saves are atomic, and refresh preserves Main and sharing state as recorded in the Milestone 2 checkpoint.
 
+The verified ID here is the signed-in Lanternmere account that saved the public profile. Importing a public WoW character does not prove that account owns the character in Battle.net. Shared character views say so explicitly. A separate Battle.net authorization is required where Guild leadership depends on in-game ownership.
+
 ## Access and privacy
 
 - Keep privileged credentials and Blizzard credentials on the server.

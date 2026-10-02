@@ -19,3 +19,7 @@ security-regression-body.sql is included in the standalone scripts for reference
 The SQL Editor rehearsal passed on September 15, 2026. Additional read-only checks confirmed rollback restored the old function, removed the new function, and removed fixture users. An error is a failure: stop and explicitly ROLLBACK any still-open interactive transaction before continuing. Do not bypass assertions.
 
 The suite tests privileges, trusted saves, Main selection, sharing ownership and visibility, invalid inputs, refresh preservation, and forced snapshot failure atomicity. It does not simulate concurrent database sessions. Browser checks and results are recorded in docs/milestone-2-checkpoint.md.
+
+## Current-schema audit rehearsals
+
+`member-exit-consent-rehearsal.sql` and `import-bounds-rehearsal.sql` target the **current** schema. Each creates synthetic records inside a transaction and rolls back. Run them only after the matching migrations are installed, or concatenate a pending migration after `begin;` in a temporary copy and run the fixture body before `rollback;`. The first verifies that a direct Lodge-membership delete clears ordinary character, Raider.IO, and Raidbots sharing and that re-entry does not revive it. The second verifies a five-minute Blizzard fetch claim and a ten-snapshot retention limit. Neither script uses the historical disposable baseline or real accounts.

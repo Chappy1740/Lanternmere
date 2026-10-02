@@ -154,6 +154,9 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         <p className="lodge-kicker">
           {isOwner ? 'Your saved character' : 'Shared Lodge character'}
         </p>
+        <p className="text-text-muted mt-2 text-sm">
+          This public profile import does not verify who owns the character.
+        </p>
 
         <h1 className="font-display text-text-primary mt-3 text-4xl font-bold">{name}</h1>
 

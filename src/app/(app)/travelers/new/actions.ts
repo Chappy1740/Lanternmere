@@ -75,15 +75,41 @@ export async function addCharacter(
       return { error: 'Unable to check your saved characters. Please try again.' };
     if (existing.data) existingCharacterId = z.uuid().parse(existing.data.id);
 
+    const admin = createAdminClient();
+    const { data: claimed, error: claimError } = await admin.rpc('claim_wow_profile_fetch', {
+      p_profile_id: user.id,
+      p_region: input.data.region,
+      p_realm_slug: input.data.realm,
+      p_character_name: input.data.characterName,
+    });
+    if (claimError) return { error: 'The character could not be checked right now. Please try again.' };
+    if (!claimed) return { error: 'This character can be checked again in five minutes.' };
+
     const result = await fetchCharacterProfile(input.data);
 
     if (!result.ok) {
       return failure(result.message, result.code === 'invalid_input' ? 'integration' : result.code);
     }
 
+    const canonicalRealm = result.profile.realm.slug.trim().toLowerCase();
+    const canonicalName = result.profile.name.trim().toLowerCase();
+    if (canonicalRealm !== input.data.realm || canonicalName !== input.data.characterName) {
+      const canonical = await supabase
+        .from('characters')
+        .select('id, games!inner(slug)')
+        .eq('profile_id', user.id)
+        .eq('games.slug', 'wow')
+        .eq('region', result.region)
+        .eq('realm_slug', canonicalRealm)
+        .eq('character_name', canonicalName)
+        .maybeSingle();
+      if (canonical.error)
+        return failure('Unable to check your saved characters. Please try again.', 'integration');
+      if (canonical.data) existingCharacterId = z.uuid().parse(canonical.data.id);
+    }
+
     // Write the official response using the server-only client.
     // Ownership comes exclusively from the verified session above.
-    const admin = createAdminClient();
     const { data, error } = await admin.rpc('save_verified_wow_character', {
       p_profile_id: user.id,
       p_region: result.region,

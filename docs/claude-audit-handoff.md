@@ -62,9 +62,9 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 | Milestone | Claude audit | Findings triaged | Next action |
 | --- | --- | --- | --- |
 | 0 | Audited October 2: no high/medium defects; three low findings | Triaged: build requirement documented, SQL hardening applied, local schema config added; hosted schema setting remains unverified | Complete; continue in order |
-| 1 | Audited October 2: three medium and four low findings | Triaged: invitation redirects, transfer selection/history, Lodge validation, suspended sign-in cleanup, profile-name validation, and callback feedback repaired; hosted and second-account acceptance remain open | Run Milestone 2 prompt |
-| 2 | Pending | Pending | Next |
-| 3 | Pending | Pending | After 2 |
+| 1 | Audited October 2: three medium and four low findings | Triaged: invitation redirects, transfer selection/history, Lodge validation, suspended sign-in cleanup, profile-name validation, and callback feedback repaired; hosted and second-account acceptance remain open | Complete; continue in order |
+| 2 | Audited October 2: one medium and three low findings | Consent deletion repaired, old orphan cleared, and SQL rehearsed; public-import ownership label, fetch cooldown, snapshot retention, and canonical-result failure lookup added. Pre-fetch alias failures and true realm-transfer identity remain a documented low-severity limit; hosted checks remain open | Run Milestone 3 prompt |
+| 3 | Pending | Pending | Next |
 | 4 | Pending | Pending | After 3 |
 | 5 | Pending | Pending | After 4 |
 | 6 | Pending | Pending | After 5 |

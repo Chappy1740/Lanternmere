@@ -17,6 +17,7 @@ export const characterInputSchema = z.object({
       z
         .string()
         .min(1, 'Enter a realm.')
+        .max(100, 'Realm name is too long.')
         .regex(/^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u, 'Enter a realm name or realm slug.'),
     ),
 
@@ -27,6 +28,7 @@ export const characterInputSchema = z.object({
       z
         .string()
         .min(1, 'Enter a character name.')
+        .max(40, 'Character name is too long.')
         .regex(/^\p{L}+$/u, 'Character names must contain only letters.'),
     ),
 });

@@ -60,6 +60,9 @@ export async function LodgeRoster({ lodgeId }: { lodgeId: string }) {
                         {main.character_name} · {main.realm_slug} · {main.region.toUpperCase()}
                       </Link>
                       <p className="text-text-muted text-sm">Main shared with this Lodge</p>
+                      <p className="text-text-muted text-sm">
+                        Public profile import; character ownership not verified
+                      </p>
                       <CharacterFreshness
                         refreshedAt={main.character_snapshots[0]?.last_refreshed_at}
                       />

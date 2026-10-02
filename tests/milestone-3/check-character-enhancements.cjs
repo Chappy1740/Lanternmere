@@ -188,7 +188,10 @@ async function fetchWith(mediaResponse, body = profile) {
     writes,
     rpcCalls,
     filters,
-    refreshed;
+    refreshed,
+    claimAllowed,
+    canonicalExists,
+    lookups;
   function reset() {
     signedIn = true;
     existing = true;
@@ -200,6 +203,9 @@ async function fetchWith(mediaResponse, body = profile) {
     rpcCalls = [];
     filters = [];
     refreshed = [];
+    claimAllowed = true;
+    canonicalExists = false;
+    lookups = 0;
   }
   const query = {
     select() {
@@ -210,7 +216,8 @@ async function fetchWith(mediaResponse, body = profile) {
       return this;
     },
     async maybeSingle() {
-      return { data: existing ? { id: saved } : null, error: lookupError };
+      lookups++;
+      return { data: (lookups === 1 ? existing : canonicalExists) ? { id: saved } : null, error: lookupError };
     },
   };
   const { addCharacter } = load('src/app/(app)/travelers/new/actions.ts', {
@@ -238,6 +245,7 @@ async function fetchWith(mediaResponse, body = profile) {
         }),
         rpc: async (name, args) => {
           rpcCalls.push({ name, args });
+          if (name === 'claim_wow_profile_fetch') return { data: claimAllowed, error: null };
           return { data: saved, error: savedError };
         },
       }),
@@ -271,7 +279,8 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.ok(filters.some(([key, value]) => key === 'games.slug' && value === 'wow'));
     assert.equal(writes[0].row.character_id, saved);
     assert.equal(writes[0].row.failure_code, 'throttled');
-    assert.equal(rpcCalls.length, 0);
+    assert.equal(rpcCalls.length, 1);
+    assert.equal(rpcCalls[0].name, 'claim_wow_profile_fetch');
     assert.ok(refreshed.includes('/hearth'));
   });
   await check('new imports and failed ownership lookups create no failure record', async () => {
@@ -294,6 +303,8 @@ async function fetchWith(mediaResponse, body = profile) {
     result = { ok: true, profile, region: 'us', fetchedAt: new Date().toISOString() };
     await assert.rejects(addCharacter({}, form()), /REDIRECT:/);
     assert.equal(rpcCalls[0].args.p_profile_id, owner);
+    assert.equal(rpcCalls[1].name, 'save_verified_wow_character');
+    assert.equal(rpcCalls[1].args.p_profile_id, owner);
     assert.equal(writes.length, 0);
     assert.ok(refreshed.includes('/hearth'));
   });
@@ -302,6 +313,30 @@ async function fetchWith(mediaResponse, body = profile) {
     result = { ok: true, profile, region: 'us', fetchedAt: new Date().toISOString() };
     savedError = true;
     await addCharacter({}, form());
+    assert.equal(writes[0].row.failure_code, 'save');
+  });
+  await check('cooldown blocks a second upstream request', async () => {
+    reset();
+    claimAllowed = false;
+    assert.match((await addCharacter({}, form())).error, /five minutes/);
+    assert.equal(rpcCalls.length, 1);
+    assert.equal(writes.length, 0);
+  });
+  await check('canonical Blizzard realm identifies the saved character for failure status', async () => {
+    reset();
+    existing = false;
+    canonicalExists = true;
+    savedError = true;
+    result = {
+      ok: true,
+      profile: { ...profile, realm: { ...profile.realm, slug: 'canonical-realm' } },
+      region: 'us',
+      fetchedAt: new Date().toISOString(),
+    };
+    await addCharacter({}, form());
+    assert.equal(lookups, 2);
+    assert.ok(filters.some(([key, value]) => key === 'realm_slug' && value === 'canonical-realm'));
+    assert.equal(writes[0].row.character_id, saved);
     assert.equal(writes[0].row.failure_code, 'save');
   });
   console.log(`${passed} checks passed. No live network or credentials used.`);
