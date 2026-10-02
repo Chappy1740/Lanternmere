@@ -1,27 +1,75 @@
-# Claude audit handoff
+# Sequential Claude Code milestone audits
 
-## Paste into a focused Claude session
+Audit implemented Milestones 0–9 **one at a time**, in numerical order. Open Claude Code in the Lanternmere repository and paste only the starter prompt for the current milestone below. Use a fresh Claude session for each milestone so earlier source dumps do not consume the next audit's context. Stop after each report, bring its findings back for triage, and then continue to the next milestone. Milestone 10 remains planned until the ten reports have been reviewed.
 
-Audit the Lanternmere repository at its current commit. This is a **read-only, evidence-based audit** of implemented Milestones 0–9 and the cross-cutting security and deployment boundaries they depend on. Milestone 9 feature scope is implemented and deployed; include its weekly priorities, Vault consent, availability, and private calendar exports in the audit. Live acceptance remains separately open. Do not implement fixes, change documentation, apply migrations, deploy, or modify hosted settings during this audit.
+The checkmarks on milestone chats and the `implemented` states in `docs/project-tracker.json` mean feature scope was recorded as delivered. They do not mean independent audit or all live acceptance passed. As of October 2, 2026, `docs/project-status.md` still lists live acceptance gaps. Recheck Git and that document at audit time.
 
-Start with `CLAUDE.md` / `AGENTS.md`, `README.md`, `docs/CODEX_SESSION_RULES.md`, `docs/project-status.md`, `docs/project-overview.md`, `docs/architecture.md`, and `docs/development.md`. Check the actual branch, commit, and working tree before relying on any recorded state. Use the relevant milestone specifications, `docs/milestones/ROADMAP.md`, `docs/adr/ADR-001-rls-policy-boundaries.md`, `docs/archive/claude-migration/original-mvp-roadmap.md`, `docs/cloudflare-hosting.md`, and `tests/milestone-2/README.md` as needed. Treat older status entries and the archived roadmap as historical evidence; reconcile them against current source and newer entries. Before proposing Next.js changes, read the relevant installed guide under `node_modules/next/dist/docs/`.
+## Shared audit contract
 
-Audit in this order, expanding source inspection only when evidence calls for it:
+Each starter prompt directs Claude to read this section. For the selected milestone only:
 
-1. **Authorization and data isolation.** Trace sensitive writes from route/action through validation, user identity, privileged server client or authenticated RPC, database function, grants, and RLS. Cover character ownership and selected-Lodge sharing; Lodge invitation, roles, management, and deletion; Guild membership, consent, leadership, and Raid Room data. Test the claim that unverified Guild roles cannot confer authority, including legacy roles and claim expiry. Distinguish service-role checks from ordinary RLS.
-2. **Canonical records and behavior.** Compare milestone requirements with current routes, server services, migrations, and regression checks. Check whether Guild raid operations and Raid Room attendance preserve Quest Board events and RSVPs, whether external character data remains server-fetched or explicitly player-submitted, and whether loot and roster decisions remain human-controlled. Verify the previously reconciled Milestone 1 invitation/role and Milestone 4 party-composition gaps against current code rather than old summaries.
-3. **Auth and deployment readiness.** Trace signup confirmation, callback code exchange, recovery redirects, and protected-route session persistence for both the Next.js path and the Cloudflare Workers preview path. Compare code and documented hosted configuration without exposing credential values. Check Cloudflare runtime variable handling and preview limitations. Treat a local build as different evidence from a deployed authenticated flow.
-4. **Verification quality.** Run focused, non-destructive checks appropriate to findings. The repository has milestone `check-*.cjs` scripts, `npm run lint`, `npm run build`, and `npm run build:vinext`; do not assume a general `npm test` command exists. For database rehearsals, follow `tests/milestone-2/README.md` and never apply its disposable baseline to the original database. Do not create live accounts or production data merely to fill coverage gaps.
+1. Check the actual branch, commit, and working tree. Read `CLAUDE.md`/`AGENTS.md`, `README.md`, `docs/CODEX_SESSION_RULES.md`, the selected milestone specification, the current top of `docs/project-status.md`, and the relevant milestone and acceptance entries in `docs/project-tracker.json`. Read `docs/architecture.md`, `docs/development.md`, and historical checkpoints only where the selected scope needs them. Treat old status entries as history and current code as evidence. Do not infer a feature from a navigation label.
+2. Compare every accepted requirement and guardrail in the selected specification with its implementation, authorization path, migrations or RLS where applicable, and focused regression coverage. Trace cross-milestone dependencies only as far as needed to test this milestone's behavior. Include later changes that could have regressed it.
+3. Work read-only: do not edit tracked files, implement fixes, apply migrations, create live accounts or production data, deploy, or change hosted settings. Do not read or print private environment values, tokens, or personal data. Run only focused, non-destructive checks useful for a concrete uncertainty. Follow `tests/milestone-2/README.md` before any database rehearsal; never apply its disposable baseline to the original database. If proposing Next.js code changes, first consult the relevant installed guide under `node_modules/next/dist/docs/`.
+4. Report **confirmed findings first**, ordered by severity. For each, give the failure path, exact file and line, affected requirement, and a focused fix. Then provide a requirement-by-requirement verdict (`verified`, `defect`, `coverage gap`, or `not applicable`), checks actually run and results, and live acceptance or external-service limits. Distinguish missing evidence from a code defect. If no defect is found, say so. End with a short handoff for the next action. **Stop after this milestone; do not audit the next one.**
 
-Return a report with: (a) findings first, ordered by severity, each with exact file/line evidence, exploit or failure path, affected scope, and a concrete fix; (b) verified requirements and checks actually run, with results; (c) coverage gaps and claims that could not be verified, especially live multi-account authorization, Battle.net rank-0 and rank-nonzero claims, fresh confirmation email, populated Raid Room operations, and authenticated Workers preview; and (d) a short prioritized follow-up plan. Separate a code defect from missing live acceptance evidence. If no defect is found, say so explicitly and still list remaining verification gaps. Do not print `.env` values, tokens, keys, or private user data.
+Use one focused Claude run per milestone. Do not request a repository-wide rewrite or a full test suite unless a specific finding requires it. After each report, record its outcome and any confirmed fixes in the project handoff; do not silently change the public tracker based on an unverified audit claim.
 
-## Current audit context — October 1, 2026
+## Starter prompts
 
-- Milestones 0–9 have implemented feature scope; Milestones 10–14 remain planned. The public status dashboard is deployed. Membership directory privacy and scoped Loot Council work are included in this publication. Use current `docs/project-status.md` and tracker revision 3 for remaining acceptance, and distinguish the historical notes below from current evidence.
+### Milestone 0 — Foundation
 
-## Historical handoff context captured September 28, 2026
+> Audit **Milestone 0 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-00-foundation.md`. Focus on the application shell, configuration and secret separation, migration history, initial schema and RLS boundaries, and whether the documented local lint/build acceptance is reproducible. Check later code only where it could invalidate the foundation. Return the standard report and stop.
 
-- Repository: `Chappy1740/Lanternmere`; checkout at handoff: `main` at `a615eff`, matching `origin/main`, with a clean working tree before this handoff document was added. Recheck when the audit begins.
-- `docs/project-status.md` records Milestones 0–8 as implemented and Milestone 9 as in progress. The September 28 audit-readiness section reports local mocked regression, lint, Next.js build, and vinext build results; these are historical results for Claude's session, not fresh acceptance evidence.
-- The later September 28 status entries record a prepared signup callback fix and hosted Supabase redirect entries, plus an applied Guild leadership verification gate. They leave fresh email confirmation, deployed callback/session persistence, real Battle.net claim paths, multi-account authorization, populated Raid Room behavior, and authenticated Worker flows unverified. Prefer those newer entries when an older status section conflicts.
-- No private environment file or credential value belongs in the audit report.
+### Milestone 1 — The Front Door
+
+> Audit **Milestone 1 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-01-front-door.md`. Trace signup, confirmation callback and redirects, sign-in/out, protected routes, profile creation, Lodge onboarding, invitations, roles, and owner-only access through current code and database permissions. Account-management follow-ups may affect this boundary; inspect them only as relevant. Keep hosted confirmation and multi-account checks separate from local evidence. Return the standard report and stop.
+
+### Milestone 2 — Travelers and Characters
+
+> Audit **Milestone 2 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-02-travelers-and-characters.md`. Trace character import/refresh, server-fetched Blizzard data, verified ownership, Main selection, selected-Lodge sharing, private snapshots, consent, source freshness, privileged writes, grants, and RLS. Use `docs/milestone-2-checkpoint.md` and `tests/milestone-2/README.md` as regression and database-rehearsal guidance. Return the standard report and stop.
+
+### Milestone 3 — The Hearth
+
+> Audit **Milestone 3 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-03-the-hearth.md`. Verify selected-Lodge context, Main character and roster data, upcoming events, recent achievements/Chronicles, freshness, empty and partial-failure states, and access boundaries. Include the current Hearth loader and focused regressions. Return the standard report and stop.
+
+### Milestone 4 — Quest Board
+
+> Audit **Milestone 4 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-04-quest-board.md`. Trace Lodge-scoped event CRUD/cancellation, RSVP and attendance, role checks, participant visibility, party composition, and Hearth links. Verify canonical event and RSVP ownership rather than assuming later Guild views own copies. Return the standard report and stop.
+
+### Milestone 5 — Hall of Legends and Chronicles
+
+> Audit **Milestone 5 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-05-hall-of-legends-and-chronicles.md`. Check achievement provenance and visibility, Chronicle author/edit/delete access, Lodge isolation, private media storage and signed access, search/filter behavior, and Hearth activity integration. Return the standard report and stop.
+
+### Milestone 6 — Adventures
+
+> Audit **Milestone 6 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-06-adventures.md`. Verify recurring plans create canonical Quest Board events only by explicit action; campaigns and event strategy notes remain scoped; Raider.IO refresh, cache, consent and failure states are correct; Raidbots links are player-submitted handoffs; and Warcraft Logs remains deferred. Return the standard report and stop.
+
+### Milestone 7 — Guild Operations
+
+> Audit **Milestone 7 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-07-guild-operations.md`. Trace independent multi-Guild membership, roster and consent, verified rank-0 Guild Master claim and expiry, leadership permissions, settings/ownership safeguards, canonical raid publication, and attendance. Test whether unverified or legacy roles can gain authority. Separate code findings from still-open real rank-0/rank-nonzero and second-account acceptance. Return the standard report and stop.
+
+### Milestone 8 — The Raid Room
+
+> Audit **Milestone 8 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-08-raid-operations.md`. Verify Raid Mode access, roster/bench and encounter operations, canonical Quest Board event and RSVP linkage, attendance, scoped Loot Council visibility and decisions, audit history, server authorization, and RLS. Keep human roster/loot decisions and live positive-path coverage distinct. Return the standard report and stop.
+
+### Milestone 9 — The War Table
+
+> Audit **Milestone 9 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-09-weekly-command-center.md`. Verify player and leadership priorities, Guild-only access, canonical raid links, non-raid Guild plans, availability, reset/DST behavior, private Vault notes and per-Guild sharing, stale/consented external context, and authenticated private `.ics` snapshots. Do not treat public calendar subscription as delivered scope. Separate deployment evidence from authenticated and cross-account acceptance. Return the standard report and stop.
+
+## Audit progress and Milestone 10 gate
+
+| Milestone | Claude audit | Findings triaged | Next action |
+| --- | --- | --- | --- |
+| 0 | Pending | Pending | Run Milestone 0 prompt |
+| 1 | Pending | Pending | After 0 |
+| 2 | Pending | Pending | After 1 |
+| 3 | Pending | Pending | After 2 |
+| 4 | Pending | Pending | After 3 |
+| 5 | Pending | Pending | After 4 |
+| 6 | Pending | Pending | After 5 |
+| 7 | Pending | Pending | After 6 |
+| 8 | Pending | Pending | After 7 |
+| 9 | Pending | Pending | After 8 |
+
+After each Claude report, review confirmed findings, repair material defects, and update this table and `docs/project-status.md` with the result and exact checks. Keep unresolved live acceptance in the tracker until it is actually verified. Start the dedicated **Milestone 10 — The Muster** chat only after all ten audits have been triaged and any blocking defects are resolved or explicitly accepted with a documented reason.
