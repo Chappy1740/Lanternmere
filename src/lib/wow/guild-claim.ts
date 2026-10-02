@@ -15,11 +15,25 @@ export const guildClaimStateSchema = z.object({
   issuedAt: z.number().int(),
 });
 
+const localizedNameSchema = z.union([
+  z.string().max(128),
+  z
+    .record(z.string(), z.string().max(128))
+    .transform((names) => names.en_US ?? names.en_GB ?? Object.values(names)[0] ?? ''),
+]);
+export class WowAccountProfileError extends Error {
+  constructor(
+    public readonly stage: 'authorization' | 'token' | 'profile' | 'format',
+    public readonly status?: number,
+  ) {
+    super('Battle.net account profile request failed.');
+  }
+}
 export const ownedWowCharacterSchema = z.object({
   id: z.number().int().positive(),
-  name: z.string().max(128).optional(),
+  name: localizedNameSchema.optional(),
   level: z.number().int().nonnegative().optional(),
-  realm: z.object({ slug: z.string().min(1).max(128), name: z.string().max(128).optional() }),
+  realm: z.object({ slug: z.string().min(1).max(128), name: localizedNameSchema.optional() }),
 });
 const accountProfileSchema = z.object({
   wow_accounts: z.array(
@@ -52,19 +66,23 @@ export async function getOwnedWowCharacters(region: string, authorizationCode: s
     cache: 'no-store',
     signal: AbortSignal.timeout(15_000),
   });
-  if (!tokenResponse.ok) throw new Error('Battle.net did not authorize this account.');
+  if (!tokenResponse.ok) throw new WowAccountProfileError('authorization', tokenResponse.status);
   const token = z.object({ access_token: z.string().min(1) }).safeParse(await tokenResponse.json());
-  if (!token.success) throw new Error('Battle.net did not authorize character access.');
+  if (!token.success) throw new WowAccountProfileError('token');
 
   const profileUrl = new URL('/profile/user/wow', `https://${region}.api.blizzard.com`);
   profileUrl.searchParams.set('namespace', `profile-${region}`);
+  profileUrl.searchParams.set(
+    'locale',
+    region === 'kr' ? 'ko_KR' : region === 'tw' ? 'zh_TW' : 'en_US',
+  );
   const profileResponse = await fetch(profileUrl, {
     headers: { Authorization: `Bearer ${token.data.access_token}` },
     cache: 'no-store',
     signal: AbortSignal.timeout(15_000),
   });
-  if (!profileResponse.ok) throw new Error('Battle.net account characters are unavailable.');
+  if (!profileResponse.ok) throw new WowAccountProfileError('profile', profileResponse.status);
   const profile = accountProfileSchema.safeParse(await profileResponse.json());
-  if (!profile.success) throw new Error('Battle.net returned an unexpected account profile.');
+  if (!profile.success) throw new WowAccountProfileError('format');
   return profile.data.wow_accounts.flatMap((account) => account.characters);
 }

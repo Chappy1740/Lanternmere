@@ -6,10 +6,24 @@ import { ownedWowCharacterSchema } from '@/lib/wow/guild-claim';
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ battleNet?: string }>;
+  searchParams: Promise<{ battleNet?: string; reason?: string }>;
 }) {
   const { supabase, user } = await getViewer();
   const params = await searchParams;
+  const failureMessages: Record<string, string> = {
+    expired:
+      'Battle.net authorization was cancelled or expired. Connect again and approve character access.',
+    session:
+      'Your Lanternmere sign-in changed or expired. Sign in again before connecting Battle.net.',
+    authorization:
+      'Battle.net did not accept the authorization. Connect again to start a fresh request.',
+    token: 'Battle.net did not return valid authorization. Please connect again.',
+    profile:
+      'Battle.net could not provide your character list. Check that character access is approved, then try again.',
+    format: 'Battle.net returned character details we could not read. This needs an app fix.',
+    save: 'Your characters were retrieved, but could not be saved. Please try again.',
+    unavailable: 'Battle.net connection could not be completed. Please try again.',
+  };
   const [{ data: profile, error: profileError }, { data: snapshot, error: snapshotError }] =
     await Promise.all([
       supabase.from('profiles').select('display_name').eq('id', user.id).single(),
@@ -63,7 +77,9 @@ export default async function AccountPage({
         </form>
         {params.battleNet === 'failed' && (
           <p role="alert" className="mt-3">
-            Battle.net connection failed or expired. Try connecting again.
+            {Object.hasOwn(failureMessages, params.reason ?? '')
+              ? failureMessages[params.reason!]
+              : failureMessages.unavailable}
           </p>
         )}
         {params.battleNet === 'connected' && (

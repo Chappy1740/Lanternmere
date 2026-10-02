@@ -164,6 +164,71 @@ const state = { error: null, success: null };
   assert.match((await personal.handlePersonalWowCallback(request)).url, /connected/);
   assert.equal(callbacks[0].profile_id, owner);
   assert.equal('access_token' in callbacks[0], false);
+  const profileRequests = [];
+  const profiles = load(
+    'src/lib/wow/guild-claim.ts',
+    {
+      'server-only': {},
+      zod: require('zod'),
+      '@/lib/env.server': {
+        serverEnv: {
+          BLIZZARD_CLIENT_ID: 'fixture-id',
+          BLIZZARD_CLIENT_SECRET: 'fixture-secret',
+          BLIZZARD_REDIRECT_URI: 'https://example.invalid/api/guild-claim/callback',
+        },
+      },
+    },
+    {
+      Buffer,
+      URL,
+      URLSearchParams,
+      AbortSignal,
+      fetch: async (url) => {
+        profileRequests.push(String(url));
+        return {
+          ok: true,
+          json: async () =>
+            String(url).includes('/oauth/token')
+              ? { access_token: 'fixture-token' }
+              : {
+                  wow_accounts: [
+                    {
+                      characters: [
+                        {
+                          id: 1,
+                          name: 'Wren',
+                          realm: {
+                            slug: 'stormrage',
+                            name: { en_US: 'Stormrage', es_MX: 'Stormrage' },
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+        };
+      },
+    },
+  );
+  const owned = await profiles.getOwnedWowCharacters('us', 'fixture-code');
+  assert.equal(owned[0].realm.name, 'Stormrage');
+  assert.equal(new URL(profileRequests[1]).searchParams.get('locale'), 'en_US');
+  assert.equal(
+    profiles.ownedWowCharacterSchema.safeParse({
+      id: 1,
+      name: 'Wren',
+      realm: { slug: 'stormrage', name: 'Stormrage' },
+    }).success,
+    true,
+  );
+  assert.equal(
+    profiles.ownedWowCharacterSchema.safeParse({
+      id: 1,
+      name: 'Wren',
+      realm: { name: 'Stormrage' },
+    }).success,
+    false,
+  );
   let accessError = null;
   let signedIn = true;
   let activityCalls = 0;
