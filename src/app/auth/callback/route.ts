@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   );
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    const failurePath = next === '/reset-password' ? '/forgot-password?expired=1' : '/sign-in';
+    const failurePath = next === '/reset-password' ? '/forgot-password?expired=1' : '/sign-in?confirmationError=1';
     return NextResponse.redirect(new URL(failurePath, request.url));
   }
   return response;

@@ -40,6 +40,11 @@ function SignInForm() {
           </div>
         </div>
         <p className="text-text-muted mt-5 text-sm">Welcome back, Traveler.</p>
+        {params.get('confirmationError') === '1' && (
+          <p role="alert" className="mt-4 text-sm text-red-400">
+            This confirmation link could not be opened. It may have expired or been opened in a different browser. Try the browser where you signed up, or sign in if your email is already confirmed.
+          </p>
+        )}
 
         <form action={formAction} className="mt-6 flex flex-col gap-4">
           {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}

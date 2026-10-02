@@ -45,7 +45,13 @@ export async function leaveLodge(_: LodgeManagementState, formData: FormData): P
   const lodgeId = z.uuid().safeParse(formData.get('lodgeId'));
   if (!lodgeId.success) return { error: 'That Lodge is unavailable.', success: null };
   const { error } = await (await createClient()).rpc('leave_lodge', { p_lodge_id: lodgeId.data });
-  if (error) return { error: 'Owners must transfer ownership or delete the Lodge before leaving.', success: null };
+  if (error)
+    return {
+      error: error.message?.startsWith('leave_lodge: transfer ownership')
+        ? 'Owners must transfer ownership or delete the Lodge before leaving.'
+        : 'The Lodge could not be left. Please try again.',
+      success: null,
+    };
   refreshManagement();
   return { error: null, success: 'You left this Lodge.' };
 }

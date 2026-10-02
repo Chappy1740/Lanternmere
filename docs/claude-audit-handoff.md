@@ -61,9 +61,9 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 
 | Milestone | Claude audit | Findings triaged | Next action |
 | --- | --- | --- | --- |
-| 0 | Audited October 2: no high/medium defects; three low findings | Triaged: build requirement documented, SQL hardening applied, local schema config added; hosted schema setting remains unverified | Run Milestone 1 prompt |
-| 1 | Pending | Pending | Next |
-| 2 | Pending | Pending | After 1 |
+| 0 | Audited October 2: no high/medium defects; three low findings | Triaged: build requirement documented, SQL hardening applied, local schema config added; hosted schema setting remains unverified | Complete; continue in order |
+| 1 | Audited October 2: three medium and four low findings | Triaged: invitation redirects, transfer selection/history, Lodge validation, suspended sign-in cleanup, profile-name validation, and callback feedback repaired; hosted and second-account acceptance remain open | Run Milestone 2 prompt |
+| 2 | Pending | Pending | Next |
 | 3 | Pending | Pending | After 2 |
 | 4 | Pending | Pending | After 3 |
 | 5 | Pending | Pending | After 4 |

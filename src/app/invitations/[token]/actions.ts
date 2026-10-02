@@ -14,6 +14,7 @@ export async function acceptLodgeInvitation(
 ): Promise<InvitationAcceptanceState> {
   const token = tokenSchema.safeParse(formData.get('token'));
   if (!token.success) return { error: 'This invitation link is invalid.' };
+  let lodgeId: string;
   try {
     const supabase = await createClient();
     const {
@@ -21,15 +22,16 @@ export async function acceptLodgeInvitation(
       error: userError,
     } = await supabase.auth.getUser();
     if (userError || !user) return { error: 'Please sign in before accepting this invitation.' };
-    const { data: lodgeId, error } = await supabase.rpc('redeem_lodge_invitation', {
+    const { data, error } = await supabase.rpc('redeem_lodge_invitation', {
       p_token: token.data,
     });
-    if (error || !z.uuid().safeParse(lodgeId).success)
+    if (error || !z.uuid().safeParse(data).success)
       return { error: 'This invitation is unavailable, expired, or belongs to another account.' };
-    revalidatePath('/hearth');
-    revalidatePath('/caretakers-office');
-    redirect(`/hearth?lodge=${lodgeId}`);
+    lodgeId = data;
   } catch {
     return { error: 'This invitation could not be accepted. Please try again.' };
   }
+  revalidatePath('/hearth');
+  revalidatePath('/caretakers-office');
+  redirect(`/hearth?lodge=${lodgeId}`);
 }

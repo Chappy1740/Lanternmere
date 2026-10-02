@@ -43,8 +43,10 @@ export async function signIn(
   }
 
   const { error: accessError } = await supabase.auth.getUser();
-  if (accessError)
+  if (accessError) {
+    await supabase.auth.signOut();
     return { error: 'This account cannot currently access Lanternmere. Contact the app owner.' };
+  }
   revalidatePath('/', 'layout');
   redirect(destination ?? '/hearth');
 }

@@ -12,6 +12,7 @@ export async function acceptGuildInvitation(
     .regex(/^[A-Za-z0-9_-]{32,128}$/)
     .safeParse(formData.get('token'));
   if (!token.success) return { error: 'This invitation link is invalid.' };
+  let guildId: string;
   try {
     const supabase = await createClient();
     const {
@@ -22,8 +23,9 @@ export async function acceptGuildInvitation(
     const { data, error } = await supabase.rpc('redeem_guild_invitation', { p_token: token.data });
     if (error || !z.uuid().safeParse(data).success)
       return { error: 'This invitation is unavailable, expired, or belongs to another account.' };
-    redirect(`/guild-hall?guild=${data}`);
+    guildId = data;
   } catch {
     return { error: 'This invitation could not be accepted. Please try again.' };
   }
+  redirect(`/guild-hall?guild=${guildId}`);
 }

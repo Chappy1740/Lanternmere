@@ -68,6 +68,8 @@ export default async function CaretakersOfficePage({
     .eq('lodge_id', selected.lodge_id)
     .is('accepted_at', null)
     .is('canceled_at', null)
+    .not('from_membership_id', 'is', null)
+    .not('to_membership_id', 'is', null)
     .gt('expires_at', new Date().toISOString())
     .maybeSingle();
   const pendingTransfer = transferData ? { id: transferData.id, recipientId: transferData.to_membership_id } : null;

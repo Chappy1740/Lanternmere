@@ -27,7 +27,7 @@ export default function NewLodgePage() {
             name="name"
             type="text"
             required
-            maxLength={80}
+            maxLength={60}
             placeholder="The Forgotten Lodge"
             className="border-border bg-background text-text-primary focus-visible:outline-accent rounded-md border px-3 py-2 focus-visible:outline-2"
           />

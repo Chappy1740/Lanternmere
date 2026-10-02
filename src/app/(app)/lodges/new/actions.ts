@@ -17,6 +17,8 @@ export async function createLodge(
   if (!name) {
     return { error: 'Lodge name is required.' };
   }
+  if (name.length > 60) return { error: 'Lodge name must be 60 characters or fewer.' };
+  if (description.length > 500) return { error: 'Description must be 500 characters or fewer.' };
 
   const supabase = await createClient();
 
@@ -26,7 +28,7 @@ export async function createLodge(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: 'The Lodge could not be created. Please try again.' };
   }
 
   if (!data) {
