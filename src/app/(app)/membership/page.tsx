@@ -89,9 +89,10 @@ export default async function MembershipPage({
           Directory privacy
         </h1>
         <p className="text-text-muted mt-3 text-sm">
-          This is separate from Guild and Lodge membership. The owner directory never reads your
-          email, credentials, or game data. It shows a nickname only if you explicitly opt in, so
-          please avoid real-life details in that nickname.
+          This is separate from Guild and Lodge membership. Your nickname is shown to the app owner
+          only if you opt in. The app owner can see your sign-in email on the account-management
+          page to manage access. Passwords and private game data are not shown there. Please avoid
+          real-life details in your nickname.
         </p>
         <AppDirectoryPreferenceForm
           alias={preference?.alias ?? null}

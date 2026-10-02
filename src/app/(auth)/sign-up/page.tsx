@@ -62,6 +62,10 @@ function SignUpForm() {
           <p className="text-text-muted text-xs">
             Use a game nickname, not your real name or email.
           </p>
+          <p className="text-text-muted text-xs">
+            The app owner can see your sign-in email to manage account access. Your password and
+            private character list are not shown.
+          </p>
           <label className="text-text-muted flex items-start gap-2 text-sm">
             <input type="checkbox" name="directoryOptIn" className="mt-1" />
             Show my nickname to the app owner. I can hide it later in Membership.

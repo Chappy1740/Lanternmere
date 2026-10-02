@@ -7,7 +7,11 @@ function load(path, dependencies, extra = {}) {
   const exports = {};
   vm.runInNewContext(
     ts.transpileModule(fs.readFileSync(path, 'utf8'), {
-      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+      compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        jsx: ts.JsxEmit.ReactJSX,
+      },
     }).outputText,
     {
       exports,
@@ -262,7 +266,93 @@ const state = { error: null, success: null };
   const previousCalls = activityCalls;
   await guarded.auth.getUser();
   assert.equal(activityCalls, previousCalls);
-  console.log('Account management, signup consent, and personal OAuth boundaries passed.');
+  let ownerQueries = 0;
+  const fixtures = {
+    profiles: {
+      data: [
+        { id: owner, created_at: '2026-10-01T00:00:00Z' },
+        { id: other, created_at: '2026-10-01T00:00:00Z' },
+      ],
+      count: 2,
+      error: null,
+    },
+    app_account_activity: { data: [], count: 1, error: null },
+    app_account_access: { data: [], count: 0, error: null },
+    app_member_directory_preferences: {
+      data: [{ profile_id: other, alias: 'HiddenFixtureNickname', visible_to_owner: false }],
+      error: null,
+    },
+  };
+  const ownerPage = load('src/app/(app)/owner/accounts/page.tsx', {
+    'react/jsx-runtime': require('react/jsx-runtime'),
+    'node:crypto': require('node:crypto'),
+    'next/link': { default: () => null },
+    'next/navigation': {
+      notFound() {
+        throw new Error('404');
+      },
+    },
+    zod: require('zod'),
+    '@/lib/hearth/context': { getViewer: async () => ({ user: { id: actor } }) },
+    '@/lib/env.server': { serverEnv: { APP_OWNER_PROFILE_ID: owner } },
+    '@/components/account-access-control': { AccountAccessControl: () => null },
+    '@/lib/supabase/admin': {
+      createAdminClient() {
+        ownerQueries++;
+        return {
+          from(table) {
+            const query = {
+              select() {
+                return query;
+              },
+              order() {
+                return query;
+              },
+              range() {
+                return query;
+              },
+              gte() {
+                return query;
+              },
+              eq() {
+                return query;
+              },
+              in() {
+                return query;
+              },
+              then(resolve) {
+                resolve(fixtures[table]);
+              },
+            };
+            return query;
+          },
+          rpc: async (name, args) => {
+            assert.equal(name, 'app_account_logins');
+            assert.deepEqual(Array.from(args.p_profile_ids), [owner, other]);
+            return {
+              data: [
+                { profile_id: owner, login: 'owner@example.invalid' },
+                { profile_id: other, login: 'member@example.invalid' },
+              ],
+              error: null,
+            };
+          },
+        };
+      },
+    },
+  });
+  actor = other;
+  await assert.rejects(() => ownerPage.default({ searchParams: Promise.resolve({}) }), /404/);
+  assert.equal(ownerQueries, 0);
+  actor = owner;
+  const ownerHtml = require('react-dom/server').renderToStaticMarkup(
+    await ownerPage.default({ searchParams: Promise.resolve({}) }),
+  );
+  assert.ok(ownerHtml.includes('member@example.invalid'));
+  assert.ok(!ownerHtml.includes('HiddenFixtureNickname'));
+  console.log(
+    'Account management, signup consent, personal OAuth, and owner-only login rendering passed.',
+  );
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
