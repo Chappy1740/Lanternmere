@@ -5,7 +5,8 @@ import { clientEnv } from '@/lib/env.client';
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const next = request.nextUrl.searchParams.get('next');
-  const destination = next === '/reset-password' || next === '/hearth' ? next : '/sign-in';
+  const destination =
+    next === '/reset-password' || next === '/hearth' || next === '/account' ? next : '/sign-in';
   const response = NextResponse.redirect(new URL(destination, request.url));
   if (!code) return response;
   const supabase = createServerClient(

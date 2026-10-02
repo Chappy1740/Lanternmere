@@ -1,11 +1,12 @@
 import { createServerClient } from '@supabase/ssr';
+import { AuthError } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { clientEnv } from '@/lib/env.client';
 
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  const client = createServerClient(
     clientEnv.NEXT_PUBLIC_SUPABASE_URL,
     clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
@@ -26,4 +27,18 @@ export async function createClient() {
       },
     },
   );
+  const getUser = client.auth.getUser.bind(client.auth);
+  client.auth.getUser = async (...args) => {
+    const result = await getUser(...args);
+    if (result.data.user && !result.error) {
+      const { error } = await client.rpc('record_app_activity');
+      if (error)
+        return {
+          data: { user: null },
+          error: new AuthError('Application access is unavailable.', 403),
+        };
+    }
+    return result;
+  };
+  return client;
 }

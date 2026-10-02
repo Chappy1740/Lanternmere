@@ -45,17 +45,27 @@ function SignUpForm() {
           {returnTo && <input type="hidden" name="returnTo" value={returnTo} />}
           <div className="flex flex-col gap-1">
             <label htmlFor="displayName" className="text-text-primary text-sm">
-              Display name <span className="text-text-muted">(optional)</span>
+              Game nickname
             </label>
             <input
               id="displayName"
               name="displayName"
               type="text"
               autoComplete="nickname"
+              required
+              minLength={2}
+              maxLength={32}
               className="lodge-field px-3 py-2"
             />
           </div>
 
+          <p className="text-text-muted text-xs">
+            Use a game nickname, not your real name or email.
+          </p>
+          <label className="text-text-muted flex items-start gap-2 text-sm">
+            <input type="checkbox" name="directoryOptIn" className="mt-1" />
+            Show my nickname to the app owner. I can hide it later in Membership.
+          </label>
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-text-primary text-sm">
               Email

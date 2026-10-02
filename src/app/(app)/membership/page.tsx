@@ -81,6 +81,9 @@ export default async function MembershipPage({
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <header className="lodge-panel p-6 sm:p-8">
+        <Link href="/account" className="text-accent text-sm">
+          Your account and Battle.net characters
+        </Link>
         <p className="lodge-kicker">Application membership</p>
         <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">
           Directory privacy
@@ -102,6 +105,9 @@ export default async function MembershipPage({
       {isOwner && (
         <section className="lodge-panel p-6 sm:p-8">
           <p className="lodge-kicker">Owner-only</p>
+          <Link href="/owner/accounts" className="text-accent text-sm">
+            Manage accounts and usage
+          </Link>
           <h2 className="font-display text-text-primary mt-2 text-2xl font-bold">
             Registered members · {total}
           </h2>

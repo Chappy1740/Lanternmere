@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
+import { handlePersonalWowCallback } from '@/lib/wow/personal-account';
 import { fetchGuildRoster } from '@/lib/wow/guild-roster';
 import {
   getOwnedWowCharacters,
@@ -10,6 +11,8 @@ import {
 } from '@/lib/wow/guild-claim';
 
 export async function GET(request: NextRequest) {
+  const personal = await handlePersonalWowCallback(request);
+  if (personal) return personal;
   const encoded = request.cookies.get(guildClaimCookie)?.value;
   const state = request.nextUrl.searchParams.get('state');
   const code = request.nextUrl.searchParams.get('code');

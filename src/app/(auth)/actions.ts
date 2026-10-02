@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { gameNicknameSchema } from '@/lib/account-nickname';
 
 export type AuthActionState = {
   error: string | null;
@@ -41,6 +42,9 @@ export async function signIn(
     return { error: 'Sign-in is temporarily unavailable. Check your connection and try again.' };
   }
 
+  const { error: accessError } = await supabase.auth.getUser();
+  if (accessError)
+    return { error: 'This account cannot currently access Lanternmere. Contact the app owner.' };
   revalidatePath('/', 'layout');
   redirect(destination ?? '/hearth');
 }
@@ -53,6 +57,9 @@ export async function signUp(
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
   const displayName = formData.get('displayName') as string;
+  const nickname = gameNicknameSchema.safeParse(displayName);
+  if (!nickname.success)
+    return { error: 'Choose a game nickname of 2–32 characters without an email address.' };
   const destination = returnTo(formData);
 
   if (!email || !password) {
@@ -72,8 +79,11 @@ export async function signUp(
     email,
     password,
     options: {
-      data: { display_name: displayName || undefined },
-      emailRedirectTo: `${origin}/auth/callback?next=/hearth`,
+      data: {
+        display_name: nickname.data,
+        directory_opt_in: formData.get('directoryOptIn') === 'on',
+      },
+      emailRedirectTo: `${origin}/auth/callback?next=/account`,
     },
   });
 
