@@ -1,15 +1,20 @@
 'use client';
 
-import { Menu, Search, Bell } from 'lucide-react';
+import { useActionState } from 'react';
+import { Menu, Search, Bell, LogOut } from 'lucide-react';
 import Image from 'next/image';
+import { signOut, type AuthActionState } from '@/app/(auth)/actions';
+
+const initialSignOutState: AuthActionState = { error: null };
 
 type TopbarProps = {
   onMenuClick: () => void;
 };
 
 export function Topbar({ onMenuClick }: TopbarProps) {
+  const [signOutState, signOutAction, signingOut] = useActionState(signOut, initialSignOutState);
   return (
-    <header className="border-b border-[color:var(--border-ornate)] bg-[rgba(9,17,29,0.76)] flex items-center justify-between px-4 py-3 backdrop-blur md:px-8">
+    <header className="flex items-center justify-between border-b border-[color:var(--border-ornate)] bg-[rgba(9,17,29,0.76)] px-4 py-3 backdrop-blur md:px-8">
       <button
         onClick={onMenuClick}
         aria-expanded={false}
@@ -26,6 +31,21 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </div>
 
       <div className="flex items-center gap-4">
+        <form action={signOutAction} className="flex max-w-56 flex-col items-end gap-1">
+          <button
+            type="submit"
+            disabled={signingOut}
+            className="lodge-button-secondary flex items-center gap-2 px-3 py-2 text-sm disabled:opacity-60"
+          >
+            <LogOut size={16} aria-hidden="true" />
+            {signingOut ? 'Signing out…' : 'Sign out'}
+          </button>
+          {signOutState.error && (
+            <p role="alert" className="text-xs text-red-300">
+              {signOutState.error}
+            </p>
+          )}
+        </form>
         <button
           aria-label="Notifications"
           className="text-text-muted hover:text-text-primary focus-visible:outline-accent rounded p-2 focus-visible:outline-2"
@@ -37,7 +57,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           alt="Lodge insignia"
           width={32}
           height={32}
-          className="h-8 w-8 rounded-full border border-[color:var(--border-ornate)] bg-accent/10 object-cover"
+          className="bg-accent/10 h-8 w-8 rounded-full border border-[color:var(--border-ornate)] object-cover"
         />
       </div>
     </header>
