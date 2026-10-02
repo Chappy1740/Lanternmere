@@ -29,6 +29,8 @@ The environment validators name these settings:
 
 Start the local server with `npm run dev` and open http://localhost:3000. Supabase access and private integration configuration are needed for the connected application flows; installing dependencies does not provision a database.
 
+`npm run build` also needs a nonempty `SUPABASE_SERVICE_ROLE_KEY` in the private build environment. The Next.js build imports server modules while collecting route data, and `src/lib/env.server.ts` validates this value at import time. A secretless build fails closed even if compilation succeeds. Keep the real key in private `.env.local` or the build secret store; never put it in a `NEXT_PUBLIC_` variable. The separate Workers bundle build (`npm run build:vinext`) is designed to build without that key and receive it only as a runtime secret; see [Cloudflare hosting](cloudflare-hosting.md).
+
 ## Available checks
 
 ```sh
@@ -45,6 +47,8 @@ Choose checks appropriate to the change. For documentation-only edits, verify li
 ## Database verification
 
 Follow [the regression-test README](../tests/milestone-2/README.md) exactly for database rehearsals. The baseline scripts are for an empty disposable database at the documented schema state. Never run that baseline against the original Lanternmere database. The checkpoint records the original security migration as already applied; verify current state before any future database work.
+
+The checked-in `supabase/config.toml` keeps `private` outside the **local** Data API's exposed schemas. This file does not configure the hosted project's Data API. Before claiming the hosted boundary is verified, inspect the linked project's **Integrations → Data API → Settings → Exposed schemas** and confirm `private` is absent. Record that observation without printing credentials or private data.
 
 The recorded suite does not cover concurrent multi-session races or exhaustive malicious browser requests. Preserve those limitations in future handoffs unless new testing closes them.
 

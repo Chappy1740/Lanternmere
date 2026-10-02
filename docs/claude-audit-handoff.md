@@ -61,8 +61,8 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 
 | Milestone | Claude audit | Findings triaged | Next action |
 | --- | --- | --- | --- |
-| 0 | Pending | Pending | Run Milestone 0 prompt |
-| 1 | Pending | Pending | After 0 |
+| 0 | Audited October 2: no high/medium defects; three low findings | Triaged: build requirement documented, SQL hardening applied, local schema config added; hosted schema setting remains unverified | Run Milestone 1 prompt |
+| 1 | Pending | Pending | Next |
 | 2 | Pending | Pending | After 1 |
 | 3 | Pending | Pending | After 2 |
 | 4 | Pending | Pending | After 3 |

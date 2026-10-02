@@ -1,0 +1,5 @@
+project_id = "lanternmere"
+
+[api]
+# Keep policy helper functions out of local PostgREST endpoints.
+schemas = ["public", "storage", "graphql_public"]
