@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Membership Worker resource error — October 1, 2026
+
+- The user confirmed that the recovered page shows only Directory privacy, without the owner directory. The formatter optimization therefore does not explain this reported failure. A bounded Worker error-tail attempt yielded no diagnostic events. Focused lint, membership security regression, Next route type generation, TypeScript, and the fixture Workers build passed for the optimization.
+- The user confirmed successful production sign-in, War Table refresh persistence, and sign-out followed by a protected-route redirect. A-03 is now user-verified; this is distinct from automated browser evidence.
+- The user created the Lanternmere workspace for their new in-game US Stormrage Guild, with Wrententen as GM. Official roster import returned Blizzard's 404 mapping; claim-start then correctly required a saved official roster. The user reports that the in-game Guild was created this week. Upstream publication delay is a possibility, not an established diagnosis. Rank-zero/nonzero acceptance remains open.
+- The Membership acceptance attempt returned Cloudflare Error 1102 (Ray a4401e63bfb14de6, October 1 at 9:01 PM Central). Cause and CPU/memory outcome are not yet confirmed by Worker logs. Removed repeated date-formatter construction from the paginated owner directory; a synthetic 50-row local CPU measurement showed 16 ms for the previous per-row construction. This is an optimization, not proof that it resolves the hosted error. The user then reported that Directory privacy loaded on refresh before this optimization was deployed, so the failure is intermittent and recovery cannot be attributed to the code change. A-06 and resource diagnosis remain open.
+
 ## Live acceptance checkpoint — October 1, 2026
 
 - Fresh signed-out production checks returned HTTP 200 for sign-in, signup, and status; War Table, membership, Raid Room, and Loot Council redirected to sign-in. A selected private calendar redirected to sign-in; a calendar without a selection returned the expected 400. The configured Guild claim-start route with a syntactically valid Guild ID returned 401. Tracker revision 5 records these narrow boundaries as A-07 verified; broader acceptance remains separately open.
