@@ -25,6 +25,7 @@ The environment validators name these settings:
 - `BLIZZARD_CLIENT_ID` and `BLIZZARD_CLIENT_SECRET`: required for actual Blizzard profile requests, although optional in the general environment schema.
 - `BLIZZARD_REGION`: defaults to `us` in the server schema.
 - `BLIZZARD_REDIRECT_URI`: the exact registered Battle.net callback URL for Guild Master claims (for local testing, `http://localhost:3000/api/guild-claim/callback`). It must match the browser origin used to start verification. Without it, the claim route fails closed; ordinary Blizzard profile and roster reads still use client credentials.
+- `APP_OWNER_PROFILE_ID`: optional server-only Lanternmere auth-account UUID. When set, that signed-in account can view the opt-in/pseudonymous app signup directory at `/membership`. Find your own UUID on that page; never use a Battle.net or character ID here. With the variable unset, the owner-wide list is inaccessible to every account.
 
 Start the local server with `npm run dev` and open http://localhost:3000. Supabase access and private integration configuration are needed for the connected application flows; installing dependencies does not provision a database.
 

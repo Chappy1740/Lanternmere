@@ -256,6 +256,13 @@ const guildRaidOperationSchema = z.object({
   operational_notes: z.string(),
   authorized_at: z.string(),
 });
+const guildRaidLootOperationSchema = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  event_date: z.string(),
+  event_time: z.string().nullable(),
+});
+export type GuildRaidLootOperation = z.infer<typeof guildRaidLootOperationSchema>;
 const guildRaidOperationMemberSchema = z.object({
   id: z.uuid(),
   operation_id: z.uuid(),
@@ -456,4 +463,13 @@ export async function loadGuildRaidLoot(operationId: string) {
         votes: parsedVotes.data,
         awards: parsedAwards.data,
       };
+}
+
+export async function loadGuildRaidLootOperations(guildId: string) {
+  const { supabase } = await getViewer();
+  const { data, error } = await supabase.rpc('list_guild_raid_loot_operations', {
+    p_guild_id: guildId,
+  });
+  const parsed = z.array(guildRaidLootOperationSchema).safeParse(data);
+  return error || !parsed.success ? null : parsed.data;
 }

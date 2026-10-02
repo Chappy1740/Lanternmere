@@ -235,16 +235,25 @@ export default async function GuildHallPage({
           <Swords className="text-accent" size={24} aria-hidden="true" />
           <h2 className="font-display text-text-primary mt-4 text-xl font-bold">Raid operations</h2>
           <p className="text-text-muted mt-3 leading-6">
-            Authorized canonical events gain Guild-owned planning, while attendance and Loot Council
-            remain later work.
+            Authorized Quest Board events anchor Guild-owned planning, attendance, encounter
+            workspaces, and Loot Council. Verified leadership controls raid plans; assigned Loot
+            Council members manage loot decisions.
           </p>
+          {roles.includes('loot_council') && (
+            <a
+              href={`/guild-hall/loot-council?guild=${selected.guild_id}`}
+              className="text-accent mt-4 inline-block text-sm underline underline-offset-4"
+            >
+              Open Loot Council
+            </a>
+          )}
         </div>
         <div className="lodge-panel p-6">
           <ShieldCheck className="text-accent" size={24} aria-hidden="true" />
           <h2 className="font-display text-text-primary mt-4 text-xl font-bold">Access boundary</h2>
           <p className="text-text-muted mt-3 leading-6">
             {leadership
-              ? 'Leadership access is active. Guild settings and invitations are the next foundation surface.'
+              ? 'Leadership access is active. Guild tools appear according to your verified role and event permissions.'
               : selected.guilds.member_portal_enabled
                 ? 'The member portal is enabled. Leadership-only operational information remains private.'
                 : 'This Guild currently uses leadership-only access.'}

@@ -5,6 +5,9 @@
 Feature scope implemented — September 23, 2026. Security acceptance remains open until the
 Battle.net Guild Master claim flow is exercised with a real rank-0 account and a second member
 account. Unverified Guild leadership is locked as of September 28, 2026.
+Loot Council-only members have a scoped workspace for linked raid titles/dates and loot decisions
+without gaining Raid Mode roster, encounter, or Lodge access. Live role and operation acceptance
+remains pending a verified Guild Master and a second account.
 
 ## Purpose
 
