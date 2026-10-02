@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 6,
-  "updatedAt": "2026-10-01",
+  "revision": 7,
+  "updatedAt": "2026-10-02",
   "milestones": [
     {
       "number": 0,
@@ -288,6 +288,30 @@
       "milestone": null,
       "status": "in_progress",
       "note": "Investigate live Cloudflare Error 1102 on Membership, reduce avoidable CPU work, and verify the owner/non-owner privacy page after deployment."
+    },
+    {
+      "id": "CR-007",
+      "title": "Required game nickname at signup",
+      "requestedAt": "2026-10-02",
+      "milestone": null,
+      "status": "accepted",
+      "note": "Require a game nickname at registration, explain its use, and preserve optional owner-directory sharing. Existing accounts need a nickname setup path. Implementation and milestone placement remain pending."
+    },
+    {
+      "id": "CR-008",
+      "title": "Owner account management and usage counts",
+      "requestedAt": "2026-10-02",
+      "milestone": null,
+      "status": "accepted",
+      "note": "Provide an owner-only management page with registered account counts, separately defined active usage, and audited suspension/restoration. The user chose suspension instead of permanent deletion. Block existing sessions and data access while suspended; protect the owner account. Implementation and milestone placement remain pending."
+    },
+    {
+      "id": "CR-009",
+      "title": "Member Battle.net character onboarding",
+      "requestedAt": "2026-10-02",
+      "milestone": null,
+      "status": "accepted",
+      "note": "After registration, let each member authorize their own Battle.net account and view its available WoW characters. Keep account ownership server-verified, personal character access private, and Guild leadership verification separate. Implementation and milestone placement remain pending."
     }
   ],
   "acceptance": [

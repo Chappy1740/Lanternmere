@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Account management scope — October 2, 2026
+
+- The production owner binding was applied directly with Wrangler, creating a Secret Change deployment. The user confirmed that Registered members now appears. Owner access is verified by that report; cross-account alias visibility and revocation remain open under A-06. Do not treat the intermittent Error 1102 as resolved.
+- Accepted CR-007: require a game nickname at signup, retain optional sharing with the app owner, and provide a setup path for existing accounts. Do not expose stored profile names to the owner as a shortcut around existing sharing choices.
+- Accepted CR-008: an owner-only account-management page, registered account counts and separately defined activity counts, audited suspension and restoration. The user explicitly selected reversible suspension. Enforcement must cover already-issued sessions and database/storage access, protect the owner from self-suspension, and require a deliberate confirmation before changing a member's access. No account has been suspended.
+- Accepted CR-009: post-registration Battle.net authorization so members can view their own available WoW characters. Existing Guild claim code fetches the account character list, but there is no general member onboarding flow yet. Reuse verified ownership, keep tokens server-side, and preserve separate Guild-rank and sharing checks.
+- These requests are recorded as accepted, pending implementation and milestone placement. Existing milestone completion percentages are unchanged. Required verification includes signup validation/confirmation, a second account for owner-boundary and suspension tests, and real member Battle.net authorization.
+
 ## Membership Worker resource error — October 1, 2026
 
 - PR #10 is merged and its production Workers Build passed. The user confirmed that a nickname saves, a blank nickname prompts for a choice, and selecting **Hide my alias** persists after refresh (the button returns to **Show my alias to owner**). These are user-reported preference checks; owner-directory visibility and cross-account revocation are still unverified, so A-06 remains open.
