@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Live acceptance checkpoint — October 1, 2026
+
+- Fresh signed-out production checks returned HTTP 200 for sign-in, signup, and status; War Table, membership, Raid Room, and Loot Council redirected to sign-in. A selected private calendar redirected to sign-in; a calendar without a selection returned the expected 400. The configured Guild claim-start route with a syntactically valid Guild ID returned 401. Tracker revision 5 records these narrow boundaries as A-07 verified; broader acceptance remains separately open.
+- The user signed in on the deployed site, opened War Table, refreshed, and reported that it reloads correctly. This is user-confirmed signed-in loading and refresh persistence. The sign-out step exposed a missing UI control: the server action existed but the authenticated shell never displayed it. Added a visible desktop/mobile topbar button with pending state and safe failure feedback; live sign-out verification remains pending publication. Focused lint, TypeScript after regenerating stale Next route types, mocked sign-out success/failure checks, and the fixture Workers build passed.
+- Fresh aggregate database checks found zero active verified Guild claims, zero raid operations, and zero Guild calendar plans. Positive Guild leadership, Raid Room, and populated calendar checks need real authorized accounts and records. No fixture account or product data was created.
+- Browser automation failed before initialization with a Windows sandbox setup error. Signed-in checks are proceeding with user reports. Fresh confirmation email, real calendar import, cross-account Vault consent, owner/non-owner directory privacy, and rank-zero/nonzero Battle.net acceptance remain unverified.
+
 ## Status page roadmap — October 1, 2026
 
 - Added the full ordered Milestones 0–14 roadmap to `/status`, with descriptions, implementation states, specification links, expandable tracked tasks, and linked scope changes. Milestone 10 is marked next. Tracker revision 4 records CR-004 and supplies the roadmap metadata; existing five-minute refresh behavior also updates the roadmap.

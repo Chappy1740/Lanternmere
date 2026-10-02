@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 4,
+  "revision": 5,
   "updatedAt": "2026-10-01",
   "milestones": [
     {
@@ -272,6 +272,14 @@
       "milestone": null,
       "status": "done",
       "note": "Show every milestone in order with descriptions, status, specification links, expandable work and scope changes, and a next-milestone marker."
+    },
+    {
+      "id": "CR-005",
+      "title": "Visible sign-out control",
+      "requestedAt": "2026-10-01",
+      "milestone": 1,
+      "status": "done",
+      "note": "Add a visible Sign out button to the authenticated topbar on desktop and mobile, discovered during live session acceptance. Live sign-out acceptance remains separately open."
     }
   ],
   "acceptance": [
@@ -304,6 +312,11 @@
       "id": "A-06",
       "title": "Live non-owner directory denial and alias opt-in/revocation",
       "status": "open"
+    },
+    {
+      "id": "A-07",
+      "title": "Signed-out protected pages, private calendar access, and Guild claim entry denial",
+      "status": "verified"
     }
   ]
 }

@@ -87,9 +87,10 @@ export async function signUp(
   );
 }
 
-export async function signOut() {
+export async function signOut(_previousState: AuthActionState): Promise<AuthActionState> {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) return { error: 'Sign-out is temporarily unavailable. Please try again.' };
   revalidatePath('/', 'layout');
   redirect('/sign-in');
 }
