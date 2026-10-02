@@ -46,7 +46,7 @@ export function QuestBoardEventForm({
           />
         </label>
         <label className="text-text-primary flex flex-col gap-2 text-sm font-medium">
-          Time <span className="text-text-muted font-normal">optional; shown as recorded</span>
+          Time <span className="text-text-muted font-normal">optional; enter in UTC</span>
           <input
             name="eventTime"
             type="time"

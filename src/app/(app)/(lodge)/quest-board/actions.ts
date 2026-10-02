@@ -119,7 +119,7 @@ export async function updateEvent(
     if (readError || !permitted || event.lodge_id !== parsed.data.lodgeId)
       return { error: 'You do not have permission to edit this event.', success: null };
     const { title, activityType, eventDate, eventTime, difficulty, notes } = parsed.data;
-    const { error } = await session.supabase
+    const { data: updated, error } = await session.supabase
       .from('events')
       .update({
         title,
@@ -129,8 +129,14 @@ export async function updateEvent(
         difficulty: difficulty || null,
         notes: notes || null,
       })
-      .eq('id', event.id);
-    if (error) return { error: 'The event could not be updated. Please try again.', success: null };
+      .eq('id', event.id)
+      .select('id')
+      .maybeSingle();
+    if (error || !updated)
+      return {
+        error: 'The event could not be updated. Check your Lodge access and try again.',
+        success: null,
+      };
     refreshEventViews();
     return { error: null, success: 'Event details updated.' };
   } catch {
@@ -158,6 +164,7 @@ export async function deleteEvent(
 ): Promise<QuestBoardState> {
   const parsed = eventIdSchema.safeParse(formData.get('eventId'));
   if (!parsed.success) return { error: 'Choose a valid event.', success: null };
+  let destination = '';
   try {
     const session = await authenticatedClient();
     if (!session) return { error: 'Please sign in before removing an event.', success: null };
@@ -172,13 +179,27 @@ export async function deleteEvent(
         (await isLodgeAdmin(session.supabase, event.lodge_id, session.user.id)));
     if (readError || !permitted)
       return { error: 'You do not have permission to remove this event.', success: null };
-    const { error } = await session.supabase.from('events').delete().eq('id', event.id);
-    if (error) return { error: 'The event could not be removed. Please try again.', success: null };
+    const { data: removed, error } = await session.supabase
+      .from('events')
+      .delete()
+      .eq('id', event.id)
+      .select('id')
+      .maybeSingle();
+    if (error)
+      return {
+        error:
+          error.code === '23503'
+            ? 'This event has Guild raid records and cannot be removed.'
+            : 'The event could not be removed. Check your Lodge access and try again.',
+        success: null,
+      };
+    if (!removed) return { error: 'The event is no longer available to remove.', success: null };
     refreshEventViews();
-    return { error: null, success: 'Event removed from the Quest Board.' };
+    destination = `/quest-board?lodge=${event.lodge_id}`;
   } catch {
     return { error: 'The event could not be removed. Please try again.', success: null };
   }
+  redirect(destination);
 }
 
 export async function updateRsvp(
