@@ -11,15 +11,19 @@ export type CharacterStatusState = {
   success: string | null;
 };
 
-const refreshIntervalMs = 24 * 60 * 60 * 1000;
-
 const raidbotsReportSchema = z.object({
   characterId: z.uuid(),
   lodgeId: z.uuid(),
-  reportUrl: z.string().url().refine((value) => {
-    const host = new URL(value).hostname;
-    return host === 'raidbots.com' || host === 'www.raidbots.com';
-  }, 'Use a Raidbots report link.'),
+  reportUrl: z
+    .string()
+    .url()
+    .refine((value) => {
+      const url = new URL(value);
+      return (
+        url.protocol === 'https:' &&
+        (url.hostname === 'raidbots.com' || url.hostname === 'www.raidbots.com')
+      );
+    }, 'Use a Raidbots report link.'),
   upgradeTargets: z.string().trim().max(500).optional(),
 });
 
@@ -28,24 +32,42 @@ export async function saveRaidbotsReport(
   formData: FormData,
 ): Promise<CharacterStatusState> {
   const parsed = raidbotsReportSchema.safeParse({
-    characterId: formData.get('characterId'), lodgeId: formData.get('lodgeId'),
-    reportUrl: formData.get('reportUrl'), upgradeTargets: formData.get('upgradeTargets') || undefined,
+    characterId: formData.get('characterId'),
+    lodgeId: formData.get('lodgeId'),
+    reportUrl: formData.get('reportUrl'),
+    upgradeTargets: formData.get('upgradeTargets') || undefined,
   });
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Check the report details.', success: null };
+  if (!parsed.success)
+    return { error: parsed.error.issues[0]?.message ?? 'Check the report details.', success: null };
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'Please sign in before sharing a Raidbots report.', success: null };
   const { data: character, error: characterError } = await supabase
-    .from('characters').select('id, character_name, realm_slug, region')
-    .eq('id', parsed.data.characterId).eq('profile_id', user.id).maybeSingle();
-  if (characterError || !character) return { error: 'You can only share a report for your own Traveler.', success: null };
+    .from('characters')
+    .select('id, character_name, realm_slug, region')
+    .eq('id', parsed.data.characterId)
+    .eq('profile_id', user.id)
+    .maybeSingle();
+  if (characterError || !character)
+    return { error: 'You can only share a report for your own Traveler.', success: null };
   const { error } = await supabase.from('character_raidbots_reports').upsert({
-    character_id: character.id, lodge_id: parsed.data.lodgeId, character_name: character.character_name,
-    realm_slug: character.realm_slug, region: character.region, report_url: parsed.data.reportUrl,
+    character_id: character.id,
+    lodge_id: parsed.data.lodgeId,
+    character_name: character.character_name,
+    realm_slug: character.realm_slug,
+    region: character.region,
+    report_url: parsed.data.reportUrl,
     upgrade_targets: parsed.data.upgradeTargets || null,
   });
-  if (error) return { error: 'Unable to save the Raidbots report. Check your Lodge access and try again.', success: null };
-  revalidatePath(`/travelers/${character.id}`); revalidatePath('/adventures');
+  if (error)
+    return {
+      error: 'Unable to save the Raidbots report. Check your Lodge access and try again.',
+      success: null,
+    };
+  revalidatePath(`/travelers/${character.id}`);
+  revalidatePath('/adventures');
   return { error: null, success: 'Raidbots report shared with this Lodge.' };
 }
 
@@ -55,17 +77,30 @@ export async function removeRaidbotsReport(
 ): Promise<CharacterStatusState> {
   const characterId = z.uuid().safeParse(formData.get('characterId'));
   const lodgeId = z.uuid().safeParse(formData.get('lodgeId'));
-  if (!characterId.success || !lodgeId.success) return { error: 'Choose a valid report.', success: null };
+  if (!characterId.success || !lodgeId.success)
+    return { error: 'Choose a valid report.', success: null };
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: 'Please sign in before removing a report.', success: null };
-  const { data: character } = await supabase.from('characters').select('id')
-    .eq('id', characterId.data).eq('profile_id', user.id).maybeSingle();
-  if (!character) return { error: 'You can only remove reports for your own Traveler.', success: null };
-  const { error } = await supabase.from('character_raidbots_reports').delete()
-    .eq('character_id', character.id).eq('lodge_id', lodgeId.data);
-  if (error) return { error: 'Unable to remove the Raidbots report. Please try again.', success: null };
-  revalidatePath(`/travelers/${character.id}`); revalidatePath('/adventures');
+  const { data: character } = await supabase
+    .from('characters')
+    .select('id')
+    .eq('id', characterId.data)
+    .eq('profile_id', user.id)
+    .maybeSingle();
+  if (!character)
+    return { error: 'You can only remove reports for your own Traveler.', success: null };
+  const { error } = await supabase
+    .from('character_raidbots_reports')
+    .delete()
+    .eq('character_id', character.id)
+    .eq('lodge_id', lodgeId.data);
+  if (error)
+    return { error: 'Unable to remove the Raidbots report. Please try again.', success: null };
+  revalidatePath(`/travelers/${character.id}`);
+  revalidatePath('/adventures');
   return { error: null, success: 'Raidbots report removed from this Lodge.' };
 }
 
@@ -80,7 +115,8 @@ export async function refreshRaiderIo(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: 'Please sign in before refreshing Raider.IO progress.', success: null };
+  if (!user)
+    return { error: 'Please sign in before refreshing Raider.IO progress.', success: null };
 
   const { data: character, error: characterError } = await supabase
     .from('characters')
@@ -92,13 +128,12 @@ export async function refreshRaiderIo(
     return { error: 'You can only refresh your own Traveler.', success: null };
 
   const admin = createAdminClient();
-  const { data: existing, error: existingError } = await admin
-    .from('character_raiderio_snapshots')
-    .select('refreshed_at')
-    .eq('character_id', character.id)
-    .maybeSingle();
-  if (existingError) return { error: 'Unable to check Raider.IO freshness. Please try again.', success: null };
-  if (existing && Date.now() - new Date(existing.refreshed_at).getTime() < refreshIntervalMs)
+  const { data: claimed, error: claimError } = await admin.rpc('claim_raiderio_refresh', {
+    p_character_id: character.id,
+  });
+  if (claimError)
+    return { error: 'Unable to check Raider.IO freshness. Please try again.', success: null };
+  if (!claimed)
     return { error: 'Raider.IO progress can be refreshed once every 24 hours.', success: null };
 
   const result = await fetchRaiderIoProgress({
@@ -107,12 +142,16 @@ export async function refreshRaiderIo(
     characterName: character.character_name,
   });
   if (!result.ok) {
-    if (existing) {
-      await admin
-        .from('character_raiderio_snapshots')
-        .update({ failure_message: result.message })
-        .eq('character_id', character.id);
-    }
+    await admin
+      .from('character_raiderio_refresh_attempts')
+      .update({ failure_message: result.message })
+      .eq('character_id', character.id);
+    await admin
+      .from('character_raiderio_snapshots')
+      .update({ failure_message: result.message })
+      .eq('character_id', character.id);
+    revalidatePath(`/travelers/${character.id}`);
+    revalidatePath('/adventures');
     return { error: result.message, success: null };
   }
 
@@ -127,11 +166,21 @@ export async function refreshRaiderIo(
     refreshed_at: new Date().toISOString(),
     failure_message: null,
   });
-  if (saveError) return { error: 'Raider.IO progress could not be saved. Please try again.', success: null };
+  if (saveError) {
+    await admin
+      .from('character_raiderio_refresh_attempts')
+      .update({ failure_message: 'Raider.IO progress could not be saved.' })
+      .eq('character_id', character.id);
+    revalidatePath('/adventures');
+    return { error: 'Raider.IO progress could not be saved. Please try again.', success: null };
+  }
 
   revalidatePath(`/travelers/${character.id}`);
   revalidatePath('/adventures');
-  return { error: null, success: 'Raider.IO progress refreshed. Shared Lodges can now see the latest snapshot.' };
+  return {
+    error: null,
+    success: 'Raider.IO progress refreshed. Shared Lodges can now see the latest snapshot.',
+  };
 }
 
 export async function updateRaiderIoSharing(

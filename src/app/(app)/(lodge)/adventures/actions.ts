@@ -80,11 +80,13 @@ export async function deleteEventTemplate(
   if (!templateId.success) return { error: 'Choose a valid recurring plan.', success: null };
   const current = await session();
   if (!current) return { error: 'Please sign in before removing a recurring plan.', success: null };
-  const { error } = await current.supabase
+  const { data: removed, error } = await current.supabase
     .from('event_templates')
     .delete()
-    .eq('id', templateId.data);
-  if (error)
+    .eq('id', templateId.data)
+    .select('id')
+    .maybeSingle();
+  if (error || !removed)
     return {
       error: 'The recurring plan could not be removed. Please check your access.',
       success: null,

@@ -86,11 +86,13 @@ export async function updateCampaignProgress(
     return { error: 'This campaign is not available to your Lodge.', success: null };
   if (campaign.target_count !== null && parsed.data.progressCount > campaign.target_count)
     return { error: 'Progress cannot exceed the campaign goal.', success: null };
-  const { error } = await current.supabase
+  const { data: updated, error } = await current.supabase
     .from('lodge_campaigns')
     .update({ progress_count: parsed.data.progressCount, status: parsed.data.status })
-    .eq('id', campaign.id);
-  if (error)
+    .eq('id', campaign.id)
+    .select('id')
+    .maybeSingle();
+  if (error || !updated)
     return { error: 'The campaign could not be updated. Please check your access.', success: null };
   refresh();
   return { error: null, success: 'Campaign progress updated.' };

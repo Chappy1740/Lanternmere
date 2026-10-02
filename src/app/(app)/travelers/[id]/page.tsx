@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { MainCharacterControl } from './main-character-control';
 import { LodgeSharingControl } from './lodge-sharing-control';
 import { RaiderIoSharingControl } from './raiderio-sharing-control';
@@ -91,11 +92,13 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const specialization = profile?.active_spec?.name;
   const isOwner = character.profile_id === user.id;
   const failures = await loadRefreshFailures(supabase, [character.id]);
-  const { data: raiderIoSnapshotData, error: raiderIoSnapshotError } = await supabase
-    .from('character_raiderio_snapshots')
-    .select('refreshed_at, source_url, mythic_plus_score, raid_progression')
-    .eq('character_id', character.id)
-    .maybeSingle();
+  const { data: raiderIoSnapshotData, error: raiderIoSnapshotError } = isOwner
+    ? await createAdminClient()
+        .from('character_raiderio_snapshots')
+        .select('refreshed_at, source_url, mythic_plus_score, raid_progression')
+        .eq('character_id', character.id)
+        .maybeSingle()
+    : { data: null, error: null };
   if (raiderIoSnapshotError) throw new Error('Unable to load Raider.IO progress.');
   const raiderIoSnapshot = raiderIoSnapshotData
     ? raiderIoSnapshotSchema.parse(raiderIoSnapshotData)
@@ -104,7 +107,8 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   let availableLodges: { id: string; name: string }[] = [];
   let selectedLodgeIds: string[] = [];
   let raiderIoLodgeIds: string[] = [];
-  let raidbotsReports: { lodge_id: string; report_url: string; upgrade_targets: string | null }[] = [];
+  let raidbotsReports: { lodge_id: string; report_url: string; upgrade_targets: string | null }[] =
+    [];
 
   if (isOwner) {
     const [membershipResult, sharingResult, raiderIoResult, raidbotsResult] = await Promise.all([
@@ -114,10 +118,18 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         .from('character_raiderio_sharing')
         .select('lodge_id')
         .eq('character_id', character.id),
-      supabase.from('character_raidbots_reports').select('lodge_id, report_url, upgrade_targets').eq('character_id', character.id),
+      supabase
+        .from('character_raidbots_reports')
+        .select('lodge_id, report_url, upgrade_targets')
+        .eq('character_id', character.id),
     ]);
 
-    if (membershipResult.error || sharingResult.error || raiderIoResult.error || raidbotsResult.error) {
+    if (
+      membershipResult.error ||
+      sharingResult.error ||
+      raiderIoResult.error ||
+      raidbotsResult.error
+    ) {
       throw new Error('Unable to load Lodge sharing settings.');
     }
 
@@ -126,7 +138,15 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
     const memberships = lodgeIdRows.parse(membershipResult.data ?? []);
     const sharing = lodgeIdRows.parse(sharingResult.data ?? []);
     raiderIoLodgeIds = lodgeIdRows.parse(raiderIoResult.data ?? []).map((row) => row.lodge_id);
-    raidbotsReports = z.array(z.object({ lodge_id: z.uuid(), report_url: z.string().url(), upgrade_targets: z.string().nullable() })).parse(raidbotsResult.data ?? []);
+    raidbotsReports = z
+      .array(
+        z.object({
+          lodge_id: z.uuid(),
+          report_url: z.string().url(),
+          upgrade_targets: z.string().nullable(),
+        }),
+      )
+      .parse(raidbotsResult.data ?? []);
 
     selectedLodgeIds = sharing.map((row) => row.lodge_id);
 
@@ -255,11 +275,46 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         <section className="lodge-panel mt-6 p-6" aria-labelledby="raiderio-banner-heading">
           <p className="lodge-kicker">Progress snapshot</p>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
-            <div><h2 id="raiderio-banner-heading" className="font-display text-text-primary text-xl">Raider.IO</h2><p className="text-text-muted mt-1 text-sm">Read-only progress at the last owner refresh.</p></div>
-            <a href={raiderIoSnapshot.source_url} target="_blank" rel="noreferrer" className="text-accent text-sm underline underline-offset-4">Open Raider.IO profile</a>
+            <div>
+              <h2 id="raiderio-banner-heading" className="font-display text-text-primary text-xl">
+                Raider.IO
+              </h2>
+              <p className="text-text-muted mt-1 text-sm">
+                Read-only progress at the last owner refresh.
+              </p>
+            </div>
+            <a
+              href={raiderIoSnapshot.source_url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-accent text-sm underline underline-offset-4"
+            >
+              Open Raider.IO profile
+            </a>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3"><p className="lodge-data-cell text-text-muted text-sm"><span className="text-text-primary block text-2xl font-bold">{raiderIoSnapshot.mythic_plus_score ?? '—'}</span>Mythic+ score</p>{raidProgression.map(({ raid, summary }) => <p key={raid} className="lodge-data-cell text-text-muted text-sm"><span className="text-text-primary block font-bold">{summary}</span>{raid.replaceAll('-', ' ')}</p>)}</div>
-          <p className="text-text-muted mt-4 text-sm">Snapshot checked {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(raiderIoSnapshot.refreshed_at))} UTC.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <p className="lodge-data-cell text-text-muted text-sm">
+              <span className="text-text-primary block text-2xl font-bold">
+                {raiderIoSnapshot.mythic_plus_score ?? '—'}
+              </span>
+              Mythic+ score
+            </p>
+            {raidProgression.map(({ raid, summary }) => (
+              <p key={raid} className="lodge-data-cell text-text-muted text-sm">
+                <span className="text-text-primary block font-bold">{summary}</span>
+                {raid.replaceAll('-', ' ')}
+              </p>
+            ))}
+          </div>
+          <p className="text-text-muted mt-4 text-sm">
+            Snapshot checked{' '}
+            {new Intl.DateTimeFormat('en-US', {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+              timeZone: 'UTC',
+            }).format(new Date(raiderIoSnapshot.refreshed_at))}{' '}
+            UTC.
+          </p>
         </section>
       )}
       {isOwner && (
@@ -283,7 +338,13 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           sourceUrl={raiderIoSnapshot?.source_url ?? null}
         />
       )}
-      {isOwner && <RaidbotsReportControl characterId={character.id} lodges={availableLodges} reports={raidbotsReports} />}
+      {isOwner && (
+        <RaidbotsReportControl
+          characterId={character.id}
+          lodges={availableLodges}
+          reports={raidbotsReports}
+        />
+      )}
       {isOwner && <MainCharacterControl characterId={character.id} isMain={character.is_main} />}
       {isOwner && (
         <LodgeSharingControl

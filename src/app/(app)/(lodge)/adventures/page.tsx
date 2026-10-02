@@ -7,7 +7,11 @@ import { CampaignForm, CampaignProgressControl } from '@/components/campaign-con
 import { DeleteEventTemplateControl, EventTemplateForm } from '@/components/event-template-form';
 import { eventDateTime, loadQuestBoard } from '@/lib/quest-board/events';
 import { loadLodgeRoster } from '@/lib/hearth/roster';
-import { isRaiderIoSnapshotFresh, loadRaidbotsReadiness, loadRaiderIoReadiness } from '@/lib/adventures/raiderio-readiness';
+import {
+  isRaiderIoSnapshotFresh,
+  loadRaidbotsReadiness,
+  loadRaiderIoReadiness,
+} from '@/lib/adventures/raiderio-readiness';
 import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 
 export default async function AdventuresPage({
@@ -30,16 +34,15 @@ export default async function AdventuresPage({
 
   const today = new Date().toISOString().slice(0, 10);
   const isLeader = selected.role === 'owner' || selected.role === 'caretaker';
-  const [{ upcoming }, templates, campaigns, roster, raiderIoReadiness, raidbotsReadiness] = await Promise.all([
-    loadQuestBoard(viewer.supabase, selected.lodge_id, today),
-    loadEventTemplates(viewer.supabase, selected.lodge_id),
-    loadLodgeCampaigns(viewer.supabase, selected.lodge_id),
-    isLeader ? loadLodgeRoster(viewer.supabase, selected.lodge_id) : Promise.resolve(null),
-    isLeader
-      ? loadRaiderIoReadiness(viewer.supabase, selected.lodge_id)
-      : Promise.resolve(null),
-    isLeader ? loadRaidbotsReadiness(viewer.supabase, selected.lodge_id) : Promise.resolve(null),
-  ]);
+  const [{ upcoming }, templates, campaigns, roster, raiderIoReadiness, raidbotsReadiness] =
+    await Promise.all([
+      loadQuestBoard(viewer.supabase, selected.lodge_id, today),
+      loadEventTemplates(viewer.supabase, selected.lodge_id),
+      loadLodgeCampaigns(viewer.supabase, selected.lodge_id),
+      isLeader ? loadLodgeRoster(viewer.supabase, selected.lodge_id) : Promise.resolve(null),
+      isLeader ? loadRaiderIoReadiness(viewer.supabase, selected.lodge_id) : Promise.resolve(null),
+      isLeader ? loadRaidbotsReadiness(viewer.supabase, selected.lodge_id) : Promise.resolve(null),
+    ]);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -142,16 +145,17 @@ export default async function AdventuresPage({
           {raiderIoReadiness?.state === 'ready' && (
             <div className="border-border mt-6 border-t pt-6">
               <p className="text-text-primary font-medium">Opted-in Raider.IO readiness</p>
-              {raiderIoReadiness.snapshots.length === 0 ? (
+              {raiderIoReadiness.snapshots.length === 0 &&
+              raiderIoReadiness.pending.length === 0 ? (
                 <p className="text-text-muted mt-2 text-sm">
                   No member has shared a Raider.IO snapshot with this Lodge yet.
                 </p>
               ) : (
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {raiderIoReadiness.snapshots.slice(0, 6).map((snapshot) => {
+                  {raiderIoReadiness.snapshots.map((snapshot) => {
                     const fresh = isRaiderIoSnapshotFresh(snapshot.refreshed_at);
                     return (
-                      <li key={snapshot.source_url} className="lodge-list-row p-4">
+                      <li key={snapshot.character_id} className="lodge-list-row p-4">
                         <div className="flex items-start justify-between gap-3">
                           <p className="text-text-primary font-medium">
                             {snapshot.character_name}{' '}
@@ -180,7 +184,27 @@ export default async function AdventuresPage({
                       </li>
                     );
                   })}
+                  {raiderIoReadiness.pending.map(({ character_id, attempt }) => (
+                    <li key={character_id} className="lodge-list-row p-4">
+                      <p className="text-text-primary font-medium">
+                        {attempt
+                          ? `${attempt.character_name} · ${attempt.realm_slug} (${attempt.region.toUpperCase()})`
+                          : 'Shared Traveler'}
+                      </p>
+                      <p className="text-text-muted mt-2 text-sm">Not yet refreshed.</p>
+                      {attempt?.failure_message && (
+                        <p className="text-text-muted mt-2 text-sm">
+                          Latest refresh: {attempt.failure_message}
+                        </p>
+                      )}
+                    </li>
+                  ))}
                 </ul>
+              )}
+              {raiderIoReadiness.hasMore && (
+                <p className="text-text-muted mt-3 text-sm">
+                  Showing six shared Travelers. More have opted in.
+                </p>
               )}
             </div>
           )}
@@ -192,14 +216,44 @@ export default async function AdventuresPage({
           {raidbotsReadiness?.state === 'ready' && (
             <div className="border-border mt-6 border-t pt-6">
               <p className="text-text-primary font-medium">Player-submitted Raidbots plans</p>
-              {raidbotsReadiness.reports.length === 0 ? <p className="text-text-muted mt-2 text-sm">No Raidbots report has been shared with this Lodge yet.</p> : <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-                {raidbotsReadiness.reports.map((report) => <li key={report.report_url} className="lodge-list-row p-4">
-                  <p className="text-text-primary font-medium">{report.character_name} <span className="text-text-muted font-normal">· {report.realm_slug} ({report.region.toUpperCase()})</span></p>
-                  {report.upgrade_targets && <p className="text-text-muted mt-2 text-sm">{report.upgrade_targets}</p>}
-                  <a href={report.report_url} target="_blank" rel="noreferrer" className="text-accent mt-3 inline-block text-sm underline underline-offset-4">Open Raidbots report</a>
-                </li>)}
-              </ul>}
+              {raidbotsReadiness.reports.length === 0 ? (
+                <p className="text-text-muted mt-2 text-sm">
+                  No Raidbots report has been shared with this Lodge yet.
+                </p>
+              ) : (
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {raidbotsReadiness.reports.map((report) => (
+                    <li
+                      key={`${report.character_id}:${report.lodge_id}`}
+                      className="lodge-list-row p-4"
+                    >
+                      <p className="text-text-primary font-medium">
+                        {report.character_name}{' '}
+                        <span className="text-text-muted font-normal">
+                          · {report.realm_slug} ({report.region.toUpperCase()})
+                        </span>
+                      </p>
+                      {report.upgrade_targets && (
+                        <p className="text-text-muted mt-2 text-sm">{report.upgrade_targets}</p>
+                      )}
+                      <a
+                        href={report.report_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-accent mt-3 inline-block text-sm underline underline-offset-4"
+                      >
+                        Open Raidbots report
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+          )}
+          {raidbotsReadiness?.state === 'error' && (
+            <p role="alert" className="text-text-muted mt-5 text-sm">
+              Raidbots plans could not be loaded. Please try again later.
+            </p>
           )}
           <p className="text-text-muted mt-5 text-sm">
             Use the Quest Board for confirmed attendance and party roles; this view does not create
