@@ -279,7 +279,10 @@ const state = { error: null, success: null };
     app_account_activity: { data: [], count: 1, error: null },
     app_account_access: { data: [], count: 0, error: null },
     app_member_directory_preferences: {
-      data: [{ profile_id: other, alias: 'HiddenFixtureNickname', visible_to_owner: false }],
+      data: [
+        { profile_id: other, alias: 'HiddenFixtureNickname', visible_to_owner: false },
+        { profile_id: owner, alias: 'SharedFixtureNickname', visible_to_owner: true },
+      ],
       error: null,
     },
   };
@@ -350,6 +353,8 @@ const state = { error: null, success: null };
   );
   assert.ok(ownerHtml.includes('member@example.invalid'));
   assert.ok(!ownerHtml.includes('HiddenFixtureNickname'));
+  assert.ok(ownerHtml.includes('SharedFixtureNickname'));
+  assert.ok(ownerHtml.includes('Sign-in email: owner@example.invalid'));
   console.log(
     'Account management, signup consent, personal OAuth, and owner-only login rendering passed.',
   );

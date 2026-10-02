@@ -92,18 +92,20 @@ export default async function OwnerAccounts({
         {members.data.map((member) => {
           const pref = preferences?.find((p) => p.profile_id === member.id);
           const suspended = access?.find((a) => a.profile_id === member.id)?.suspended === true;
+          const sharedNickname = pref?.visible_to_owner ? pref.alias : null;
+          const login = loginById.get(member.id);
           const label =
-            pref?.visible_to_owner && pref.alias
-              ? pref.alias
-              : `Member ${createHash('sha256').update(member.id).digest('hex').slice(0, 10).toUpperCase()}`;
+            sharedNickname ||
+            login ||
+            `Member ${createHash('sha256').update(member.id).digest('hex').slice(0, 10).toUpperCase()}`;
           return (
             <li className="lodge-panel p-5" key={member.id}>
               <h2 className="break-all">
-                {loginById.get(member.id) || label}
+                {label}
                 {member.id === user.id ? ' · App owner' : ''}
               </h2>
-              {pref?.visible_to_owner && pref.alias && (
-                <p className="text-text-muted text-sm">Shared nickname: {pref.alias}</p>
+              {sharedNickname && login && (
+                <p className="text-text-muted text-sm break-all">Sign-in email: {login}</p>
               )}
               <p className="text-text-muted text-sm">
                 Registered {formatter.format(new Date(member.created_at))} UTC ·{' '}

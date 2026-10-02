@@ -1,5 +1,14 @@
 # Project status and handoff
 
+## Owner account label refinement — October 2, 2026
+
+- Implemented CR-011: opted-in game nickname is the main owner-management label, with sign-in email underneath. Email remains the main identifier when no nickname is shared. No real-life names, hidden aliases, or character names are inferred. Existing owner authorization and login projection are unchanged.
+
+## User-confirmed production acceptance — October 2, 2026
+
+- After PR #15 production deployment, the user confirmed that owner account management shows sign-in emails.
+- After the localized-name callback fix in PR #14, the user confirmed that Battle.net connection displays their characters. This verifies the real authorization and own-character loading steps. A-09 remains open for hosted cross-account private-list visibility; database ownership policies were already verified separately. A-08 suspension/restoration and A-10 fresh signup/confirmation remain open.
+
 ## Owner account login identification — October 2, 2026
 
 - User screenshot confirmed the owner account-management page loads, but pseudonyms were insufficient for identifying accounts. CR-010 explicitly authorizes showing sign-in email on this owner-only page. This updates the previous no-email product scope; optional nickname sharing remains unchanged. Signup and Membership now disclose administrative email visibility.
