@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 10,
+  "revision": 11,
   "updatedAt": "2026-10-02",
   "milestones": [
     {
@@ -320,6 +320,14 @@
       "milestone": null,
       "status": "done",
       "note": "The app owner explicitly requested sign-in identities instead of member pseudonyms for account administration. Owner-only management shows sign-in email via a bounded service-only projection. Nickname sharing remains optional; signup and Membership explain owner email access."
+    },
+    {
+      "id": "CR-011",
+      "title": "Show shared nickname above account login",
+      "requestedAt": "2026-10-02",
+      "milestone": null,
+      "status": "done",
+      "note": "Owner management uses an opted-in game nickname as the main label with sign-in email underneath. Accounts without a shared nickname retain email as their main identifier. Hidden nicknames remain hidden."
     }
   ],
   "acceptance": [
