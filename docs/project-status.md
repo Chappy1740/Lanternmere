@@ -2,6 +2,7 @@
 
 ## Membership Worker resource error — October 1, 2026
 
+- PR #10 is merged and its production Workers Build passed. The user confirmed that a nickname saves, a blank nickname prompts for a choice, and selecting **Hide my alias** persists after refresh (the button returns to **Show my alias to owner**). These are user-reported preference checks; owner-directory visibility and cross-account revocation are still unverified, so A-06 remains open.
 - The user confirmed that the recovered page shows only Directory privacy, without the owner directory. The formatter optimization therefore does not explain this reported failure. A bounded Worker error-tail attempt yielded no diagnostic events. Focused lint, membership security regression, Next route type generation, TypeScript, and the fixture Workers build passed for the optimization.
 - The user confirmed successful production sign-in, War Table refresh persistence, and sign-out followed by a protected-route redirect. A-03 is now user-verified; this is distinct from automated browser evidence.
 - The user created the Lanternmere workspace for their new in-game US Stormrage Guild, with Wrententen as GM. Official roster import returned Blizzard's 404 mapping; claim-start then correctly required a saved official roster. The user reports that the in-game Guild was created this week. Upstream publication delay is a possibility, not an established diagnosis. Rank-zero/nonzero acceptance remains open.
