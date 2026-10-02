@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 9,
+  "revision": 10,
   "updatedAt": "2026-10-02",
   "milestones": [
     {
@@ -312,6 +312,14 @@
       "milestone": null,
       "status": "done",
       "note": "Your account connects Battle.net and displays private available WoW characters for a selected region. Locale-aware parsing and safe failure feedback address a callback defect found during acceptance. Ownership and Guild roles remain separate. Hosted retry remains open under A-09."
+    },
+    {
+      "id": "CR-010",
+      "title": "Identify accounts by login on the owner management page",
+      "requestedAt": "2026-10-02",
+      "milestone": null,
+      "status": "done",
+      "note": "The app owner explicitly requested sign-in identities instead of member pseudonyms for account administration. Owner-only management shows sign-in email via a bounded service-only projection. Nickname sharing remains optional; signup and Membership explain owner email access."
     }
   ],
   "acceptance": [

@@ -14,7 +14,7 @@ Accepted changes CR-007–CR-009 are app-wide additions, separate from Guild/Lod
 
 - Only the verified account matching the production `APP_OWNER_PROFILE_ID` can open `/owner/accounts` or invoke its access action. Membership links to it only for that owner.
 - Registered accounts, accounts seen in the last seven days, and suspended accounts are separate counts. Activity starts when this feature is enabled; each authenticated server verification records activity at most once every five minutes. It is not concurrent-user analytics.
-- Names remain opt-in aliases. Existing hidden profiles retain numbered labels; account management never reads member emails or game snapshots.
+- The owner management page identifies accounts by sign-in email, as explicitly requested by the app owner. A service-only bounded projection reads only user IDs and emails, never password hashes, tokens, metadata, or game snapshots. Ordinary members cannot call this projection. Signup and Membership explain this access. Nicknames remain opt-in and hidden aliases stay hidden; Membership's registration directory still uses pseudonyms for those aliases.
 - A confirmation checkbox precedes suspension/restoration. The owner cannot suspend their own account. No permanent deletion is provided. Changes are audited atomically through a service-only RPC.
 
 ## Access enforcement

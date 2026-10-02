@@ -48,20 +48,30 @@ export default async function OwnerAccounts({
   if (error || activityError || suspendedError || !members.success)
     throw new Error('Unable to load account management.');
   const ids = members.data.map((m) => m.id);
-  const [{ data: preferences, error: preferenceError }, { data: access, error: accessError }] =
-    ids.length
-      ? await Promise.all([
-          admin
-            .from('app_member_directory_preferences')
-            .select('profile_id,alias,visible_to_owner')
-            .in('profile_id', ids),
-          admin.from('app_account_access').select('profile_id,suspended').in('profile_id', ids),
-        ])
-      : [
-          { data: [], error: null },
-          { data: [], error: null },
-        ];
+  const [
+    { data: preferences, error: preferenceError },
+    { data: access, error: accessError },
+    { data: logins, error: loginError },
+  ] = ids.length
+    ? await Promise.all([
+        admin
+          .from('app_member_directory_preferences')
+          .select('profile_id,alias,visible_to_owner')
+          .in('profile_id', ids),
+        admin.from('app_account_access').select('profile_id,suspended').in('profile_id', ids),
+        admin.rpc('app_account_logins', { p_profile_ids: ids }),
+      ])
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
   if (preferenceError || accessError) throw new Error('Unable to load account privacy choices.');
+  const parsedLogins = z
+    .array(z.object({ profile_id: z.uuid(), login: z.string().nullable() }))
+    .safeParse(logins);
+  if (loginError || !parsedLogins.success) throw new Error('Unable to load account logins.');
+  const loginById = new Map(parsedLogins.data.map((row) => [row.profile_id, row.login]));
   const formatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' });
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -74,7 +84,8 @@ export default async function OwnerAccounts({
         </p>
         <p className="text-text-muted mt-2 text-sm">
           Activity counts verified app visits since this feature was enabled, not historical usage.
-          Nicknames remain opt-in. Suspension preserves account data and can be reversed.
+          Sign-in emails identify accounts for owner administration. Nicknames remain opt-in.
+          Suspension preserves account data and can be reversed.
         </p>
       </header>
       <ul className="space-y-3">
@@ -87,10 +98,13 @@ export default async function OwnerAccounts({
               : `Member ${createHash('sha256').update(member.id).digest('hex').slice(0, 10).toUpperCase()}`;
           return (
             <li className="lodge-panel p-5" key={member.id}>
-              <h2>
-                {label}
+              <h2 className="break-all">
+                {loginById.get(member.id) || label}
                 {member.id === user.id ? ' · App owner' : ''}
               </h2>
+              {pref?.visible_to_owner && pref.alias && (
+                <p className="text-text-muted text-sm">Shared nickname: {pref.alias}</p>
+              )}
               <p className="text-text-muted text-sm">
                 Registered {formatter.format(new Date(member.created_at))} UTC ·{' '}
                 {suspended ? 'Suspended' : 'Access enabled'}

@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Owner account login identification — October 2, 2026
+
+- User screenshot confirmed the owner account-management page loads, but pseudonyms were insufficient for identifying accounts. CR-010 explicitly authorizes showing sign-in email on this owner-only page. This updates the previous no-email product scope; optional nickname sharing remains unchanged. Signup and Membership now disclose administrative email visibility.
+- Added a bounded service-only login projection that reads only requested user IDs and emails from Auth, never password hashes, tokens, metadata, or character snapshots. Ordinary members and anonymous callers cannot execute either projection function. The page checks the configured owner before initializing the admin client; emails are not added to the membership directory or public tracker.
+- Verification: TypeScript, focused lint, existing membership regression, and account/action/OAuth regression passed. Owner-page server-render tests prove a non-owner cannot reach admin queries, the owner sees fixture logins, and hidden aliases remain absent. Rollback-only SQL projection checks passed without returning real logins to test output. The migration dry run included only `20261002101618_owner_account_login_projection.sql`. Hosted email rendering remains part of A-08.
+
 ## Personal Battle.net callback follow-up — October 2, 2026
 
 - The user reached the personal connection failure page; A-09 is not passed. Found a parsing defect: account-profile requests omitted locale while new display fields required string realm names. Added a locale and safe normalization of localized names without relaxing character-ID/realm-slug ownership checks. This is a confirmed parser defect, not a confirmed diagnosis of the user's particular callback without a hosted retry.
