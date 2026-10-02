@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 1,
-  "updatedAt": "2026-09-30",
+  "revision": 2,
+  "updatedAt": "2026-10-01",
   "milestones": [
     { "number": 0, "name": "Foundation", "status": "implemented", "work": [] },
     { "number": 1, "name": "Front Door", "status": "implemented", "work": [] },
@@ -147,7 +147,7 @@
       "title": "Project status dashboard and ongoing change log",
       "requestedAt": "2026-09-30",
       "milestone": null,
-      "status": "in_progress",
+      "status": "done",
       "note": "Show roadmap progress and remaining work on the site; record new scope requests during milestone builds."
     }
   ],
