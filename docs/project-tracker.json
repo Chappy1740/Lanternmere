@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 21,
+  "revision": 22,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -342,8 +342,8 @@
       "title": "Make the signed-in Main Hearth Profile a character progression dashboard",
       "requestedAt": "2026-10-03",
       "milestone": null,
-      "status": "accepted",
-      "note": "Will provided a WoWAudit character screenshot as the feel for the signed-in Main Hearth Profile: character header, gear and upgrade summaries, weekly Vault, dungeon trend, boss progress, raid history, and gear table. Use only sourced permission-aware data, preserve the Main-character choice and sharing rules, and build a focused post-roadmap Hearth UX patch."
+      "status": "in_progress",
+      "note": "Will provided a WoWAudit character screenshot as the feel for the signed-in Main Hearth Profile. Hearth now leads with the owned Main, Blizzard item level, player-entered Vault notes, owner-only Raider.IO score trend and raid summaries/history. Individual boss kills, item-by-item gear, enchant and upgrade details still need verified imports; live visual and accessibility acceptance remain open."
     }
   ],
   "acceptance": [

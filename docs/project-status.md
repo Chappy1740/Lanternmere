@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Main Hearth Profile layout patch — October 3, 2026
+
+- Will provided a WoWAudit character screenshot as the signed-in Main Hearth Profile design reference. Hearth now puts the selected Main first, with a wider character header, four summary cards, saved Mythic+ score trend, raid progression summaries, and dated raid snapshot history. The Lodge and its activity remain below the profile.
+- Character identity and item level come from the saved Blizzard snapshot. Weekly Vault content is explicitly labeled as the player's War Table notes, not verified slot completion. Raider.IO history is read for the signed-in Main through existing owner-only access and labeled with its source and saved dates. Failed reads show unavailable states, not misleading empty results.
+- Current imports do not include individual boss kills, equipment rows, enchants, upgrade tracks, or crests, so those areas explain the missing source instead of inventing values. CR-013 remains in progress for those imports and live visual/accessibility acceptance. The existing Hearth route still requires Lodge membership; a new member without one is directed to Lodge setup before seeing the profile. This patch does not change database schema or sharing rules. Local lint, production build, and Workers bundle build passed; no authenticated browser or deployment check ran. The 15 roadmap milestones remain implemented, with separate live acceptance still open.
+
 ## Milestone 14 feature implementation — October 3, 2026
 
 - The Lanternkeeper read-only page now prepares weekly, next-raid, and since-last-raid Guild briefings for currently verified leaders. It uses the signed-in Supabase client, links each fact to an authoritative screen, labels records versus player-entered information, external snapshots, and missing data, and has a fixed local page finder. Boss kills remain unclaimed without a verified linked report; Chronicle Lens offers manual public-report review.
