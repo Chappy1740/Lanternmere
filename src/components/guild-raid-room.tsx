@@ -46,6 +46,7 @@ export function GuildRaidRoom({
   plannedMembers,
   attendance,
   readiness,
+  readinessUnavailable,
   auditEvents,
 }: {
   guildId: string;
@@ -62,6 +63,7 @@ export function GuildRaidRoom({
   plannedMembers: GuildRaidOperationMember[];
   attendance: GuildRaidAttendance[];
   readiness: { id: string; name: string; className: string | null; spec: string | null }[];
+  readinessUnavailable: boolean;
   auditEvents: GuildRaidAuditEvent[] | null;
 }) {
   const [createState, createAction, createPending] = useActionState(
@@ -97,6 +99,11 @@ export function GuildRaidRoom({
           details and RSVPs are not shown here.
         </p>
       </header>
+      {readinessUnavailable && (
+        <p role="alert" className="lodge-panel p-4 text-sm text-amber-200">
+          Consented Traveler readiness could not be loaded.
+        </p>
+      )}
       <RosterSupport
         plannedMembers={plannedMembers}
         attendance={attendance}

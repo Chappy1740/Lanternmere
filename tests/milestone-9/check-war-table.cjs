@@ -43,9 +43,11 @@ assert.equal(
   '2026-12-01T16:00:00.000Z',
 );
 assert.equal(
-  weeklyResetForRegion('eu', new Date('2026-09-30T05:00:00Z')).at,
-  '2026-09-30T06:00:00.000Z',
+  weeklyResetForRegion('eu', new Date('2026-09-30T03:00:00Z')).at,
+  '2026-09-30T04:00:00.000Z',
 );
+assert.equal(weeklyResetForRegion('eu', new Date('2026-09-30T05:00:00Z')).isoDate, '2026-10-07');
+assert.equal(weeklyResetForRegion('eu', new Date('2026-12-02T03:00:00Z')).at, '2026-12-02T04:00:00.000Z');
 
 const calendar = warTableCalendarIcs(
   [

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { CalendarDays, Compass, ShieldAlert, Swords } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { z } from 'zod';
+import { AvailabilityForm, AvailabilityRemoveButton } from '@/components/war-table-availability-form';
 import { WarTableVaultForm } from '@/components/war-table-vault-form';
 import { GuildCalendarForm } from '@/components/guild-calendar-form';
 import { GuildVaultSharingControls } from '@/components/guild-vault-sharing-controls';
@@ -16,7 +18,18 @@ import { getOptionalLodgeMemberships, getViewer } from '@/lib/hearth/context';
 import { loadMainCharacter } from '@/lib/hearth/main-character';
 import { eventDateTime, loadQuestBoard } from '@/lib/quest-board/events';
 import { weekEndDate, weeklyResetForRegion } from '@/lib/war-table';
-import { createAvailability, deleteAvailability, deleteGuildCalendarEntry } from './actions';
+import { deleteGuildCalendarEntry } from './actions';
+
+const leadershipAvailabilitySchema = z.array(z.object({
+  id: z.uuid(),
+  guild_id: z.uuid(),
+  profile_id: z.uuid(),
+  starts_on: z.string(),
+  ends_on: z.string(),
+  availability_status: z.enum(['available', 'tentative', 'unavailable']),
+  note: z.string().nullable(),
+  profiles: z.object({ display_name: z.string() }).nullable(),
+}));
 
 export default async function WarTablePage({
   searchParams,
@@ -38,6 +51,7 @@ export default async function WarTablePage({
   if (params.lodge !== undefined && !selected) notFound();
 
   const today = new Date().toISOString().slice(0, 10);
+  const weekEnd = weekEndDate();
   const leadershipGuilds = guildMemberships.filter((membership) =>
     isGuildLeadership(membership.guild_member_roles.map(({ role }) => role)),
   );
@@ -73,12 +87,12 @@ export default async function WarTablePage({
               leadershipGuilds.map((membership) => membership.guild_id),
             )
             .gte('ends_on', today)
+            .lte('starts_on', weekEnd)
             .neq('availability_status', 'available')
             .order('starts_on')
             .limit(20)
         : Promise.resolve({ data: [], error: null }),
     ]);
-  const weekEnd = weekEndDate();
   const upcoming = (board.upcoming ?? []).filter((event) => event.event_date <= weekEnd);
   const reset = weeklyResetForRegion(
     mainCharacter.state === 'ready' ? mainCharacter.character.region : null,
@@ -94,9 +108,10 @@ export default async function WarTablePage({
       })),
   );
   const availability = availabilityResult.error ? null : availabilityResult.data;
-  const leadershipAvailability = leadershipAvailabilityResult.error
+  const parsedLeadershipAvailability = leadershipAvailabilitySchema.safeParse(leadershipAvailabilityResult.data);
+  const leadershipAvailability = leadershipAvailabilityResult.error || !parsedLeadershipAvailability.success
     ? null
-    : leadershipAvailabilityResult.data;
+    : parsedLeadershipAvailability.data;
   const [rsvpResult, vaultResult, guildCalendarResult] = await Promise.all([
     upcoming.length
       ? supabase
@@ -142,7 +157,7 @@ export default async function WarTablePage({
     leadershipGuilds.length
       ? supabase
           .from('guild_vault_sharing')
-          .select('guild_id, vault_progress_id')
+          .select('guild_id, vault_progress_id, profile_id')
           .in(
             'guild_id',
             leadershipGuilds.map((membership) => membership.guild_id),
@@ -154,7 +169,7 @@ export default async function WarTablePage({
   const leadershipVaultResult = leadershipShares?.length
     ? await supabase
         .from('weekly_vault_progress')
-        .select('id, reset_on, raid_progress, dungeon_progress, world_progress, notes, updated_at')
+        .select('id, profile_id, reset_on, raid_progress, dungeon_progress, world_progress, notes, updated_at')
         .in(
           'id',
           leadershipShares.map((share) => share.vault_progress_id),
@@ -163,15 +178,23 @@ export default async function WarTablePage({
         .lte('reset_on', weekEnd)
     : { data: [], error: null };
   const leadershipVault = leadershipVaultResult.error ? null : leadershipVaultResult.data;
+  const leadershipProfilesResult = leadershipShares?.length
+    ? await supabase
+        .from('profiles')
+        .select('id, display_name')
+        .in('id', [...new Set(leadershipShares.map((share) => share.profile_id))])
+    : { data: [], error: null };
+  const leadershipProfiles = leadershipProfilesResult.error ? null : leadershipProfilesResult.data;
   const sharedVaultContext =
-    leadershipShares && leadershipVault
+    leadershipShares && leadershipVault && leadershipProfiles
       ? leadershipShares.flatMap((share) => {
           const progress = leadershipVault.find((entry) => entry.id === share.vault_progress_id);
           const guild = leadershipGuilds.find(
             (membership) => membership.guild_id === share.guild_id,
           );
           return progress && guild
-            ? [{ ...progress, guildId: guild.guild_id, guildName: guild.guilds.name }]
+            ? [{ ...progress, guildId: guild.guild_id, guildName: guild.guilds.name,
+              memberName: leadershipProfiles.find((profile) => profile.id === share.profile_id)?.display_name ?? 'Guild member' }]
             : [];
         })
       : null;
@@ -346,32 +369,7 @@ export default async function WarTablePage({
             Share a dated availability period with Guild leadership. This does not change any Quest
             Board RSVP.
           </p>
-          <form
-            action={createAvailability}
-            className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
-          >
-            <select name="guildId" className="lodge-field px-3 py-2">
-              {guildMemberships.map((membership) => (
-                <option key={membership.guild_id} value={membership.guild_id}>
-                  {membership.guilds.name}
-                </option>
-              ))}
-            </select>
-            <input name="startsOn" type="date" required className="lodge-field px-3 py-2" />
-            <input name="endsOn" type="date" required className="lodge-field px-3 py-2" />
-            <select name="status" defaultValue="unavailable" className="lodge-field px-3 py-2">
-              <option value="available">Available</option>
-              <option value="tentative">Tentative</option>
-              <option value="unavailable">Unavailable</option>
-            </select>
-            <button className="lodge-button px-4 py-2 font-medium">Save period</button>
-            <input
-              name="note"
-              maxLength={500}
-              placeholder="Optional note"
-              className="lodge-field px-3 py-2 sm:col-span-2 lg:col-span-5"
-            />
-          </form>
+          <AvailabilityForm guilds={guildMemberships.map((membership) => ({ id: membership.guild_id, name: membership.guilds.name }))} />
           {availability === null ? (
             <p role="alert" className="text-text-muted mt-5 text-sm">
               Your recorded availability could not be loaded.
@@ -398,10 +396,7 @@ export default async function WarTablePage({
                       · {period.starts_on} to {period.ends_on} · {guild?.guilds.name ?? 'Guild'}
                       {period.note ? ` · ${period.note}` : ''}
                     </span>
-                    <form action={deleteAvailability}>
-                      <input type="hidden" name="id" value={period.id} />
-                      <button className="text-accent hover:underline">Remove</button>
-                    </form>
+                    <AvailabilityRemoveButton id={period.id} />
                   </li>
                 );
               })}
@@ -613,7 +608,7 @@ export default async function WarTablePage({
                         {operation.guildName} · {operation.event_date}
                       </p>
                       <p className="text-text-muted mt-1 text-sm">
-                        {confirmationGaps} selected member confirmation gaps ·{' '}
+                        {confirmationGaps} selected members without a Raid Room confirmation ·{' '}
                         {
                           operation.planning.assignments.filter(
                             (row) =>
@@ -639,7 +634,7 @@ export default async function WarTablePage({
           </h3>
           <ul className="mt-3 grid gap-2">
             {guildBriefings.map(({ guild, readiness, roster }) => {
-              const stale = readiness.filter(
+              const stale = readiness?.filter(
                 (character) =>
                   !character.character_snapshots.some(
                     (snapshot) =>
@@ -654,10 +649,9 @@ export default async function WarTablePage({
                   >
                     {guild.name}
                   </Link>
-                  <span className="text-text-muted">
+                  <span className="text-text-muted" role={readiness === null ? 'alert' : undefined}>
                     {' '}
-                    · {readiness.length} consented character profiles · {stale} without a fresh
-                    24-hour snapshot · official roster{' '}
+                    · {readiness === null ? 'Consented character profiles unavailable' : `${readiness.length} consented character profiles · ${stale} without a fresh 24-hour snapshot`} · official roster{' '}
                     {roster
                       ? isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at)
                         ? 'fresh'
@@ -689,7 +683,7 @@ export default async function WarTablePage({
               {sharedVaultContext.map((entry) => (
                 <li key={`${entry.guildId}-${entry.id}`} className="lodge-list-row p-3 text-sm">
                   <p className="text-text-primary font-medium">
-                    {entry.guildName} · reset {entry.reset_on}
+                    {entry.guildName} · {entry.memberName} · reset {entry.reset_on}
                   </p>
                   <p className="text-text-muted mt-1">
                     Raid: {entry.raid_progress || 'No note'} · Dungeons:{' '}
@@ -702,7 +696,7 @@ export default async function WarTablePage({
             </ul>
           )}
           <h3 className="font-display text-text-primary mt-7 text-lg font-bold">
-            Upcoming availability signals
+            Availability signals this week
           </h3>
           {leadershipAvailability === null ? (
             <p role="alert" className="text-text-muted mt-3 text-sm">
@@ -710,14 +704,14 @@ export default async function WarTablePage({
             </p>
           ) : leadershipAvailability.length === 0 ? (
             <p className="text-text-muted mt-3 text-sm">
-              No upcoming tentative or unavailable periods recorded.
+              No tentative or unavailable periods recorded for this week.
             </p>
           ) : (
             <ul className="mt-3 grid gap-2">
               {leadershipAvailability.map((period) => (
                 <li key={period.id} className="lodge-list-row p-3 text-sm">
                   <span className="text-text-primary font-medium">
-                    {period.profiles?.[0]?.display_name ?? 'Guild member'}
+                    {period.profiles?.display_name ?? 'Guild member'}
                   </span>{' '}
                   · {period.availability_status} · {period.starts_on} to {period.ends_on}
                 </li>

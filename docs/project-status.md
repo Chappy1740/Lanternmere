@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Milestone 9 independent audit triage — October 3, 2026
+
+- Will supplied Claude Code's read-only War Table report from clean `main` at `08bfc61`. Claude found one medium availability-name defect, one low-to-medium Vault identity gap, and four low findings. Claude ran the existing reset/calendar script and scoped lint; it did not run SQL, TypeScript, a build, or live checks.
+- The War Table now reads validated to-one profile names in leadership availability and limits those signals to the current week. Shared Vault notes show the consenting member's Guild-visible display name. Raid operations explicitly count members without a **Raid Room** confirmation. Availability save/remove actions report success or failure, and failed readiness loads show an alert rather than a false zero across War Table, Guild Hall, and Raid Room.
+- Blizzard's [published EU reset announcement](https://eu.forums.blizzard.com/en/wow/t/weekly-reset-time-changing-to-0500-cet-on-16-november/398498) fixes the weekly reset at 05:00 CET, or 04:00 UTC year-round. The old 08:00 local assumption was wrong; the time, label, and spring/fall regression cases have been corrected. Maintenance can still change when realms actually return.
+- Will approved aggregate-only linked checks and a synthetic rollback rehearsal. The four Milestone 9 tables had zero records before and after the rehearsal. The current-schema fixture passed Guild A leadership reads, Guild B isolation, member reads, profile-name visibility, and direct-write boundaries, then rolled back. No migration was needed. Current-session focused reset/calendar checks, TypeScript, lint, production build using the existing private local configuration, and diff-whitespace check passed. Prettier still reports style differences in files already unformatted at `HEAD`; the new component was formatted. No credential values were read or printed.
+- Authenticated War Table interactions, a real calendar import, second-account Vault consent, and verified rank-zero versus non-zero leadership remain open under A-05. These require live accounts and cannot be inferred from the synthetic rehearsal. **Next:** after this approved repair reaches `main`, begin Milestone 10 while retaining the live acceptance work.
+
 ## Milestone 8 independent audit triage — October 3, 2026
 
 - Will supplied Claude Code's read-only Raid Room report from clean `main` at `b04e209`. Claude found one medium membership/award defect, one low-to-medium post-award integrity defect, and several low correction, history, governance, and decision-support gaps. Claude ran the existing Guild foundation and verification scripts; it did not run SQL, lint, build, or live checks.

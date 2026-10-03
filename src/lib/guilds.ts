@@ -177,7 +177,7 @@ export async function loadGuildReadiness(guildId: string) {
       }),
     )
     .safeParse(data);
-  return error || !parsed.success ? [] : parsed.data;
+  return error || !parsed.success ? null : parsed.data;
 }
 
 const rosterEntrySchema = z.object({

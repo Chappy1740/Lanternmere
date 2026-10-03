@@ -44,12 +44,13 @@ export default async function RaidRoomPage({
       guildMembers={guildMembers}
       plannedMembers={operations.members.filter((entry) => entry.operation_id === operation.id)}
       attendance={operations.attendance.filter((entry) => entry.operation_id === operation.id)}
-      readiness={readiness.map((character) => ({
+      readiness={(readiness ?? []).map((character) => ({
         id: character.id,
         name: character.character_name,
         className: character.class,
         spec: character.character_snapshots[0]?.snapshot_data.active_spec?.name ?? null,
       }))}
+      readinessUnavailable={readiness === null}
       {...workspace}
       loot={loot}
       auditEvents={auditEvents}

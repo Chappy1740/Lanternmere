@@ -281,7 +281,7 @@ export default async function GuildHallPage({
               guildId={selected.guild_id}
               {...raidOperations}
               guildMembers={guildMembers}
-              readiness={readiness}
+              readiness={readiness ?? []}
             />
           ) : (
             <p role="alert" className="text-text-muted mt-4 text-sm">
@@ -301,7 +301,11 @@ export default async function GuildHallPage({
             Only explicitly Guild-shared Travelers appear here. Snapshot freshness is shown without
             changing the source record.
           </p>
-          {readiness.length ? (
+          {readiness === null ? (
+            <p role="alert" className="text-text-muted mt-4 text-sm">
+              Consented Travelers could not be loaded.
+            </p>
+          ) : readiness.length ? (
             <ul className="mt-4 space-y-2">
               {readiness.map((character) => (
                 <li key={character.id} className="lodge-list-row p-3 text-sm">

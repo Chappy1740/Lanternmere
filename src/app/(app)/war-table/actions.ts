@@ -14,7 +14,9 @@ const input = z.object({
   note: z.string().trim().max(500),
 });
 
-export async function createAvailability(formData: FormData) {
+export type AvailabilityState = { message: string; error: boolean };
+
+export async function createAvailability(_previous: AvailabilityState, formData: FormData): Promise<AvailabilityState> {
   const parsed = input.safeParse({
     guildId: formData.get('guildId'),
     startsOn: formData.get('startsOn'),
@@ -22,7 +24,8 @@ export async function createAvailability(formData: FormData) {
     status: formData.get('status'),
     note: formData.get('note'),
   });
-  if (!parsed.success) return;
+  if (!parsed.success || parsed.data.endsOn < parsed.data.startsOn)
+    return { message: 'Check the dates and availability details.', error: true };
   const supabase = await createClient();
   const { error } = await supabase.rpc('create_guild_member_availability', {
     p_guild_id: parsed.data.guildId,
@@ -31,15 +34,19 @@ export async function createAvailability(formData: FormData) {
     p_availability_status: parsed.data.status,
     p_note: parsed.data.note || null,
   });
-  if (!error) revalidatePath('/war-table');
+  if (error) return { message: 'Availability could not be saved. Try again.', error: true };
+  revalidatePath('/war-table');
+  return { message: 'Availability saved.', error: false };
 }
 
-export async function deleteAvailability(formData: FormData) {
+export async function deleteAvailability(_previous: AvailabilityState, formData: FormData): Promise<AvailabilityState> {
   const id = z.uuid().safeParse(formData.get('id'));
-  if (!id.success) return;
+  if (!id.success) return { message: 'Invalid availability period.', error: true };
   const supabase = await createClient();
   const { error } = await supabase.rpc('delete_guild_member_availability', { p_id: id.data });
-  if (!error) revalidatePath('/war-table');
+  if (error) return { message: 'Availability could not be removed. Try again.', error: true };
+  revalidatePath('/war-table');
+  return { message: 'Availability removed.', error: false };
 }
 
 export type VaultState = { message: string; error: boolean };

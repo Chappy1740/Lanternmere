@@ -2,16 +2,19 @@ import 'server-only';
 
 export type ResetRegion = 'us' | 'eu';
 
-const resetDetails: Record<ResetRegion, { label: string; weekday: number; timeZone: string }> = {
+const resetDetails: Record<ResetRegion, { label: string; weekday: number; timeZone: string; utcHour?: number }> = {
   us: {
     label: 'North America · Tuesday, 8:00 AM Pacific',
     weekday: 2,
     timeZone: 'America/Los_Angeles',
   },
   eu: {
-    label: 'Europe · Wednesday, 8:00 AM Central European',
+    // Blizzard fixed this at 05:00 CET year-round: 04:00 UTC, or 06:00 CEST in summer.
+    // https://eu.forums.blizzard.com/en/wow/t/weekly-reset-time-changing-to-0500-cet-on-16-november/398498
+    label: 'Europe · Wednesday, 5:00 AM CET / 6:00 AM CEST',
     weekday: 3,
     timeZone: 'Europe/Paris',
+    utcHour: 4,
   },
 };
 
@@ -35,7 +38,9 @@ function zoneParts(date: Date, timeZone: string) {
   };
 }
 
-function resetInstant(date: Date, timeZone: string) {
+function resetInstant(date: Date, timeZone: string, utcHour?: number) {
+  if (utcHour !== undefined)
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), utcHour));
   const target = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 8);
   let instant = target;
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -60,10 +65,10 @@ export function weeklyResetForRegion(region: string | null | undefined, now = ne
   const localDay = new Date(Date.UTC(local.year, local.month - 1, local.day));
   const daysUntil = (detail.weekday - localDay.getUTCDay() + 7) % 7;
   localDay.setUTCDate(localDay.getUTCDate() + daysUntil);
-  let next = resetInstant(localDay, detail.timeZone);
+  let next = resetInstant(localDay, detail.timeZone, detail.utcHour);
   if (next <= now) {
     localDay.setUTCDate(localDay.getUTCDate() + 7);
-    next = resetInstant(localDay, detail.timeZone);
+    next = resetInstant(localDay, detail.timeZone, detail.utcHour);
   }
 
   return {
