@@ -1,8 +1,8 @@
 # Sequential Claude Code milestone audits
 
-Audit implemented Milestones 0–9 **one at a time**, in numerical order. Open Claude Code in the Lanternmere repository and paste only the starter prompt for the current milestone below. Use a fresh Claude session for each milestone so earlier source dumps do not consume the next audit's context. Stop after each report, bring its findings back for triage, and then continue to the next milestone. Milestone 10 remains planned until the ten reports have been reviewed.
+Milestones 0–9 were audited one at a time and their reported findings were triaged. Milestone 10 is implemented and awaits its independent Claude Code audit. Open Claude Code in the Lanternmere repository and paste only the starter prompt for the selected milestone below. Use a fresh Claude session for each milestone so earlier source dumps do not consume the next audit's context. Stop after each report and bring its findings back for triage before auditing another milestone.
 
-The checkmarks on milestone chats and the `implemented` states in `docs/project-tracker.json` mean feature scope was recorded as delivered. They do not mean independent audit or all live acceptance passed. As of October 2, 2026, `docs/project-status.md` still lists live acceptance gaps. Recheck Git and that document at audit time.
+The checkmarks on milestone chats and the `implemented` states in `docs/project-tracker.json` mean feature scope was recorded as delivered. They do not mean independent audit or all live acceptance passed. `docs/project-status.md` and the tracker still list live acceptance gaps. Recheck Git and those documents at audit time.
 
 ## Shared audit contract
 
@@ -57,7 +57,11 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 
 > Audit **Milestone 9 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-09-weekly-command-center.md`. Verify player and leadership priorities, Guild-only access, canonical raid links, non-raid Guild plans, availability, reset/DST behavior, private Vault notes and per-Guild sharing, stale/consented external context, and authenticated private `.ics` snapshots. Do not treat public calendar subscription as delivered scope. Separate deployment evidence from authenticated and cross-account acceptance. Return the standard report and stop.
 
-## Audit progress and Milestone 10 gate
+### Milestone 10 — The Muster
+
+> Audit **Milestone 10 only** using the Shared audit contract in `docs/claude-audit-handoff.md` and `docs/milestones/milestone-10-recruitment.md`. Trace the verified-claim gate, recruiter role grants, public need visibility, signed-in nonmember submissions, applicant ownership, private notes and decision history, recruiter versus Officer/Guild Master authority, trial dates and manual attendance context, applicant deletion and audit anonymization, and the daily retention job. Check the server actions, RLS, security-definer RPCs, migration `20261003150017_milestone_10_muster.sql`, and the synthetic fixture in `tests/milestone-10/`. Keep a successful rollback rehearsal separate from real multi-account and hosted retention acceptance under A-11. Return the standard report and stop.
+
+## Audit progress
 
 | Milestone | Claude audit | Findings triaged | Next action |
 | --- | --- | --- | --- |
@@ -70,6 +74,7 @@ Use one focused Claude run per milestone. Do not request a repository-wide rewri
 | 6 | Audited October 2: one medium and five low findings | Repair committed as `f96886b` and pushed to `main`. The migration was applied after a one-file dry run; pre- and post-apply rollback checks passed, as did focused tests, lint, TypeScript, build, and the error-level security advisor. Live acceptance remains open | Run Milestone 7 prompt |
 | 7 | Audited October 2: two medium, two low-to-medium, and three low findings; additional low observations | Consent, roster atomicity, claim handoff, role writes, sharing updates, and Lodge authorization repaired. Migration applied after a one-file dry run; pre- and post-apply rollback checks, focused scripts, lint, TypeScript, build, and error-level security advisor passed. Live acceptance and settings coverage remain open | Run Milestone 8 prompt; retain Milestone 7 follow-ups |
 | 8 | Audited October 3: one medium, one low-to-medium, and several low findings | Awarded-member departure and post-award edits repaired; recent audit history added. Migration applied after a one-file dry run; pre- and post-apply rollback checks, focused scripts, lint, TypeScript, build, and error-level security advisor passed. Live acceptance and correction/governance choices remain open | Run Milestone 9 prompt; retain Milestone 8 follow-ups |
-| 9 | Audited October 3: one medium, one low-to-medium, and four low findings | Availability and Vault identity, failure feedback, week bounds, Raid Room wording, and Blizzard-confirmed EU reset time repaired. A synthetic linked RLS rehearsal passed and rolled back; live acceptance remains open | Complete audit triage; begin Milestone 10 after this repair reaches main |
+| 9 | Audited October 3: one medium, one low-to-medium, and four low findings | Availability and Vault identity, failure feedback, week bounds, Raid Room wording, and Blizzard-confirmed EU reset time repaired. A synthetic linked RLS rehearsal passed and rolled back; live acceptance remains open | Complete; continue in order |
+| 10 | Not yet independently audited | Feature code and migration installed October 3; synthetic rollback checks, lint, Next.js and Workers builds passed. A-11 live acceptance remains open | Run the Milestone 10 prompt in a fresh Claude Code session |
 
-After each Claude report, review confirmed findings, repair material defects, and update this table and `docs/project-status.md` with the result and exact checks. Keep unresolved live acceptance in the tracker until it is actually verified. Start the dedicated **Milestone 10 — The Muster** chat only after all ten audits have been triaged and any blocking defects are resolved or explicitly accepted with a documented reason.
+After each Claude report, review confirmed findings, repair material defects, and update this table and `docs/project-status.md` with the result and exact checks. Keep unresolved live acceptance in the tracker until it is actually verified.
