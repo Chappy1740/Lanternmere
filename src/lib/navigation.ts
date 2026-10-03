@@ -9,6 +9,7 @@ import {
   BookOpen,
   Building2,
   ClipboardList,
+  Hammer,
   Package,
   Settings,
   PlusCircle,
@@ -27,6 +28,7 @@ export const navItems: NavItem[] = [
   { label: 'Travelers', subtitle: 'Members', href: '/travelers', icon: Users },
   { label: 'Guild Hall', subtitle: 'Guild Operations', href: '/guild-hall', icon: Building2 },
   { label: 'The Muster', subtitle: 'Recruitment & Trials', href: '/muster', icon: ClipboardList },
+  { label: 'Artisan Hall', subtitle: 'Crafting & Supplies', href: '/artisan-hall', icon: Hammer },
   {
     label: 'Adventures',
     subtitle: 'Raids · Mythic+ · PvP',

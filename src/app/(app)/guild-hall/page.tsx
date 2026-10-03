@@ -147,12 +147,20 @@ export default async function GuildHallPage({
       </header>
 
       {selected.verified && (
-        <Link
-          href={`/muster?guild=${selected.guild_id}`}
-          className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
-        >
-          Open The Muster · recruitment and trials
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href={`/muster?guild=${selected.guild_id}`}
+            className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
+          >
+            Open The Muster · recruitment and trials
+          </Link>
+          <Link
+            href={`/artisan-hall?guild=${selected.guild_id}`}
+            className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
+          >
+            Open The Artisan Hall · crafting and supplies
+          </Link>
+        </div>
       )}
 
       {!selected.verified && pendingCreator && (

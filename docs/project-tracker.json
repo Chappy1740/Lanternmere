@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 13,
+  "revision": 15,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -151,17 +151,17 @@
     {
       "number": 11,
       "name": "The Artisan Hall",
-      "status": "planned",
+      "status": "implemented",
       "work": [
         {
           "id": "M11-01",
           "title": "Character professions, recipes, and crafting discovery",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M11-02",
           "title": "Crafting requests and optional Guild supply goals",
-          "status": "todo"
+          "status": "done"
         }
       ],
       "description": "Professions, crafting discovery, service requests, and Guild supply goals.",
@@ -384,6 +384,11 @@
     {
       "id": "A-11",
       "title": "Live Muster applicant, recruiter, decision, deletion, and retention boundaries",
+      "status": "open"
+    },
+    {
+      "id": "A-12",
+      "title": "Live Artisan Hall character ownership, Guild isolation, request transitions, and supply-goal permissions",
       "status": "open"
     }
   ]
