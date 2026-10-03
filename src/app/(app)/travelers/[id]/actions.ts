@@ -161,6 +161,8 @@ export async function refreshRaiderIo(
     realm_slug: character.realm_slug,
     region: character.region,
     mythic_plus_score: result.score,
+    season_label: result.seasonLabel,
+    best_runs: result.bestRuns,
     raid_progression: result.raidProgression,
     source_url: result.sourceUrl,
     refreshed_at: new Date().toISOString(),

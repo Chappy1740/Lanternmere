@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 17,
+  "revision": 19,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -194,22 +194,22 @@
     {
       "number": 13,
       "name": "The Chronicle Lens",
-      "status": "planned",
+      "status": "implemented",
       "work": [
         {
           "id": "M13-01",
           "title": "Supported Warcraft Logs integration",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M13-02",
           "title": "Progression snapshots and source-attributed trend views",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M13-03",
           "title": "Post-raid review with attendance, loot, and progression context",
-          "status": "todo"
+          "status": "done"
         }
       ],
       "description": "Supported performance integrations, progression trends, and post-raid review.",
@@ -394,6 +394,11 @@
     {
       "id": "A-13",
       "title": "Live Expedition Board Guild isolation, role interest, Raider.IO consent, weekly goals, and key-night context",
+      "status": "open"
+    },
+    {
+      "id": "A-14",
+      "title": "Live Chronicle Lens owner-only history, Warcraft Logs credentials and public report, Guild review isolation, and accessibility",
       "status": "open"
     }
   ]

@@ -2,6 +2,12 @@ import 'server-only';
 
 import { z } from 'zod';
 
+const bestRunSchema = z.object({
+  dungeon: z.string().trim().min(1).max(120),
+  mythic_level: z.number().int().min(2).max(40),
+  score: z.unknown().optional(),
+});
+
 const responseSchema = z.object({
   profile_url: z
     .string()
@@ -14,8 +20,17 @@ const responseSchema = z.object({
       );
     }),
   mythic_plus_scores_by_season: z
-    .array(z.object({ scores: z.object({ all: z.number().nullable().optional() }) }))
+    .array(
+      z.object({
+        season: z.string().max(80).nullish().catch(null),
+        scores: z.object({ all: z.number().nullable().optional() }),
+      }),
+    )
     .default([]),
+  mythic_plus_best_runs: z
+    .array(z.unknown())
+    .nullish()
+    .transform((value) => value ?? []),
   raid_progression: z.unknown().default({}),
 });
 
@@ -26,7 +41,14 @@ export type RaiderIoCharacterInput = {
 };
 
 export type RaiderIoResult =
-  | { ok: true; score: number | null; raidProgression: unknown; sourceUrl: string }
+  | {
+      ok: true;
+      score: number | null;
+      seasonLabel: string | null;
+      bestRuns: { dungeon: string; level: number; score: number | null }[];
+      raidProgression: unknown;
+      sourceUrl: string;
+    }
   | { ok: false; message: string };
 
 export async function fetchRaiderIoProgress(
@@ -36,7 +58,7 @@ export async function fetchRaiderIoProgress(
     region: input.region.toLowerCase(),
     realm: input.realm,
     name: input.characterName,
-    fields: 'mythic_plus_scores_by_season:current,raid_progression',
+    fields: 'mythic_plus_scores_by_season:current,mythic_plus_best_runs,raid_progression',
   });
 
   try {
@@ -65,6 +87,21 @@ export async function fetchRaiderIoProgress(
     return {
       ok: true,
       score: parsed.data.mythic_plus_scores_by_season[0]?.scores.all ?? null,
+      seasonLabel: parsed.data.mythic_plus_scores_by_season[0]?.season ?? null,
+      bestRuns: parsed.data.mythic_plus_best_runs
+        .flatMap((run) => {
+          const best = bestRunSchema.safeParse(run);
+          return best.success
+            ? [
+                {
+                  dungeon: best.data.dungeon,
+                  level: best.data.mythic_level,
+                  score: typeof best.data.score === 'number' ? best.data.score : null,
+                },
+              ]
+            : [];
+        })
+        .slice(0, 20),
       raidProgression: parsed.data.raid_progression,
       sourceUrl: parsed.data.profile_url,
     };

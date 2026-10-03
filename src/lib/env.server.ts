@@ -11,6 +11,10 @@ const serverEnvSchema = z.object({
   BLIZZARD_REDIRECT_URI: z.string().url().optional(),
   BLIZZARD_REGION: z.enum(['us', 'eu', 'kr', 'tw']).default('us'),
 
+  // Optional public Warcraft Logs reports; both values stay on the server.
+  WARCRAFT_LOGS_CLIENT_ID: z.string().min(1).optional(),
+  WARCRAFT_LOGS_CLIENT_SECRET: z.string().min(1).optional(),
+
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

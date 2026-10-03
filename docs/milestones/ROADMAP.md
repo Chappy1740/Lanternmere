@@ -2,8 +2,8 @@
 
 ## Current
 
-- Milestones 0–12 — feature scope implemented. Live acceptance remains tracked in `docs/project-status.md`.
-- Milestone 13 — The Chronicle Lens: Progression Intelligence — is the next planned feature milestone.
+- Milestones 0–13 — feature scope implemented. Live acceptance remains tracked in `docs/project-status.md`.
+- Milestone 14 — The Lanternkeeper: Assisted Guild Intelligence — is the next planned feature milestone.
 
 ## Guild Operations era
 

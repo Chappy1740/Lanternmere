@@ -32,6 +32,7 @@ The local preview reads the existing private `.env.local`. A future Cloudflare p
 - Public build/runtime values: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - Private secret: `SUPABASE_SERVICE_ROLE_KEY`.
 - Blizzard integration secrets when enabled: `BLIZZARD_CLIENT_ID`, `BLIZZARD_CLIENT_SECRET`.
+- Warcraft Logs public-report secrets when enabled: `WARCRAFT_LOGS_CLIENT_ID`, `WARCRAFT_LOGS_CLIENT_SECRET`.
 - Blizzard configuration: `BLIZZARD_REGION`; `BLIZZARD_REDIRECT_URI` only if the application begins using that flow.
 
 Never expose the Supabase service-role key or Blizzard credentials through a `NEXT_PUBLIC_` variable or commit them to Git.
