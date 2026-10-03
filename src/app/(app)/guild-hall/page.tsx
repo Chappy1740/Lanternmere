@@ -160,6 +160,12 @@ export default async function GuildHallPage({
           >
             Open The Artisan Hall · crafting and supplies
           </Link>
+          <Link
+            href={`/expedition-board?guild=${selected.guild_id}`}
+            className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
+          >
+            Open The Expedition Board · Mythic+ groups
+          </Link>
         </div>
       )}
 

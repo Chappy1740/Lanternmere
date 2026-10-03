@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 15,
+  "revision": 17,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -170,22 +170,22 @@
     {
       "number": 12,
       "name": "The Expedition Board",
-      "status": "planned",
+      "status": "implemented",
       "work": [
         {
           "id": "M12-01",
           "title": "Mythic+ group posts, role matching, and key-night planning",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M12-02",
           "title": "Weekly goals, Vault context, and consented Raider.IO context",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M12-03",
           "title": "Dungeon and route resources through the Supply Chest",
-          "status": "todo"
+          "status": "done"
         }
       ],
       "description": "Mythic+ groups, role matching, weekly goals, and key-night planning.",
@@ -389,6 +389,11 @@
     {
       "id": "A-12",
       "title": "Live Artisan Hall character ownership, Guild isolation, request transitions, and supply-goal permissions",
+      "status": "open"
+    },
+    {
+      "id": "A-13",
+      "title": "Live Expedition Board Guild isolation, role interest, Raider.IO consent, weekly goals, and key-night context",
       "status": "open"
     }
   ]
