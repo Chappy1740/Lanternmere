@@ -4,6 +4,7 @@ import {
   getGuildMemberships,
   isGuildLeadership,
   loadGuildMembers,
+  loadGuildRaidAudit,
   loadGuildRaidEncounters,
   loadGuildRaidLoot,
   loadGuildRaidOperations,
@@ -23,12 +24,15 @@ export default async function RaidRoomPage({
     !isGuildLeadership(membership.guild_member_roles.map((entry) => entry.role))
   )
     notFound();
-  const [operations, guildMembers, workspace, loot, readiness] = await Promise.all([
+  const canViewAudit = membership.guild_member_roles.some((entry) =>
+    entry.role === 'guild_master' || entry.role === 'officer');
+  const [operations, guildMembers, workspace, loot, readiness, auditEvents] = await Promise.all([
     loadGuildRaidOperations(membership.guild_id),
     loadGuildMembers(membership.guild_id),
     loadGuildRaidEncounters(params.operation),
     loadGuildRaidLoot(params.operation),
     loadGuildReadiness(membership.guild_id),
+    canViewAudit ? loadGuildRaidAudit(membership.guild_id) : Promise.resolve(null),
   ]);
   if (!operations || !guildMembers || !workspace || !loot) notFound();
   const operation = operations?.operations.find((entry) => entry.id === params.operation);
@@ -48,6 +52,7 @@ export default async function RaidRoomPage({
       }))}
       {...workspace}
       loot={loot}
+      auditEvents={auditEvents}
     />
   );
 }

@@ -22,6 +22,7 @@ import type {
   GuildRaidLootAward,
   GuildRaidOperationMember,
   GuildRaidAttendance,
+  GuildRaidAuditEvent,
 } from '@/lib/guilds';
 
 const initial: GuildRaidEncounterState = { error: null, success: null };
@@ -45,6 +46,7 @@ export function GuildRaidRoom({
   plannedMembers,
   attendance,
   readiness,
+  auditEvents,
 }: {
   guildId: string;
   operation: GuildRaidOperation;
@@ -60,6 +62,7 @@ export function GuildRaidRoom({
   plannedMembers: GuildRaidOperationMember[];
   attendance: GuildRaidAttendance[];
   readiness: { id: string; name: string; className: string | null; spec: string | null }[];
+  auditEvents: GuildRaidAuditEvent[] | null;
 }) {
   const [createState, createAction, createPending] = useActionState(
     createGuildRaidEncounter,
@@ -67,6 +70,9 @@ export function GuildRaidRoom({
   );
   const names = new Map(
     guildMembers.map((member) => [member.id, member.profiles?.display_name ?? 'Guild member']),
+  );
+  const actorNames = new Map(
+    guildMembers.map((member) => [member.profile_id, member.profiles?.display_name ?? 'Guild member']),
   );
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -157,6 +163,31 @@ export function GuildRaidRoom({
       ) : (
         <section className="lodge-panel text-text-muted p-6 text-sm">
           No encounter workspace has been created for this raid yet.
+        </section>
+      )}
+      {auditEvents && (
+        <section className="lodge-panel p-5 sm:p-6" aria-labelledby="raid-audit-heading">
+          <h2 id="raid-audit-heading" className="font-display text-text-primary text-xl font-bold">
+            Recent Guild raid history
+          </h2>
+          <p className="text-text-muted mt-2 text-sm">
+            Guild Masters and Officers can review recent raid and loot actions here.
+          </p>
+          {auditEvents.length ? (
+            <ul className="mt-4 space-y-2 text-sm">
+              {auditEvents.map((event) => (
+                <li key={event.id} className="lodge-list-row p-3">
+                  <span className="text-text-primary capitalize">
+                    {event.action.replace(/^guild\./, '').replaceAll('_', ' ')}
+                  </span>{' '}
+                  · {event.actor_id ? actorNames.get(event.actor_id) ?? 'Former Guild member' : 'System'}
+                  {' · '}{new Intl.DateTimeFormat('en-US', {
+                    dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC',
+                  }).format(new Date(event.created_at))} UTC
+                </li>
+              ))}
+            </ul>
+          ) : <p className="text-text-muted mt-3 text-sm">No raid actions recorded yet.</p>}
         </section>
       )}
     </div>
@@ -341,9 +372,7 @@ export function GuildLootCouncil({
               {award ? (
                 <p className="text-accent mt-2 text-sm">
                   Awarded to{' '}
-                  {names.get(
-                    dropCandidates.find((c) => c.id === award.candidate_id)?.guild_member_id ?? '',
-                  )}{' '}
+                  {dropCandidates.find((c) => c.id === award.candidate_id)?.member_label ?? 'Former Guild member'}{' '}
                   — {award.reason}
                 </p>
               ) : (
@@ -387,7 +416,7 @@ export function GuildLootCouncil({
                   <ul className="mt-3 space-y-1 text-sm">
                     {dropCandidates.map((c) => (
                       <li key={c.id}>
-                        {names.get(c.guild_member_id)} · {c.interest}
+                        {c.member_label} · {c.interest}
                         {c.factual_context ? ` — ${c.factual_context}` : ''} ·{' '}
                         {votes.filter((v) => v.candidate_id === c.id).length} vote(s)
                       </li>
@@ -403,7 +432,7 @@ export function GuildLootCouncil({
                         >
                           {dropCandidates.map((c) => (
                             <option key={c.id} value={c.id}>
-                              {names.get(c.guild_member_id)}
+                              {c.member_label}
                             </option>
                           ))}
                         </select>
@@ -429,7 +458,7 @@ export function GuildLootCouncil({
                         >
                           {dropCandidates.map((c) => (
                             <option key={c.id} value={c.id}>
-                              {names.get(c.guild_member_id)}
+                              {c.member_label}
                             </option>
                           ))}
                         </select>

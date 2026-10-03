@@ -119,7 +119,7 @@ export async function saveGuildRaidOperationMember(_: GuildRaidOperationState, f
 const guildRaidMemberCharacterInput = z.object({
   operationId: z.uuid(),
   memberId: z.uuid(),
-  characterId: z.uuid(),
+  characterId: z.uuid().or(z.literal('')),
 });
 export async function saveGuildRaidOperationMemberCharacter(
   _: GuildRaidOperationState,
@@ -130,19 +130,19 @@ export async function saveGuildRaidOperationMemberCharacter(
     memberId: formData.get('memberId'),
     characterId: formData.get('characterId'),
   });
-  if (!parsed.success) return { error: 'Choose a consented Traveler.', success: null };
+  if (!parsed.success) return { error: 'Choose a consented Traveler or clear the selection.', success: null };
   const { error } = await (
     await createClient()
   ).rpc('set_guild_raid_operation_member_character', {
     p_operation_id: parsed.data.operationId,
     p_guild_member_id: parsed.data.memberId,
-    p_character_id: parsed.data.characterId,
+    p_character_id: parsed.data.characterId || null,
   });
   if (error)
     return { error: 'That Traveler is not available for this Guild member.', success: null };
   revalidatePath('/guild-hall');
   revalidatePath('/guild-hall/raid-room');
-  return { error: null, success: 'Raid context selected.' };
+  return { error: null, success: parsed.data.characterId ? 'Raid context selected.' : 'Raid context cleared.' };
 }
 
 const guildRaidAssignmentInput = z.object({

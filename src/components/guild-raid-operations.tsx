@@ -252,10 +252,9 @@ function Operation({
             </select>
             <select
               name="characterId"
-              required
               className="border-border bg-background rounded-md border px-2 py-1 text-sm"
             >
-              <option value="">Consented Traveler</option>
+              <option value="">Clear selected Traveler</option>
               {readiness.map((character) => (
                 <option key={character.id} value={character.id}>
                   {character.character_name} · {character.class ?? 'Class unavailable'}

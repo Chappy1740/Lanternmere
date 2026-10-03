@@ -330,7 +330,8 @@ const guildRaidLootDropSchema = z.object({
 const guildRaidLootCandidateSchema = z.object({
   id: z.uuid(),
   loot_drop_id: z.uuid(),
-  guild_member_id: z.uuid(),
+  guild_member_id: z.uuid().nullable(),
+  member_label: z.string(),
   interest: z.enum(['need', 'offspec', 'pass']),
   factual_context: z.string(),
 });
@@ -353,6 +354,34 @@ export type GuildRaidLootDrop = z.infer<typeof guildRaidLootDropSchema>;
 export type GuildRaidLootCandidate = z.infer<typeof guildRaidLootCandidateSchema>;
 export type GuildRaidLootVote = z.infer<typeof guildRaidLootVoteSchema>;
 export type GuildRaidLootAward = z.infer<typeof guildRaidLootAwardSchema>;
+
+const guildRaidAuditSchema = z.object({
+  id: z.uuid(),
+  action: z.string(),
+  actor_id: z.uuid().nullable(),
+  created_at: z.string(),
+});
+export type GuildRaidAuditEvent = z.infer<typeof guildRaidAuditSchema>;
+
+export async function loadGuildRaidAudit(guildId: string) {
+  const { supabase } = await getViewer();
+  const [raid, loot] = await Promise.all([
+    supabase.from('guild_audit_events')
+      .select('id, action, actor_id, created_at')
+      .eq('guild_id', guildId).like('action', 'guild.raid_%')
+      .order('created_at', { ascending: false }).limit(30),
+    supabase.from('guild_audit_events')
+      .select('id, action, actor_id, created_at')
+      .eq('guild_id', guildId).like('action', 'guild.loot_%')
+      .order('created_at', { ascending: false }).limit(30),
+  ]);
+  const parsedRaid = z.array(guildRaidAuditSchema).safeParse(raid.data);
+  const parsedLoot = z.array(guildRaidAuditSchema).safeParse(loot.data);
+  if (raid.error || loot.error || !parsedRaid.success || !parsedLoot.success) return null;
+  return [...parsedRaid.data, ...parsedLoot.data]
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    .slice(0, 30);
+}
 
 export async function loadGuildRaidOperations(guildId: string) {
   const { supabase } = await getViewer();
@@ -438,7 +467,7 @@ export async function loadGuildRaidLoot(operationId: string) {
   const [candidates, votes, awards] = await Promise.all([
     supabase
       .from('guild_raid_loot_candidates')
-      .select('id, loot_drop_id, guild_member_id, interest, factual_context')
+      .select('id, loot_drop_id, guild_member_id, member_label, interest, factual_context')
       .in('loot_drop_id', ids),
     supabase
       .from('guild_raid_loot_votes')
