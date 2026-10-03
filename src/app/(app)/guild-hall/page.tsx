@@ -1,4 +1,5 @@
 import { Building2, Crown, ShieldCheck, Swords } from 'lucide-react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { GuildCreationForm } from '@/components/guild-creation-form';
 import { GuildMemberPortalControl } from '@/components/guild-member-portal-control';
@@ -144,6 +145,15 @@ export default async function GuildHallPage({
           </p>
         )}
       </header>
+
+      {selected.verified && (
+        <Link
+          href={`/muster?guild=${selected.guild_id}`}
+          className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
+        >
+          Open The Muster · recruitment and trials
+        </Link>
+      )}
 
       {!selected.verified && pendingCreator && (
         <section className="lodge-panel p-6 sm:p-8">
@@ -445,7 +455,7 @@ export default async function GuildHallPage({
                   </div>
                   {!isMemberMaster && (
                     <div className="flex flex-wrap gap-2">
-                      {(['officer', 'raid_leader', 'loot_council'] as const).map((role) => (
+                      {(['officer', 'raid_leader', 'loot_council', 'recruiter'] as const).map((role) => (
                         <GuildMemberRoleControl
                           key={role}
                           membershipId={member.id}

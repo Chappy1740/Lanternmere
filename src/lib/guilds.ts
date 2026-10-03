@@ -4,7 +4,7 @@ import { cache } from 'react';
 import { z } from 'zod';
 import { getViewer } from '@/lib/hearth/context';
 
-const roleSchema = z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council']);
+const roleSchema = z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council', 'recruiter']);
 const membershipSchema = z.object({
   id: z.uuid(),
   guild_id: z.uuid(),
@@ -81,6 +81,7 @@ export function guildRoleLabel(role: GuildRole) {
     officer: 'Officer',
     raid_leader: 'Raid Leader',
     loot_council: 'Loot Council',
+    recruiter: 'Recruiter',
   }[role];
 }
 

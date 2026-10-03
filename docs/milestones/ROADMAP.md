@@ -2,8 +2,8 @@
 
 ## Current
 
-- Milestones 0–9 — feature scope implemented. Milestone 9 deployment and live acceptance are tracked in `docs/project-status.md`.
-- Milestone 10 — The Muster: Recruitment & Trials — is the next planned feature milestone.
+- Milestones 0–10 — feature scope implemented. Live acceptance remains tracked in `docs/project-status.md`.
+- Milestone 11 — The Artisan Hall: Professions & Guild Services — is the next planned feature milestone.
 
 ## Guild Operations era
 

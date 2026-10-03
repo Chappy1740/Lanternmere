@@ -9,6 +9,7 @@ const labels = {
   officer: 'Officer',
   raid_leader: 'Raid Leader',
   loot_council: 'Loot Council',
+  recruiter: 'Recruiter',
 } as const;
 
 export function GuildMemberRoleControl({

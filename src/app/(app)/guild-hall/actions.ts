@@ -463,7 +463,7 @@ export async function removeGuildMember(
 
 const guildMemberRoleInput = z.object({
   membershipId: z.uuid(),
-  role: z.enum(['officer', 'raid_leader', 'loot_council']),
+  role: z.enum(['officer', 'raid_leader', 'loot_council', 'recruiter']),
   enabled: z.enum(['true', 'false']),
 });
 
@@ -722,7 +722,7 @@ export async function updateGuildMemberPortal(
       .eq('profile_id', user.id)
       .maybeSingle();
     const roles = z
-      .array(z.object({ role: z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council']) }))
+      .array(z.object({ role: z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council', 'recruiter']) }))
       .safeParse(membership?.guild_member_roles);
     if (
       membershipError ||

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 11,
-  "updatedAt": "2026-10-02",
+  "revision": 13,
+  "updatedAt": "2026-10-03",
   "milestones": [
     {
       "number": 0,
@@ -127,22 +127,22 @@
     {
       "number": 10,
       "name": "The Muster",
-      "status": "planned",
+      "status": "implemented",
       "work": [
         {
           "id": "M10-01",
           "title": "Recruitment needs and applicant intake",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M10-02",
           "title": "Applicant and trial workflow with officer notes and decision history",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M10-03",
           "title": "Recruiter permissions, applicant privacy, retention, and audit",
-          "status": "todo"
+          "status": "done"
         }
       ],
       "description": "Recruitment needs, applications, trials, officer notes, and decision history.",
@@ -379,6 +379,11 @@
     {
       "id": "A-10",
       "title": "Fresh signup nickname, confirmation, and optional directory-sharing consent",
+      "status": "open"
+    },
+    {
+      "id": "A-11",
+      "title": "Live Muster applicant, recruiter, decision, deletion, and retention boundaries",
       "status": "open"
     }
   ]

@@ -8,6 +8,7 @@ import {
   Trophy,
   BookOpen,
   Building2,
+  ClipboardList,
   Package,
   Settings,
   PlusCircle,
@@ -25,6 +26,7 @@ export const navItems: NavItem[] = [
   { label: 'War Table', subtitle: 'Weekly Command', href: '/war-table', icon: Compass },
   { label: 'Travelers', subtitle: 'Members', href: '/travelers', icon: Users },
   { label: 'Guild Hall', subtitle: 'Guild Operations', href: '/guild-hall', icon: Building2 },
+  { label: 'The Muster', subtitle: 'Recruitment & Trials', href: '/muster', icon: ClipboardList },
   {
     label: 'Adventures',
     subtitle: 'Raids · Mythic+ · PvP',
