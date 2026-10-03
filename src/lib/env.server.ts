@@ -15,6 +15,10 @@ const serverEnvSchema = z.object({
   WARCRAFT_LOGS_CLIENT_ID: z.string().min(1).optional(),
   WARCRAFT_LOGS_CLIENT_SECRET: z.string().min(1).optional(),
 
+  // Optional, server-only Lanternkeeper wording. The factual briefing works without it.
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_MODEL: z.string().min(1).default('gpt-6-luna'),
+
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

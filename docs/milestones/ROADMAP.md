@@ -2,8 +2,7 @@
 
 ## Current
 
-- Milestones 0–13 — feature scope implemented. Live acceptance remains tracked in `docs/project-status.md`.
-- Milestone 14 — The Lanternkeeper: Assisted Guild Intelligence — is the next planned feature milestone.
+- Milestones 0–14 — feature scope implemented. Independent audits and live acceptance remain tracked in `docs/project-status.md`.
 
 ## Guild Operations era
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 19,
+  "revision": 21,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -218,22 +218,22 @@
     {
       "number": 14,
       "name": "The Lanternkeeper",
-      "status": "planned",
+      "status": "implemented",
       "work": [
         {
           "id": "M14-01",
           "title": "Permission-aware raid and weekly briefings",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M14-02",
           "title": "Change summaries and links to authoritative records",
-          "status": "todo"
+          "status": "done"
         },
         {
           "id": "M14-03",
           "title": "Explainable assistance with privacy and consent boundaries",
-          "status": "todo"
+          "status": "done"
         }
       ],
       "description": "Permission-aware assistance, weekly summaries, and operational briefings.",
@@ -328,6 +328,22 @@
       "milestone": null,
       "status": "done",
       "note": "Owner management uses an opted-in game nickname as the main label with sign-in email underneath. Accounts without a shared nickname retain email as their main identifier. Hidden nicknames remain hidden."
+    },
+    {
+      "id": "CR-012",
+      "title": "Use WoWAudit applications and boss-kill dashboard as design references",
+      "requestedAt": "2026-10-03",
+      "milestone": null,
+      "status": "accepted",
+      "note": "Will wants the feel of WoWAudit's application experience and its front dashboard showing boss kills. Treat this as design direction for a later Muster/progression UX patch. No WoWAudit API connection or data import is authorized by this request. The private application page could not be inspected without access."
+    },
+    {
+      "id": "CR-013",
+      "title": "Make the signed-in Main Hearth Profile a character progression dashboard",
+      "requestedAt": "2026-10-03",
+      "milestone": null,
+      "status": "accepted",
+      "note": "Will provided a WoWAudit character screenshot as the feel for the signed-in Main Hearth Profile: character header, gear and upgrade summaries, weekly Vault, dungeon trend, boss progress, raid history, and gear table. Use only sourced permission-aware data, preserve the Main-character choice and sharing rules, and build a focused post-roadmap Hearth UX patch."
     }
   ],
   "acceptance": [
@@ -399,6 +415,11 @@
     {
       "id": "A-14",
       "title": "Live Chronicle Lens owner-only history, Warcraft Logs credentials and public report, Guild review isolation, and accessibility",
+      "status": "open"
+    },
+    {
+      "id": "A-15",
+      "title": "Live Lanternkeeper verified-leader and denied-member access, aggregate-only AI payload, rate budget, provider response, and accessibility",
       "status": "open"
     }
   ]

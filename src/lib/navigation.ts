@@ -8,6 +8,7 @@ import {
   Trophy,
   BookOpen,
   ChartNoAxesCombined,
+  Sparkles,
   Building2,
   ClipboardList,
   Hammer,
@@ -26,6 +27,12 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { label: 'The Hearth', subtitle: 'Dashboard', href: '/hearth', icon: Home },
   { label: 'War Table', subtitle: 'Weekly Command', href: '/war-table', icon: Compass },
+  {
+    label: 'The Lanternkeeper',
+    subtitle: 'Guild Briefings',
+    href: '/lanternkeeper',
+    icon: Sparkles,
+  },
   { label: 'Travelers', subtitle: 'Members', href: '/travelers', icon: Users },
   { label: 'Guild Hall', subtitle: 'Guild Operations', href: '/guild-hall', icon: Building2 },
   { label: 'The Muster', subtitle: 'Recruitment & Trials', href: '/muster', icon: ClipboardList },
