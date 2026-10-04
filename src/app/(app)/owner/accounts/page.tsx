@@ -87,6 +87,9 @@ export default async function OwnerAccounts({
           Sign-in emails identify accounts for owner administration. Nicknames remain opt-in.
           Suspension preserves account data and can be reversed.
         </p>
+        <Link href="/owner/design-studio" className="text-accent mt-4 inline-block underline">
+          Open private design studio
+        </Link>
       </header>
       <ul className="space-y-3">
         {members.data.map((member) => {

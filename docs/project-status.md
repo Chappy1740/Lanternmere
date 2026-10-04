@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Owner-only WoW design studio — October 3, 2026
+
+- Will requested a review of WoW Guild sites, gear views, and wishlists, followed by private mockups. The original concepts draw on WoWAudit's compact character progress, Guilds of WoW's Guild overview and recruitment grouping, and That's My BIS's distinction between wishes, priority, and recorded loot. Source links and the design rationale are in the studio; no external site assets or member data are copied.
+- `/owner/design-studio` contains three responsive sample-data concepts: Guild front page, gear wishlist, and Main Hearth profile. It uses the existing server-side owner-profile gate, returns a not-found page to other signed-in users, and is marked against search indexing. The owner account page links to it. CR-014 records the request as a concept-only deliverable; it does not claim live boss kills, equipment imports, or a new Guild wishlist feature.
+- Current-session lint, Next.js production build, Workers bundle build, tracker JSON check, and whitespace check passed. A local signed-out request to the built `/owner/design-studio` route returned a 307 redirect to sign-in. A signed-in non-owner and the owner's hosted visual review have not yet been tested.
+- **Next audit:** Milestone 12, The Expedition Board, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 remains open for real-account acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
+
 ## Milestone 11 independent audit triage — October 3, 2026
 
 - Will supplied Claude Code's read-only Artisan Hall report from clean `67893c1`. It found no high-severity defect or authority bypass. The confirmed privacy issue was direct Guild reads of stable account IDs; closed goals were hidden only by the page. Traveler rows can be added from public Blizzard data without proof of character control, and posted nickname snapshots do not update after a rename.

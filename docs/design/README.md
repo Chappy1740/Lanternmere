@@ -4,6 +4,8 @@
 
 This is the permanent written companion to the approved Lanternmere visual references. It guides future visual-alignment work; it does not authorize a redesign or change to product behavior.
 
+The owner-only `/owner/design-studio` route holds three exploratory Guild, wishlist, and Main profile layouts requested October 3, 2026. They use fictional sample data, carry no production feature approval, and are separate from the public reference assets below.
+
 The reference images are in [`references/`](references/). Supplied raster candidates are preserved in [`public/brand/`](../../public/brand/) for review. Visual verification found that some supplied filenames do not match their rendered content. The verified master crest and the purpose-made Lodge scene listed below are approved for the current product’s runtime use; other candidates remain source material pending content and licensing confirmation.
 
 ## Visual language

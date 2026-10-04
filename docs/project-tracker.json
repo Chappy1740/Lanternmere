@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 22,
+  "revision": 23,
   "updatedAt": "2026-10-03",
   "milestones": [
     {
@@ -344,6 +344,14 @@
       "milestone": null,
       "status": "in_progress",
       "note": "Will provided a WoWAudit character screenshot as the feel for the signed-in Main Hearth Profile. Hearth now leads with the owned Main, Blizzard item level, player-entered Vault notes, owner-only Raider.IO score trend and raid summaries/history. Individual boss kills, item-by-item gear, enchant and upgrade details still need verified imports; live visual and accessibility acceptance remain open."
+    },
+    {
+      "id": "CR-014",
+      "title": "Review private WoW-inspired Guild, wishlist, and Main profile mockups",
+      "requestedAt": "2026-10-03",
+      "milestone": null,
+      "status": "done",
+      "note": "Will asked for research into WoW Guild sites, gear tools, and wishlists, then owner-only mockups. The private design studio presents three original sample-data concepts behind the existing server-side app-owner check. These concepts do not add real gear imports or Guild wishlist storage."
     }
   ],
   "acceptance": [
