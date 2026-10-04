@@ -5,6 +5,7 @@ do $$ declare actor uuid; other_actor uuid; begin
   if has_table_privilege('anon','public.app_owned_wow_snapshots','select') then raise exception 'Anonymous character access'; end if;
   if has_function_privilege('anon','private.app_account_active()','execute') then raise exception 'Anonymous private account check'; end if;
   if exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relrowsecurity and c.relkind='r' and c.relname<>'app_account_access' and not exists(select 1 from pg_policy p where p.polrelid=c.oid and p.polname='app_account_active' and not p.polpermissive)) then raise exception 'Suspension policy missing'; end if;
+  if not exists(select 1 from pg_policy p join pg_class c on c.oid=p.polrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='storage' and c.relname='objects' and p.polname='app_account_active' and not p.polpermissive) then raise exception 'Storage suspension policy missing'; end if;
   select id into actor from public.profiles order by id limit 1;
   select id into other_actor from public.profiles where id<>actor order by id limit 1;
   if actor is null or other_actor is null then raise exception 'Two existing accounts required for rollback-only assertions'; end if;

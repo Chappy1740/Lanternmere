@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 23,
-  "updatedAt": "2026-10-03",
+  "revision": 24,
+  "updatedAt": "2026-10-04",
   "milestones": [
     {
       "number": 0,
@@ -352,6 +352,14 @@
       "milestone": null,
       "status": "done",
       "note": "Will asked for research into WoW Guild sites, gear tools, and wishlists, then owner-only mockups. The private design studio presents three original sample-data concepts behind the existing server-side app-owner check. These concepts do not add real gear imports or Guild wishlist storage."
+    },
+    {
+      "id": "CR-015",
+      "title": "Final integrated audit and pre-alpha acceptance",
+      "requestedAt": "2026-10-04",
+      "milestone": null,
+      "status": "in_progress",
+      "note": "Will requested a whole-program audit and guided live acceptance before the pre-alpha review. Claude reported no high or medium code defect. The focused retention, headers, suspension, accessibility, and documentation repairs are implemented; real-account and hosted acceptance remain open."
     }
   ],
   "acceptance": [
@@ -428,6 +436,11 @@
     {
       "id": "A-15",
       "title": "Live Lanternkeeper verified-leader and denied-member access, aggregate-only AI payload, rate budget, provider response, and accessibility",
+      "status": "open"
+    },
+    {
+      "id": "A-16",
+      "title": "Hosted private-schema setting, retention jobs, security headers, and Chronicle Storage cleanup after Lodge deletion",
       "status": "open"
     }
   ]

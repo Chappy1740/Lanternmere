@@ -25,6 +25,20 @@
   --shadow-panel: 0 18px 42px rgba(0, 0, 0, 0.28);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .lodge-panel-interactive,
+  .lodge-field,
+  .lodge-button,
+  .lodge-button-secondary {
+    transition: none;
+  }
+
+  .lodge-panel-interactive:hover,
+  .lodge-button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);

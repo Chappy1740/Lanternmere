@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createInvitationToken, hashInvitationToken } from '@/lib/lodge-invitations';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
 export type CaretakerState = {
@@ -96,8 +97,32 @@ export async function deleteLodge(_: LodgeManagementState, formData: FormData): 
   const lodgeId = z.uuid().safeParse(formData.get('lodgeId'));
   const confirmation = z.string().max(200).safeParse(formData.get('confirmation'));
   if (!lodgeId.success || !confirmation.success) return { error: 'Confirm the Lodge name to delete it.', success: null };
-  const { error } = await (await createClient()).rpc('delete_lodge', { p_lodge_id: lodgeId.data, p_confirmation: confirmation.data });
+  const { data, error } = await (await createClient()).rpc('delete_lodge', {
+    p_lodge_id: lodgeId.data,
+    p_confirmation: confirmation.data,
+  });
   if (error) return { error: 'Only the owner can delete a Lodge after entering its exact name.', success: null };
+  const paths = z.array(z.string().startsWith(`${lodgeId.data}/`)).safeParse(data);
+  if (!paths.success) {
+    console.error('Lodge deletion returned invalid Chronicle cleanup paths.');
+    refreshManagement();
+    return { error: 'The Lodge was deleted, but its private images need a cleanup check.', success: null };
+  }
+  if (paths.data.length > 0) {
+    try {
+      const admin = createAdminClient();
+      for (let offset = 0; offset < paths.data.length; offset += 1000) {
+        const { error: storageError } = await admin.storage
+          .from('chronicle-media')
+          .remove(paths.data.slice(offset, offset + 1000));
+        if (storageError) throw storageError;
+      }
+    } catch {
+      console.error('Chronicle Storage cleanup failed after Lodge deletion.');
+      refreshManagement();
+      return { error: 'The Lodge was deleted, but some private images need a cleanup check.', success: null };
+    }
+  }
   refreshManagement();
   redirect('/lodges/new');
 }
