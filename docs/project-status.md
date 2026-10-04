@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Milestone 13 independent audit triage — October 4, 2026
+
+- Will supplied Claude Code's read-only Chronicle Lens report from clean `801483a`. It found no high- or medium-severity defect and no authority or privacy bypass. Five low findings covered missing privacy and upstream-response tests, imprecise report-link wording, unlabeled list limits and an omitted `invited` count, and invisible failed or aging refreshes.
+- The synthetic history fixture now gives a second account active Lodge caretaker access to a consented readiness snapshot and proves they still cannot read detailed history, `best_runs`, or `season_label`. The Warcraft Logs request logic is testable with mocked network calls and distinguishes malformed JSON from a network failure. The page labels its 60-point and 20-operation limits, includes `invited` attendance, shows saved-point age and later failed refresh attempts, and explains browser/request-log visibility of public report codes. Token caching and lookup throttling remain deferred product choices.
+- Current-session public-report input and mocked-response tests, full lint, Next.js production build, and Workers bundle passed. The expanded linked fixture passed inside `BEGIN`/`ROLLBACK`; aggregate checks found zero synthetic users and Lodges afterward. **A-14 remains open:** no live Warcraft Logs client or schema response, real multi-account Guild check, Workers credential check, or hosted accessibility check ran. **Next independent Claude audit:** Milestone 14, The Lanternkeeper.
+
 ## Milestone 12 independent audit triage — October 3, 2026
 
 - Will supplied Claude Code's read-only Expedition Board report from clean `a6e49d2`. It found no high-severity defect or authority bypass. The confirmed issues were direct exposure of stable account IDs and a score-sharing edit form that silently cleared the current choice. Public Traveler imports still do not prove character control.
@@ -11,7 +17,7 @@
 - Will requested a review of WoW Guild sites, gear views, and wishlists, followed by private mockups. The original concepts draw on WoWAudit's compact character progress, Guilds of WoW's Guild overview and recruitment grouping, and That's My BIS's distinction between wishes, priority, and recorded loot. Source links and the design rationale are in the studio; no external site assets or member data are copied.
 - `/owner/design-studio` contains three responsive sample-data concepts: Guild front page, gear wishlist, and Main Hearth profile. It uses the existing server-side owner-profile gate, returns a not-found page to other signed-in users, and is marked against search indexing. The owner account page links to it. CR-014 records the request as a concept-only deliverable; it does not claim live boss kills, equipment imports, or a new Guild wishlist feature.
 - Current-session lint, Next.js production build, Workers bundle build, tracker JSON check, and whitespace check passed. A local signed-out request to the built `/owner/design-studio` route returned a 307 redirect to sign-in. A signed-in non-owner and the owner's hosted visual review have not yet been tested.
-- **Next audit:** Milestone 13, The Chronicle Lens, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 remains open for real-account acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
+- **Next audit:** Milestone 14, The Lanternkeeper, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 and A-14 remain open for real-account and live-service acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
 
 ## Milestone 11 independent audit triage — October 3, 2026
 

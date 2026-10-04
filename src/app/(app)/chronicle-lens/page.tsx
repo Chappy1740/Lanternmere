@@ -27,6 +27,13 @@ const historySchema = z.array(
 const characterSchema = z.array(
   z.object({ id: z.uuid(), character_name: z.string(), realm_slug: z.string() }),
 );
+const attemptSchema = z.array(
+  z.object({
+    character_id: z.uuid(),
+    attempted_at: z.string(),
+    failure_message: z.string().nullable(),
+  }),
+);
 const raidbotsSchema = z.array(
   z.object({
     character_id: z.uuid(),
@@ -42,6 +49,11 @@ function dateTime(value: string | number) {
     timeStyle: 'short',
     timeZone: 'UTC',
   }).format(new Date(value));
+}
+
+function ageSince(value: string) {
+  const hours = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 3_600_000));
+  return hours < 24 ? `${hours} hours old` : `${Math.floor(hours / 24)} days old`;
 }
 
 export default async function ChronicleLensPage({
@@ -78,7 +90,7 @@ export default async function ChronicleLensPage({
   if (characterResult.error || !characters.success)
     throw new Error('Unable to load your Travelers.');
   const ids = characters.data.map((character) => character.id);
-  const [historyResult, raidbotsResult, operationData] = await Promise.all([
+  const [historyResult, attemptResult, raidbotsResult, operationData] = await Promise.all([
     ids.length
       ? supabase
           .from('character_raiderio_history')
@@ -91,6 +103,12 @@ export default async function ChronicleLensPage({
       : Promise.resolve({ data: [], error: null }),
     ids.length
       ? supabase
+          .from('character_raiderio_refresh_attempts')
+          .select('character_id, attempted_at, failure_message')
+          .in('character_id', ids)
+      : Promise.resolve({ data: [], error: null }),
+    ids.length
+      ? supabase
           .from('character_raidbots_reports')
           .select('character_id, lodge_id, report_url, updated_at')
           .in('character_id', ids)
@@ -100,8 +118,16 @@ export default async function ChronicleLensPage({
     guild ? loadGuildRaidOperations(guild.guild_id) : Promise.resolve(null),
   ]);
   const history = historySchema.safeParse(historyResult.data);
+  const attempts = attemptSchema.safeParse(attemptResult.data);
   const raidbots = raidbotsSchema.safeParse(raidbotsResult.data);
-  if (historyResult.error || !history.success || raidbotsResult.error || !raidbots.success)
+  if (
+    historyResult.error ||
+    !history.success ||
+    attemptResult.error ||
+    !attempts.success ||
+    raidbotsResult.error ||
+    !raidbots.success
+  )
     throw new Error('Unable to load progression history.');
 
   const selectedOperation =
@@ -135,7 +161,33 @@ export default async function ChronicleLensPage({
             Only you can see this detailed history. Each point comes from a Traveler refresh; gaps
             mean no saved refresh, not no activity.
           </p>
+          <p className="text-text-muted text-sm">
+            Showing up to 30 Travelers and the latest 60 saved points across them. Older points or
+            quieter Travelers may be omitted from this view.
+          </p>
         </div>
+        {characters.data.length > 0 && (
+          <ul className="text-text-muted space-y-1 text-sm" aria-label="Traveler refresh status">
+            {characters.data.map((character) => {
+              const latest = history.data.find((point) => point.character_id === character.id);
+              const attempt = attempts.data.find((item) => item.character_id === character.id);
+              const failed =
+                attempt?.failure_message &&
+                (!latest || Date.parse(attempt.attempted_at) > Date.parse(latest.refreshed_at));
+              return (
+                <li key={character.id}>
+                  {character.character_name}:{' '}
+                  {latest
+                    ? `latest saved point ${dateTime(latest.refreshed_at)} UTC (${ageSince(latest.refreshed_at)})`
+                    : 'no saved point in this view'}
+                  {failed
+                    ? ` · latest refresh attempt failed ${dateTime(attempt.attempted_at)} UTC`
+                    : ''}
+                </li>
+              );
+            })}
+          </ul>
+        )}
         {!history.data.length ? (
           <p className="text-text-muted text-sm">
             No snapshots yet. Refresh Raider.IO on one of your Traveler pages to begin a timeline.
@@ -233,8 +285,10 @@ export default async function ChronicleLensPage({
           </h2>
           <p className="text-text-muted text-sm">
             Available to verified Guild leadership. Attendance and loot are Lanternmere records; a
-            public log you enter is shown alongside them for human review. The link is not saved or
-            treated as proof that it belongs to the selected raid.
+            public log you enter is shown alongside them for human review. Lanternmere does not
+            store the link in its database; this lookup uses the page URL, which may remain in your
+            browser history and server request logs. The link is not proof that it belongs to the
+            selected raid.
           </p>
         </div>
         {!guild ? (
@@ -273,34 +327,42 @@ export default async function ChronicleLensPage({
                   No Guild raid operations are recorded yet.
                 </p>
               ) : (
-                <ul className="space-y-2 text-sm">
-                  {operationData.operations
-                    .slice(-20)
-                    .reverse()
-                    .map((operation) => {
-                      const attendance = operationData.attendance.filter(
-                        (entry) => entry.operation_id === operation.id,
-                      );
-                      const present = attendance.filter((entry) =>
-                        ['attended', 'late'].includes(entry.attendance_status),
-                      ).length;
-                      return (
-                        <li key={operation.id} className="border-border rounded-lg border p-3">
-                          <Link
-                            className="text-accent underline"
-                            href={`/chronicle-lens?${new URLSearchParams({ guild: guild.guild_id, operation: operation.id })}`}
-                          >
-                            {operation.title}
-                          </Link>
-                          <span className="text-text-muted">
-                            {' '}
-                            · {operation.event_date} · {present} marked attended/late of{' '}
-                            {attendance.length} attendance records
-                          </span>
-                        </li>
-                      );
-                    })}
-                </ul>
+                <>
+                  {operationData.operations.length > 20 && (
+                    <p className="text-text-muted text-sm">
+                      Showing the latest 20 of {operationData.operations.length} recorded raid
+                      operations.
+                    </p>
+                  )}
+                  <ul className="space-y-2 text-sm">
+                    {operationData.operations
+                      .slice(-20)
+                      .reverse()
+                      .map((operation) => {
+                        const attendance = operationData.attendance.filter(
+                          (entry) => entry.operation_id === operation.id,
+                        );
+                        const present = attendance.filter((entry) =>
+                          ['attended', 'late'].includes(entry.attendance_status),
+                        ).length;
+                        return (
+                          <li key={operation.id} className="border-border rounded-lg border p-3">
+                            <Link
+                              className="text-accent underline"
+                              href={`/chronicle-lens?${new URLSearchParams({ guild: guild.guild_id, operation: operation.id })}`}
+                            >
+                              {operation.title}
+                            </Link>
+                            <span className="text-text-muted">
+                              {' '}
+                              · {operation.event_date} · {present} marked attended/late of{' '}
+                              {attendance.length} attendance records
+                            </span>
+                          </li>
+                        );
+                      })}
+                  </ul>
+                </>
               )}
             </div>
             {selectedOperation && (
@@ -324,18 +386,20 @@ export default async function ChronicleLensPage({
                   <div>
                     <h4 className="text-text-primary font-medium">Attendance context</h4>
                     <ul className="text-text-muted text-sm">
-                      {['attended', 'late', 'confirmed', 'absent', 'benched'].map((status) => (
-                        <li key={status}>
-                          {status}:{' '}
-                          {
-                            operationData.attendance.filter(
-                              (entry) =>
-                                entry.operation_id === selectedOperation.id &&
-                                entry.attendance_status === status,
-                            ).length
-                          }
-                        </li>
-                      ))}
+                      {['invited', 'attended', 'late', 'confirmed', 'absent', 'benched'].map(
+                        (status) => (
+                          <li key={status}>
+                            {status}:{' '}
+                            {
+                              operationData.attendance.filter(
+                                (entry) =>
+                                  entry.operation_id === selectedOperation.id &&
+                                  entry.attendance_status === status,
+                              ).length
+                            }
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </div>
                   <div>
