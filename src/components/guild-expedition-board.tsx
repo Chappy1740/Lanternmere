@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, type FormEvent } from 'react';
 import {
+  clearExpeditionInterestScore,
   createExpeditionPost,
   deleteExpeditionPost,
   removeExpeditionInterest,
@@ -155,7 +156,7 @@ export function ExpeditionInterestForm({
   postId: string;
   characters: { id: string; character_name: string; realm_slug: string }[];
   roles: ('tank' | 'healer' | 'damage')[];
-  current: { character_id: string; role: string } | null;
+  current: { character_id: string; role: string; score_shared: boolean } | null;
   open: boolean;
 }) {
   const [state, action, pending] = useActionState(setExpeditionInterest, initialState);
@@ -166,10 +167,14 @@ export function ExpeditionInterestForm({
   return (
     <div className="mt-4 space-y-2">
       {open && (
-        <form action={action} className="grid gap-2 sm:grid-cols-2">
+        <form
+          key={`${postId}:${current?.character_id}:${current?.role}:${current?.score_shared}`}
+          action={action}
+          className="grid gap-2 sm:grid-cols-2"
+        >
           <input type="hidden" name="postId" value={postId} />
           <label className="text-text-muted grid gap-1 text-sm">
-            Your Traveler
+            Traveler you added
             <select
               name="characterId"
               required
@@ -206,15 +211,26 @@ export function ExpeditionInterestForm({
           </label>
           <input type="hidden" name="shareScore" value="false" />
           <label className="text-text-muted flex items-start gap-2 text-sm sm:col-span-2">
-            <input type="checkbox" name="shareScore" value="true" className="mt-1" />
-            Share my last saved Raider.IO Mythic+ score and source with this Guild for this post. It
-            may be stale; if no snapshot is saved, no score is shared. Clearing this box removes the
-            shared copy when I save again.
+            <input
+              type="checkbox"
+              name="shareScore"
+              value="true"
+              defaultChecked={current?.score_shared ?? false}
+              className="mt-1"
+            />
+            Share this named character’s last saved Raider.IO Mythic+ score and source with this
+            Guild for this post. It may be stale; if no snapshot is saved, no score is shared.
+            Clearing this box removes the shared copy when I save again.
           </label>
           <p className="text-text-muted text-sm sm:col-span-2">
-            Your Guild nickname, Traveler, and chosen role are shared with this Guild. You can
-            remove your interest.
+            Your Guild nickname, Traveler, and chosen role are shared with this Guild. Adding a
+            Traveler does not verify that you control the character. You can remove your interest.
           </p>
+          {current?.score_shared && (
+            <p className="text-text-muted text-sm sm:col-span-2" role="status">
+              Score currently shared for this post.
+            </p>
+          )}
           <button
             type="submit"
             disabled={pending || !characters.length || !roles.length}
@@ -226,19 +242,39 @@ export function ExpeditionInterestForm({
         </form>
       )}
       {current && (
-        <form action={removeAction} className="flex flex-wrap items-center gap-3">
-          <input type="hidden" name="postId" value={postId} />
-          <button
-            type="submit"
-            disabled={removing}
-            className="text-accent text-sm underline disabled:opacity-60"
-          >
-            Remove my interest
-          </button>
-          <Result state={removeState} />
-        </form>
+        <div className="flex flex-wrap items-center gap-3">
+          {current.score_shared && <ExpeditionScoreClearButton postId={postId} />}
+          <form action={removeAction} className="flex flex-wrap items-center gap-3">
+            <input type="hidden" name="postId" value={postId} />
+            <button
+              type="submit"
+              disabled={removing}
+              className="text-accent text-sm underline disabled:opacity-60"
+            >
+              Remove my interest
+            </button>
+            <Result state={removeState} />
+          </form>
+        </div>
       )}
     </div>
+  );
+}
+
+export function ExpeditionScoreClearButton({ postId }: { postId: string }) {
+  const [state, action, pending] = useActionState(clearExpeditionInterestScore, initialState);
+  return (
+    <form action={action} className="flex flex-wrap items-center gap-3">
+      <input type="hidden" name="postId" value={postId} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="text-accent text-sm underline disabled:opacity-60"
+      >
+        Clear my shared score
+      </button>
+      <Result state={state} />
+    </form>
   );
 }
 

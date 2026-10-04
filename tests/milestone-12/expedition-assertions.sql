@@ -62,17 +62,31 @@ do $$ begin
     or has_table_privilege('authenticated', 'public.guild_mythic_interests', 'update')
     or has_table_privilege('authenticated', 'public.guild_mythic_goals', 'insert')
   then raise exception 'Direct-write boundary failed'; end if;
+  if has_column_privilege('authenticated', 'public.guild_mythic_posts', 'created_by', 'select')
+    or has_column_privilege('authenticated', 'public.guild_mythic_interests', 'profile_id', 'select')
+    or has_column_privilege('authenticated', 'public.guild_mythic_interests', 'character_id', 'select')
+    or has_column_privilege('authenticated', 'public.guild_mythic_goals', 'profile_id', 'select')
+  then raise exception 'Stable account or Traveler ID is directly readable'; end if;
 end $$;
 reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m12_member'), true);
+select set_config('audit.m12_member_post', public.create_guild_mythic_post(
+  current_setting('audit.m12_guild')::uuid, 'Member Dungeon', 2, 10,
+  now() + interval '3 days', 1, 1, 3, '')::text, true);
 select public.set_guild_mythic_interest(current_setting('audit.m12_post')::uuid,
   current_setting('audit.m12_character')::uuid, 'damage', false);
 do $$ begin
   if (select score_source_url from public.guild_mythic_interests
       where post_id = current_setting('audit.m12_post')::uuid) is not null
   then raise exception 'Raider.IO score leaked without consent'; end if;
+  begin
+    perform public.set_guild_mythic_post_status(current_setting('audit.m12_post')::uuid,
+      'closed');
+    raise exception 'Non-leader closed another member post';
+  exception when insufficient_privilege then null;
+  end;
   begin
     perform public.set_guild_mythic_interest(current_setting('audit.m12_post')::uuid,
       current_setting('audit.m12_other_character')::uuid, 'damage', true);
@@ -103,6 +117,31 @@ end $$;
 select set_config('audit.m12_goal', public.save_guild_mythic_goal(
   current_setting('audit.m12_guild')::uuid, current_date + 7, 4, 10, 1,
   'Private synthetic plan', false)::text, true);
+do $$ begin
+  if not exists (
+    select 1 from public.guild_mythic_viewer_context(
+      current_setting('audit.m12_guild')::uuid,
+      array[current_setting('audit.m12_post')::uuid],
+      array[(select id from public.guild_mythic_interests
+        where post_id = current_setting('audit.m12_post')::uuid)],
+      array[current_setting('audit.m12_goal')::uuid])
+    where record_kind = 'interest' and is_mine
+      and own_character_id = current_setting('audit.m12_character')::uuid)
+  then raise exception 'Owner action context missing'; end if;
+end $$;
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.m12_master'), true);
+do $$ begin
+  if exists (select 1 from public.guild_mythic_goals
+      where id = current_setting('audit.m12_goal')::uuid)
+  then raise exception 'Same-Guild private goal leaked'; end if;
+  if exists (select 1 from public.guild_mythic_viewer_context(
+      current_setting('audit.m12_guild')::uuid,
+      '{}'::uuid[], '{}'::uuid[], array[current_setting('audit.m12_goal')::uuid]))
+  then raise exception 'Private goal leaked through context RPC'; end if;
+end $$;
 reset role;
 
 set local role authenticated;
@@ -130,6 +169,8 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m12_member'), true);
 select public.save_guild_mythic_goal(current_setting('audit.m12_guild')::uuid,
   current_date + 7, 4, 10, 2, 'Shared synthetic plan', true);
+select public.set_guild_mythic_interest(current_setting('audit.m12_post')::uuid,
+  current_setting('audit.m12_character')::uuid, 'damage', true);
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m12_master'), true);
@@ -139,6 +180,25 @@ do $$ begin
   then raise exception 'Guild goal sharing failed'; end if;
 end $$;
 select public.set_guild_mythic_post_status(current_setting('audit.m12_post')::uuid, 'closed');
+select public.set_guild_mythic_post_status(current_setting('audit.m12_member_post')::uuid, 'closed');
+do $$ begin
+  if not exists (select 1 from public.guild_mythic_posts
+      where id = current_setting('audit.m12_member_post')::uuid and status = 'closed')
+  then raise exception 'Leadership could not close member post'; end if;
+end $$;
+reset role;
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.m12_member'), true);
+select public.clear_guild_mythic_interest_score(current_setting('audit.m12_post')::uuid);
+do $$ begin
+  if exists (select 1 from public.guild_mythic_interests
+      where post_id = current_setting('audit.m12_post')::uuid
+        and score_source_url is not null)
+    or not exists (select 1 from public.guild_mythic_interests
+      where post_id = current_setting('audit.m12_post')::uuid)
+  then raise exception 'Closed-post score revocation failed'; end if;
+end $$;
 reset role;
 
 delete from public.guild_members where guild_id = current_setting('audit.m12_guild')::uuid

@@ -142,6 +142,22 @@ export async function removeExpeditionInterest(
   return { message: 'Your interest was removed.', error: false };
 }
 
+export async function clearExpeditionInterestScore(
+  _previous: ExpeditionState,
+  formData: FormData,
+): Promise<ExpeditionState> {
+  const parsed = z.uuid().safeParse(formData.get('postId'));
+  if (!parsed.success) return { message: 'Group post not found.', error: true };
+  const supabase = await authenticatedClient();
+  if (!supabase) return { message: 'Sign in to clear your score.', error: true };
+  const { error } = await supabase.rpc('clear_guild_mythic_interest_score', {
+    p_post_id: parsed.data,
+  });
+  if (error) return { message: 'Shared score could not be cleared.', error: true };
+  revalidatePath('/expedition-board');
+  return { message: 'Your shared score was cleared. Your interest remains.', error: false };
+}
+
 const goalInput = z.object({
   guildId: z.uuid(),
   resetOn: z.iso.date(),

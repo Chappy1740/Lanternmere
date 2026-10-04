@@ -1,11 +1,17 @@
 # Project status and handoff
 
+## Milestone 12 independent audit triage — October 3, 2026
+
+- Will supplied Claude Code's read-only Expedition Board report from clean `a6e49d2`. It found no high-severity defect or authority bypass. The confirmed issues were direct exposure of stable account IDs and a score-sharing edit form that silently cleared the current choice. Public Traveler imports still do not prove character control.
+- The single installed migration `20261004035931_milestone_12_audit_privacy_consent.sql` restricts direct reads to safe columns, supplies owner-only action flags and past interests, and lets an interest owner clear a copied score after a post closes or starts. The page and form now preserve and display the current sharing choice and explain the public-import ownership limit. The fixture covers direct ID denial, same-Guild private goals, owner context, and closed-post score revocation. Leadership closure can still be reopened by the creator, and posting has no cap; both remain product choices for a later moderation review.
+- Current-session focused lint, TypeScript after route regeneration, Next.js production build, Workers bundle, and whitespace check passed. The linked dry run listed only this migration. Migration plus fixture passed in one `BEGIN`/`ROLLBACK`; the migration was installed, and the fixture passed again in rollback. Aggregate checks confirmed one migration record, account-ID reads denied, the retention job active, and zero synthetic users. The error-level database security advisor found no issues, and a second dry run found the database up to date. **A-13 remains open:** no real multi-account, live Raider.IO consent, accessibility, or hosted retention run was verified. **Next independent Claude audit:** Milestone 13, The Chronicle Lens.
+
 ## Owner-only WoW design studio — October 3, 2026
 
 - Will requested a review of WoW Guild sites, gear views, and wishlists, followed by private mockups. The original concepts draw on WoWAudit's compact character progress, Guilds of WoW's Guild overview and recruitment grouping, and That's My BIS's distinction between wishes, priority, and recorded loot. Source links and the design rationale are in the studio; no external site assets or member data are copied.
 - `/owner/design-studio` contains three responsive sample-data concepts: Guild front page, gear wishlist, and Main Hearth profile. It uses the existing server-side owner-profile gate, returns a not-found page to other signed-in users, and is marked against search indexing. The owner account page links to it. CR-014 records the request as a concept-only deliverable; it does not claim live boss kills, equipment imports, or a new Guild wishlist feature.
 - Current-session lint, Next.js production build, Workers bundle build, tracker JSON check, and whitespace check passed. A local signed-out request to the built `/owner/design-studio` route returned a 307 redirect to sign-in. A signed-in non-owner and the owner's hosted visual review have not yet been tested.
-- **Next audit:** Milestone 12, The Expedition Board, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 remains open for real-account acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
+- **Next audit:** Milestone 13, The Chronicle Lens, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 remains open for real-account acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
 
 ## Milestone 11 independent audit triage — October 3, 2026
 

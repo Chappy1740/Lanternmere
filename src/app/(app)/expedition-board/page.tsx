@@ -5,6 +5,7 @@ import {
   ExpeditionGoalForm,
   ExpeditionInterestForm,
   ExpeditionInterestRemoveButton,
+  ExpeditionScoreClearButton,
   ExpeditionPostForm,
   ExpeditionPostDeleteButton,
   ExpeditionPostStatus,
@@ -18,7 +19,6 @@ const postSchema = z.array(
   z.object({
     id: z.uuid(),
     guild_id: z.uuid(),
-    created_by: z.uuid(),
     creator_name: z.string(),
     dungeon: z.string(),
     key_min: z.number(),
@@ -33,10 +33,9 @@ const postSchema = z.array(
 );
 const interestSchema = z.array(
   z.object({
+    id: z.uuid(),
     post_id: z.uuid(),
-    profile_id: z.uuid(),
     member_name: z.string(),
-    character_id: z.uuid(),
     character_label: z.string(),
     role: z.enum(['tank', 'healer', 'damage']),
     score: z.number().nullable(),
@@ -47,7 +46,6 @@ const interestSchema = z.array(
 const goalSchema = z.array(
   z.object({
     id: z.uuid(),
-    profile_id: z.uuid(),
     target_runs: z.number(),
     target_key_level: z.number(),
     completed_runs: z.number(),
@@ -70,6 +68,23 @@ const calendarSchema = z.array(
     title: z.string(),
     event_date: z.string(),
     event_time: z.string().nullable(),
+  }),
+);
+const contextSchema = z.array(
+  z.object({
+    record_kind: z.enum(['post', 'interest', 'goal']),
+    record_id: z.uuid(),
+    is_mine: z.boolean(),
+    own_character_id: z.uuid().nullable(),
+    member_name: z.string().nullable(),
+  }),
+);
+const pastInterestSchema = z.array(
+  z.object({
+    post_id: z.uuid(),
+    dungeon: z.string(),
+    starts_at: z.string(),
+    score_shared: z.boolean(),
   }),
 );
 
@@ -119,7 +134,7 @@ export default async function ExpeditionBoardPage({
       ? supabase
           .from('guild_mythic_posts')
           .select(
-            'id, guild_id, created_by, creator_name, dungeon, key_min, key_max, starts_at, tank_slots, healer_slots, damage_slots, note, status',
+            'id, guild_id, creator_name, dungeon, key_min, key_max, starts_at, tank_slots, healer_slots, damage_slots, note, status',
           )
           .eq('guild_id', selected.guild_id)
           .gte('starts_at', now.toISOString())
@@ -129,7 +144,7 @@ export default async function ExpeditionBoardPage({
     selected.verified
       ? supabase
           .from('guild_mythic_goals')
-          .select('id, profile_id, target_runs, target_key_level, completed_runs, note, shared')
+          .select('id, target_runs, target_key_level, completed_runs, note, shared')
           .eq('guild_id', selected.guild_id)
           .eq('reset_on', resetOn)
           .limit(100)
@@ -171,7 +186,7 @@ export default async function ExpeditionBoardPage({
     ? await supabase
         .from('guild_mythic_interests')
         .select(
-          'post_id, profile_id, member_name, character_id, character_label, role, score, score_source_url, score_refreshed_at',
+          'id, post_id, member_name, character_label, role, score, score_source_url, score_refreshed_at',
         )
         .eq('guild_id', selected.guild_id)
         .in(
@@ -184,42 +199,37 @@ export default async function ExpeditionBoardPage({
     ? null
     : interestSchema.safeParse(interestResult.data);
   const interests = interestsParsed?.success ? interestsParsed.data : null;
-  const ownInterestResult = selected.verified
-    ? await supabase
-        .from('guild_mythic_interests')
-        .select('post_id')
-        .eq('guild_id', selected.guild_id)
-        .eq('profile_id', user.id)
-        .limit(100)
-    : { data: [], error: null };
-  const pastInterestIds = ownInterestResult.error
-    ? []
-    : (ownInterestResult.data ?? [])
-        .map(({ post_id }) => post_id)
-        .filter((id) => !posts?.some((post) => post.id === id));
-  const pastPostResult = pastInterestIds.length
-    ? await supabase
-        .from('guild_mythic_posts')
-        .select('id, dungeon, starts_at')
-        .eq('guild_id', selected.guild_id)
-        .in('id', pastInterestIds)
-        .limit(100)
-    : { data: [], error: null };
-  const pastPosts = pastPostResult.error ? null : pastPostResult.data;
-  const ownGoal = goals?.find((goal) => goal.profile_id === user.id) ?? null;
-  const sharedGoals = goals?.filter((goal) => goal.shared && goal.profile_id !== user.id) ?? null;
-  const profileResult = sharedGoals?.length
-    ? await supabase
-        .from('profiles')
-        .select('id, display_name')
-        .in(
-          'id',
-          sharedGoals.map(({ profile_id }) => profile_id),
-        )
-    : { data: [], error: null };
-  const names = new Map(
-    (profileResult.data ?? []).map((profile) => [profile.id, profile.display_name]),
+  const [contextResult, pastInterestResult] = selected.verified
+    ? await Promise.all([
+        supabase.rpc('guild_mythic_viewer_context', {
+          p_guild_id: selected.guild_id,
+          p_post_ids: posts?.map(({ id }) => id) ?? [],
+          p_interest_ids: interests?.map(({ id }) => id) ?? [],
+          p_goal_ids: goals?.map(({ id }) => id) ?? [],
+        }),
+        supabase.rpc('guild_mythic_my_past_interests', { p_guild_id: selected.guild_id }),
+      ])
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
+  const contextParsed = contextResult.error ? null : contextSchema.safeParse(contextResult.data);
+  const context = contextParsed?.success ? contextParsed.data : null;
+  const actionFlags = new Map(
+    context?.map((item) => [`${item.record_kind}:${item.record_id}`, item]),
   );
+  const pastParsed = pastInterestResult.error
+    ? null
+    : pastInterestSchema.safeParse(pastInterestResult.data);
+  const pastPosts = pastParsed?.success
+    ? pastParsed.data.filter(({ post_id }) => !posts?.some((post) => post.id === post_id))
+    : null;
+  const ownGoal =
+    (context && goals?.find((goal) => actionFlags.get(`goal:${goal.id}`)?.is_mine)) || null;
+  const sharedGoals =
+    (context &&
+      goals?.filter((goal) => goal.shared && !actionFlags.get(`goal:${goal.id}`)?.is_mine)) ||
+    null;
 
   return (
     <main className="mx-auto max-w-5xl space-y-7">
@@ -273,7 +283,7 @@ export default async function ExpeditionBoardPage({
               or automatic match. Listed times use UTC after your local time is converted when
               posted.
             </p>
-            {posts === null || interests === null || characters === null ? (
+            {posts === null || interests === null || characters === null || context === null ? (
               <p role="alert" className="mt-4 text-amber-200">
                 Group plans could not be loaded. Please try again.
               </p>
@@ -284,7 +294,12 @@ export default async function ExpeditionBoardPage({
                 {posts.map((post) => {
                   const people = interests.filter((interest) => interest.post_id === post.id);
                   const ownInterest =
-                    people.find((interest) => interest.profile_id === user.id) ?? null;
+                    people.find(
+                      (interest) => actionFlags.get(`interest:${interest.id}`)?.is_mine,
+                    ) ?? null;
+                  const ownCharacterId = ownInterest
+                    ? actionFlags.get(`interest:${ownInterest.id}`)?.own_character_id
+                    : null;
                   const requestedRoles = [
                     ...(post.tank_slots ? ['tank' as const] : []),
                     ...(post.healer_slots ? ['healer' as const] : []),
@@ -322,7 +337,7 @@ export default async function ExpeditionBoardPage({
                         <ul className="text-text-muted mt-2 space-y-2 text-sm">
                           {people.map((person) => (
                             <li
-                              key={person.profile_id}
+                              key={person.id}
                               className="rounded border border-[color:var(--border-ornate)] p-3"
                             >
                               {person.member_name} · {person.character_label} · {person.role}
@@ -357,11 +372,19 @@ export default async function ExpeditionBoardPage({
                           postId={post.id}
                           characters={characters}
                           roles={requestedRoles}
-                          current={ownInterest}
+                          current={
+                            ownInterest && ownCharacterId
+                              ? {
+                                  character_id: ownCharacterId,
+                                  role: ownInterest.role,
+                                  score_shared: ownInterest.score_source_url !== null,
+                                }
+                              : null
+                          }
                           open={post.status === 'open'}
                         />
                       )}
-                      {(post.created_by === user.id || canLead) && (
+                      {(actionFlags.get(`post:${post.id}`)?.is_mine || canLead) && (
                         <div>
                           <ExpeditionPostStatus id={post.id} status={post.status} />
                           <ExpeditionPostDeleteButton id={post.id} />
@@ -376,7 +399,7 @@ export default async function ExpeditionBoardPage({
               <p className="text-text-muted mt-4 text-sm">Showing the next 30 group plans.</p>
             )}
           </section>
-          {(ownInterestResult.error || pastPostResult.error) && (
+          {pastPosts === null && (
             <p role="alert" className="lodge-panel p-5 text-amber-200">
               Your earlier interests could not be loaded. Please try again.
             </p>
@@ -396,14 +419,17 @@ export default async function ExpeditionBoardPage({
               <ul className="mt-4 space-y-3">
                 {pastPosts.map((post) => (
                   <li
-                    key={post.id}
+                    key={post.post_id}
                     className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[color:var(--border-ornate)] p-3"
                   >
                     <span className="text-text-muted text-sm">
                       {post.dungeon} ·{' '}
                       {new Date(post.starts_at).toLocaleString('en-US', { timeZone: 'UTC' })} UTC
                     </span>
-                    <ExpeditionInterestRemoveButton postId={post.id} />
+                    <div className="flex flex-wrap gap-3">
+                      {post.score_shared && <ExpeditionScoreClearButton postId={post.post_id} />}
+                      <ExpeditionInterestRemoveButton postId={post.post_id} />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -442,7 +468,7 @@ export default async function ExpeditionBoardPage({
               </label>
               <button className="lodge-button-secondary px-4 py-2 text-sm">Show week</button>
             </form>
-            {goals === null ? (
+            {goals === null || context === null ? (
               <p role="alert" className="mt-3 text-amber-200">
                 Weekly goals could not be loaded.
               </p>
@@ -454,16 +480,12 @@ export default async function ExpeditionBoardPage({
                     <h3 className="text-text-primary font-semibold">
                       Goals members chose to share
                     </h3>
-                    {profileResult.error && (
-                      <p role="alert" className="mt-2 text-sm text-amber-200">
-                        Member names could not be loaded.
-                      </p>
-                    )}
                     <ul className="text-text-muted mt-2 space-y-2 text-sm">
                       {sharedGoals.map((goal) => (
                         <li key={goal.id}>
-                          {names.get(goal.profile_id) ?? 'Guild member'}: {goal.completed_runs}/
-                          {goal.target_runs} runs · target +{goal.target_key_level}
+                          {actionFlags.get(`goal:${goal.id}`)?.member_name ?? 'Guild member'}:{' '}
+                          {goal.completed_runs}/{goal.target_runs} runs · target +
+                          {goal.target_key_level}
                           {goal.note ? ` · ${goal.note}` : ''}
                         </li>
                       ))}
