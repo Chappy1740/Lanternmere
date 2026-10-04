@@ -41,7 +41,6 @@ const applicationSchema = z.array(
     status: z.string(),
     trial_starts_on: z.string().nullable(),
     trial_ends_on: z.string().nullable(),
-    trial_attendance_context: z.string(),
     created_at: z.string(),
     retention_expires_at: z.string(),
   }),
@@ -63,6 +62,12 @@ const historySchema = z.array(
     decision_note: z.string(),
     created_at: z.string(),
   }),
+);
+const ownApplicationSchema = z.array(
+  z.object({ id: z.uuid(), guild_id: z.uuid(), status: z.string(), created_at: z.string() }),
+);
+const trialContextSchema = z.array(
+  z.object({ application_id: z.uuid(), attendance_context: z.string() }),
 );
 
 function safeLink(value: string | null) {
@@ -90,26 +95,116 @@ export default async function MusterPage({
     (typeof params.guild !== 'string' || !z.uuid().safeParse(params.guild).success)
   )
     notFound();
-  const guildId = typeof params.guild === 'string' ? params.guild : memberships[0]?.guild_id;
+  const requestedPage = typeof params.page === 'string' ? Number(params.page) : 1;
+  const page =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 1000
+      ? requestedPage
+      : 1;
+  const guildId = typeof params.guild === 'string' ? params.guild : null;
   if (!guildId) {
+    const ownResult = await supabase
+      .from('guild_applications')
+      .select('id, guild_id, status, created_at', { count: 'exact' })
+      .eq('applicant_profile_id', user.id)
+      .order('created_at', { ascending: false })
+      .range((page - 1) * 30, page * 30 - 1);
+    const ownApplications = ownResult.error ? null : ownApplicationSchema.safeParse(ownResult.data);
+    const ownGuildNames = ownApplications?.success
+      ? await Promise.all(
+          ownApplications.data.map(async (application) => {
+            const { data } = await supabase.rpc('recruiting_guild_name', {
+              p_guild_id: application.guild_id,
+            });
+            return {
+              application,
+              guildName: typeof data === 'string' ? data : 'Guild name unavailable',
+            };
+          }),
+        )
+      : null;
     return (
-      <main className="mx-auto max-w-3xl space-y-5">
+      <main className="mx-auto max-w-3xl space-y-6">
         <h1 className="font-display text-text-primary text-3xl font-bold">The Muster</h1>
-        <p className="text-text-muted">
-          Open a Guild’s recruitment link to see its needs and apply. Your application is visible
-          only to you and its verified recruiters.
-        </p>
+        <section className="lodge-panel p-6" aria-labelledby="your-applications-heading">
+          <h2
+            id="your-applications-heading"
+            className="font-display text-text-primary text-xl font-bold"
+          >
+            Your applications
+          </h2>
+          {ownGuildNames === null ? (
+            <p role="alert" className="text-text-muted mt-3">
+              Your applications could not be loaded. Please try again.
+            </p>
+          ) : ownGuildNames.length === 0 ? (
+            <p className="text-text-muted mt-3">
+              You have no saved applications. Open a Guild’s recruitment link to apply.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {ownGuildNames.map(({ application, guildName }) => (
+                <li key={application.id} className="lodge-list-row p-4">
+                  <Link
+                    href={`/muster?guild=${application.guild_id}`}
+                    className="text-accent font-medium underline"
+                  >
+                    {guildName}
+                  </Link>
+                  <p className="text-text-muted mt-1 text-sm">
+                    {application.status} · applied {application.created_at.slice(0, 10)} · open to
+                    review or delete
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+          {(ownResult.count ?? 0) > 30 && (
+            <nav
+              aria-label="Your application pages"
+              className="text-text-muted mt-4 flex gap-4 text-sm"
+            >
+              {page > 1 && (
+                <Link className="text-accent underline" href={`/muster?page=${page - 1}`}>
+                  Previous
+                </Link>
+              )}
+              <span>Page {page}</span>
+              {page * 30 < (ownResult.count ?? 0) && (
+                <Link className="text-accent underline" href={`/muster?page=${page + 1}`}>
+                  Next
+                </Link>
+              )}
+            </nav>
+          )}
+        </section>
+        {memberships.length > 0 && (
+          <section className="lodge-panel p-6" aria-labelledby="guild-recruitment-heading">
+            <h2
+              id="guild-recruitment-heading"
+              className="font-display text-text-primary text-xl font-bold"
+            >
+              Your Guilds
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {memberships.map((membership) => (
+                <li key={membership.guild_id}>
+                  <Link
+                    href={`/muster?guild=${membership.guild_id}`}
+                    className="text-accent underline"
+                  >
+                    {membership.guilds.name} recruitment
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <Link href="/guild-hall" className="text-accent underline">
           Visit the Guild Hall
         </Link>
       </main>
     );
   }
-  const requestedPage = typeof params.page === 'string' ? Number(params.page) : 1;
-  const page =
-    Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 1000
-      ? requestedPage
-      : 1;
   const ownMembership = memberships.find((membership) => membership.guild_id === guildId);
   const roles = ownMembership?.guild_member_roles.map((entry) => entry.role) ?? [];
   const canRecruit = roles.some((role) => ['guild_master', 'officer', 'recruiter'].includes(role));
@@ -127,7 +222,7 @@ export default async function MusterPage({
     supabase
       .from('guild_applications')
       .select(
-        'id, guild_id, applicant_profile_id, applicant_name, character_label, raid_role, class_name, spec_name, availability, experience, profile_url, log_url, status, trial_starts_on, trial_ends_on, trial_attendance_context, created_at, retention_expires_at',
+        'id, guild_id, applicant_profile_id, applicant_name, character_label, raid_role, class_name, spec_name, availability, experience, profile_url, log_url, status, trial_starts_on, trial_ends_on, created_at, retention_expires_at',
         { count: 'exact' },
       )
       .eq('guild_id', guildId)
@@ -167,7 +262,7 @@ export default async function MusterPage({
   const visibleNeeds = needs?.success ? needs.data : null;
   const visibleApplications = applications?.success ? applications.data : null;
   const applicationIds = visibleApplications?.map((application) => application.id) ?? [];
-  const [noteResult, historyResult] =
+  const [noteResult, historyResult, trialContextResult] =
     canRecruit && applicationIds.length
       ? await Promise.all([
           supabase
@@ -180,13 +275,26 @@ export default async function MusterPage({
             .select('id, application_id, from_status, to_status, decision_note, created_at')
             .in('application_id', applicationIds)
             .order('created_at', { ascending: false }),
+          supabase.rpc('get_guild_trial_attendance_contexts', {
+            p_guild_id: guildId,
+            p_application_ids: applicationIds,
+          }),
         ])
       : [
+          { data: [], error: null },
           { data: [], error: null },
           { data: [], error: null },
         ];
   const notes = noteResult.error ? null : noteSchema.safeParse(noteResult.data);
   const history = historyResult.error ? null : historySchema.safeParse(historyResult.data);
+  const trialContexts = trialContextResult.error
+    ? null
+    : trialContextSchema.safeParse(trialContextResult.data);
+  const trialContextByApplication = new Map(
+    trialContexts?.success
+      ? trialContexts.data.map((entry) => [entry.application_id, entry.attendance_context] as const)
+      : [],
+  );
   const hasActiveApplication = (activeResult.data?.length ?? 0) > 0;
   return (
     <main className="mx-auto max-w-5xl space-y-7">
@@ -360,8 +468,8 @@ export default async function MusterPage({
                 {application.trial_starts_on && (
                   <p className="text-text-muted text-sm">
                     Trial: {application.trial_starts_on} to {application.trial_ends_on}.{' '}
-                    {canRecruit && application.trial_attendance_context
-                      ? `Officer-entered attendance context: ${application.trial_attendance_context}`
+                    {canRecruit && trialContextByApplication.get(application.id)
+                      ? `Officer-entered attendance context: ${trialContextByApplication.get(application.id)}`
                       : ''}
                   </p>
                 )}
@@ -377,7 +485,7 @@ export default async function MusterPage({
                       />
                     )}
                     <RecruitmentNoteForm id={application.id} />
-                    {!notes?.success || !history?.success ? (
+                    {!notes?.success || !history?.success || !trialContexts?.success ? (
                       <p role="alert" className="text-text-muted text-sm">
                         Private review history could not be loaded.
                       </p>

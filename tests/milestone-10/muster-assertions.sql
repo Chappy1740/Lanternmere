@@ -58,6 +58,7 @@ do $$ begin
   if (select count(*) from public.guild_recruitment_needs
       where guild_id = current_setting('audit.m10_guild')::uuid) <> 1
     or public.recruiting_guild_name(current_setting('audit.m10_guild')::uuid) <> 'M10 Audit Guild'
+    or has_column_privilege('authenticated', 'public.guild_recruitment_needs', 'created_by', 'select')
     or exists (select 1 from public.guild_recruitment_needs
       where guild_id = current_setting('audit.m10_other_guild')::uuid)
   then raise exception 'Applicant board visibility failed'; end if;
@@ -69,6 +70,7 @@ do $$ begin
   if (select count(*) from public.guild_applications
       where id = current_setting('audit.m10_application')::uuid) <> 1
     or has_table_privilege('authenticated', 'public.guild_applications', 'insert')
+    or has_column_privilege('authenticated', 'public.guild_applications', 'trial_attendance_context', 'select')
     or has_table_privilege('authenticated', 'public.guild_application_notes', 'insert')
   then raise exception 'Applicant ownership or direct-write boundary failed'; end if;
 end $$;
@@ -81,6 +83,11 @@ select public.add_guild_application_note(current_setting('audit.m10_application'
   'Private synthetic note');
 select public.set_guild_application_stage(current_setting('audit.m10_application')::uuid,
   'trial', current_date, current_date + 14, 'Manual trial context', '');
+select set_config('audit.m10_deadline', (
+  select retention_expires_at::text from public.guild_applications
+  where id = current_setting('audit.m10_application')::uuid), true);
+select public.set_guild_application_stage(current_setting('audit.m10_application')::uuid,
+  'trial', current_date, current_date + 14, 'Updated manual context', '');
 do $$ begin
   begin
     perform public.set_guild_application_stage(current_setting('audit.m10_application')::uuid,
@@ -90,6 +97,12 @@ do $$ begin
   end;
   if (select count(*) from public.guild_application_notes
       where application_id = current_setting('audit.m10_application')::uuid) <> 1
+    or (select retention_expires_at from public.guild_applications
+      where id = current_setting('audit.m10_application')::uuid)
+      > current_setting('audit.m10_deadline')::timestamptz
+    or (select attendance_context from public.get_guild_trial_attendance_contexts(
+      current_setting('audit.m10_guild')::uuid,
+      array[current_setting('audit.m10_application')::uuid])) <> 'Updated manual context'
   then raise exception 'Recruiter note unavailable'; end if;
 end $$;
 reset role;
@@ -98,6 +111,19 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m10_applicant'), true);
 do $$ begin
+  begin
+    perform trial_attendance_context from public.guild_applications
+      where id = current_setting('audit.m10_application')::uuid;
+    raise exception 'Applicant read private trial context directly';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform * from public.get_guild_trial_attendance_contexts(
+      current_setting('audit.m10_guild')::uuid,
+      array[current_setting('audit.m10_application')::uuid]);
+    raise exception 'Applicant read private trial context RPC';
+  exception when insufficient_privilege then null;
+  end;
   if exists (select 1 from public.guild_application_notes
       where application_id = current_setting('audit.m10_application')::uuid)
     or exists (select 1 from public.guild_application_history
@@ -110,6 +136,13 @@ reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m10_other'), true);
 do $$ begin
+  begin
+    perform * from public.get_guild_trial_attendance_contexts(
+      current_setting('audit.m10_guild')::uuid,
+      array[current_setting('audit.m10_application')::uuid]);
+    raise exception 'Cross-Guild Master read private trial context';
+  exception when insufficient_privilege then null;
+  end;
   if exists (select 1 from public.guild_applications
       where id = current_setting('audit.m10_application')::uuid)
     or exists (select 1 from public.guild_application_notes
@@ -128,7 +161,7 @@ do $$ begin
   if (select status from public.guild_applications
       where id = current_setting('audit.m10_application')::uuid) <> 'accepted'
     or (select count(*) from public.guild_application_history
-      where application_id = current_setting('audit.m10_application')::uuid) <> 3
+      where application_id = current_setting('audit.m10_application')::uuid) <> 4
   then raise exception 'Decision history failed'; end if;
 end $$;
 update public.guild_applications set retention_expires_at = now() - interval '1 minute'
@@ -141,6 +174,10 @@ do $$ begin
       where application_id = current_setting('audit.m10_application')::uuid)
     or exists (select 1 from public.guild_application_history
       where application_id = current_setting('audit.m10_application')::uuid)
+    or exists (select 1 from public.guild_audit_events
+      where target_table = 'guild_applications'
+        and target_id = current_setting('audit.m10_application')::uuid
+        and action = 'guild.application_submitted' and actor_id is not null)
   then raise exception 'Expired private application data survived purge'; end if;
 end $$;
 -- A fresh applicant-owned application can be removed without leaving its identity in audit.
