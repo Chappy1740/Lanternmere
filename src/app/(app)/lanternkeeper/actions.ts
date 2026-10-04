@@ -54,7 +54,7 @@ export async function generateLanternkeeperSummary(
   } catch {
     // Provider errors are intentionally not echoed to the browser or logged with private context.
   }
-  const { error: auditError } = await createAdminClient().rpc('finish_lanternkeeper_request', {
+  const metadata = {
     p_id: claim.data,
     p_status: result ? 'success' : 'failed',
     p_provider: provider.name,
@@ -62,9 +62,17 @@ export async function generateLanternkeeperSummary(
     p_latency_ms: Math.min(Date.now() - started, 120000),
     p_input_tokens: result?.inputTokens ?? null,
     p_output_tokens: result?.outputTokens ?? null,
-  });
-  if (auditError)
-    return unavailable('AI wording could not be completed. The factual briefing still works.');
+  };
+  let completed = false;
+  for (let attempt = 0; attempt < 2 && !completed; attempt += 1) {
+    try {
+      const { error } = await createAdminClient().rpc('finish_lanternkeeper_request', metadata);
+      completed = !error;
+    } catch {
+      completed = false;
+    }
+  }
+  if (!completed) console.error('Lanternkeeper request metadata could not be completed.');
   if (!result)
     return unavailable('AI wording is temporarily unavailable. The factual briefing still works.');
 

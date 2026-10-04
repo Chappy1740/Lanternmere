@@ -2,7 +2,7 @@
 
 ## Status
 
-Feature scope implemented October 3, 2026. The verified-leadership read-only briefing and optional aggregate-only AI path are ready. The AI request-budget migration was installed after linked rollback rehearsals and a one-file dry run. Live acceptance remains open under A-15.
+Feature scope implemented October 3, 2026. The verified-leadership read-only briefing and optional aggregate-only AI path are ready. The AI request-budget migration was installed after linked rollback rehearsals and a one-file dry run. Claude's independent audit was supplied October 4 and its confirmed code issues were repaired. Live acceptance remains open under A-15.
 
 ## Purpose
 
@@ -36,4 +36,6 @@ Implementation of this milestone must follow [Lanternkeeper AI Architecture](../
 - AI wording is optional and user-triggered. The model sees only an explicit allowlist of aggregate counts and freshness notes. It cannot call tools or write records. Guild names, event titles, applicant content, private notes, member names, and links remain in Lanternmere. Will approved this aggregate-only OpenAI path on October 3.
 - The installed database migration enforces six requests per user per hour and 40 per Guild per day, stores metadata without prompts or responses, and deletes metadata after 30 days. The optional provider key is not configured or live-tested.
 - The app does not yet have a canonical Guild boss-kill record. Chronicle Lens can inspect a manually supplied public Warcraft Logs report, but that report is not automatically tied to a Guild raid. The Lanternkeeper identifies this as missing rather than claiming a kill.
+- Recent Guild audit counts require Officer or Guild Master access. Raid Leaders see missing-data wording rather than false zeros. Optional AI context is rebuilt from numeric counts and a fixed freshness label, so changing user-facing fact text cannot send names or titles to OpenAI.
+- The 300-output-token limit and configured model need a real provider check before tuning. An incomplete response falls back to the factual briefing. If metadata completion fails twice, a valid AI summary is still shown, but the pending request record remains until retention; persistent completion failures need operational follow-up.
 - WoWAudit's application experience and boss-kill front dashboard are accepted design references for a later UX patch. WoWAudit advertises a public team API, but there is no API connection or data import in this release.

@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Milestone 14 independent audit triage — October 4, 2026
+
+- Will supplied Claude Code's read-only Lanternkeeper report from clean `82d1815`. It found no high-severity defect, one low-to-medium false-zero issue for Raid Leaders, low fixed-finder and metadata-completion issues, an unverified output-token concern, and coverage gaps.
+- Raid Leaders now receive a `Missing data` fact for Guild audit history that their role cannot read; Officers and Guild Masters still receive the capped counts. The fixed finder recognizes all six destination names and routes Supply Chest correctly. OpenAI input is rebuilt only from validated numeric counts and a fixed freshness label, independent of user-facing fact text. A valid model summary survives a metadata-completion failure after two attempts; failures log a payload-free server message. Incomplete Responses API results fail closed. The configured 300-token limit stays pending a live provider check.
+- Current-session local boundary and provider-contract tests, focused lint, and Next.js production build passed. The linked synthetic budget fixture passed in `BEGIN`/`ROLLBACK` with pre-claim and expired-claim checks; aggregate checks found zero synthetic users, Guilds, and request rows afterward. **A-15 remains open:** no live OpenAI call, real multi-account access check, hosted accessibility check, or observed retention run occurred. Persistent metadata completion failures can leave a pending row until 30-day retention; investigate if seen in live use. The next step is A-15 live acceptance and any new roadmap decision from Will.
+
 ## Milestone 13 independent audit triage — October 4, 2026
 
 - Will supplied Claude Code's read-only Chronicle Lens report from clean `801483a`. It found no high- or medium-severity defect and no authority or privacy bypass. Five low findings covered missing privacy and upstream-response tests, imprecise report-link wording, unlabeled list limits and an omitted `invited` count, and invisible failed or aging refreshes.
@@ -17,7 +23,7 @@
 - Will requested a review of WoW Guild sites, gear views, and wishlists, followed by private mockups. The original concepts draw on WoWAudit's compact character progress, Guilds of WoW's Guild overview and recruitment grouping, and That's My BIS's distinction between wishes, priority, and recorded loot. Source links and the design rationale are in the studio; no external site assets or member data are copied.
 - `/owner/design-studio` contains three responsive sample-data concepts: Guild front page, gear wishlist, and Main Hearth profile. It uses the existing server-side owner-profile gate, returns a not-found page to other signed-in users, and is marked against search indexing. The owner account page links to it. CR-014 records the request as a concept-only deliverable; it does not claim live boss kills, equipment imports, or a new Guild wishlist feature.
 - Current-session lint, Next.js production build, Workers bundle build, tracker JSON check, and whitespace check passed. A local signed-out request to the built `/owner/design-studio` route returned a 307 redirect to sign-in. A signed-in non-owner and the owner's hosted visual review have not yet been tested.
-- **Next audit:** Milestone 14, The Lanternkeeper, using the focused prompt in `docs/claude-audit-handoff.md`. A-13 and A-14 remain open for real-account and live-service acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
+- **Audit sequence:** Milestones 0–14 have independent Claude reports and triaged findings. A-13, A-14, and A-15 remain open for real-account and live-service acceptance. The 15 roadmap milestones remain feature-implemented; audit progress is separate.
 
 ## Milestone 11 independent audit triage — October 3, 2026
 

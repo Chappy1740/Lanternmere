@@ -10,6 +10,7 @@ import {
   loadGuildRoster,
 } from '@/lib/guilds';
 import { getViewer } from '@/lib/hearth/context';
+import { canReadGuildAudit, recentChangesFact } from './recent-changes';
 
 export type BriefingView = 'weekly' | 'raid' | 'changes';
 export type BriefingFact = {
@@ -18,6 +19,8 @@ export type BriefingFact = {
   source:
     'Lanternmere record' | 'External snapshot' | 'Player-entered information' | 'Missing data';
   href: string;
+  modelValues?: number[];
+  modelFreshness?: 'fresh' | 'stale';
 };
 
 const availabilitySchema = z.array(
@@ -54,6 +57,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
   const canRecruit = roles.some(
     (role) => role === 'guild_master' || role === 'officer' || role === 'recruiter',
   );
+  const canReadAudit = canReadGuildAudit(roles);
   const [planning, readiness, roster, availabilityResult, applicationsResult, needsResult] =
     await Promise.all([
       loadGuildRaidOperations(guildId),
@@ -129,6 +133,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
           text: `${confirmed.length} confirmed attendance records and ${planned.length} roster planning entries for this raid. These are separate records.`,
           source: 'Lanternmere record',
           href: nextLink,
+          modelValues: [confirmed.length, planned.length],
         });
       }
     } else {
@@ -137,6 +142,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
         text: `${upcoming.length} raid operations recorded in the next seven UTC dates.`,
         source: 'Lanternmere record',
         href: guildLink,
+        modelValues: [upcoming.length],
       });
       if (lastRaid && view === 'changes') {
         const attendance = planning.attendance.filter(
@@ -171,6 +177,10 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
           text: `${availability.data.filter((row) => row.availability_status === 'unavailable').length} unavailable and ${availability.data.filter((row) => row.availability_status === 'tentative').length} tentative entries overlap the next seven UTC dates${availability.data.length === 200 ? ' among the first 200 entries' : ''}. Entries are player-entered.`,
           source: 'Player-entered information',
           href: '/war-table',
+          modelValues: [
+            availability.data.filter((row) => row.availability_status === 'unavailable').length,
+            availability.data.filter((row) => row.availability_status === 'tentative').length,
+          ],
         }
       : {
           id: 'availability-unavailable',
@@ -186,6 +196,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
           text: `${readiness.length} explicitly Guild-shared character readiness records are visible to leadership. Unshared characters are excluded.`,
           source: 'Lanternmere record',
           href: guildLink,
+          modelValues: [readiness.length],
         }
       : {
           id: 'readiness-unavailable',
@@ -201,6 +212,10 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
           text: `Official Blizzard roster snapshot: ${roster.total} entries, refreshed ${roster.snapshot.refreshed_at}. ${isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at) ? 'Fresh by the 24-hour display rule.' : 'Stale by the 24-hour display rule.'}`,
           source: 'External snapshot',
           href: guildLink,
+          modelValues: [roster.total],
+          modelFreshness: isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at)
+            ? 'fresh'
+            : 'stale',
         }
       : {
           id: 'roster-missing',
@@ -220,6 +235,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
             text: `${applications.data.length} active applications or trials are visible${applications.data.length === 200 ? ' among the first 200 records' : ''}. Human review is required for decisions.`,
             source: 'Lanternmere record',
             href: `/muster?guild=${guildId}`,
+            modelValues: [applications.data.length],
           }
         : {
             id: 'applications-unavailable',
@@ -235,6 +251,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
             text: `${needsResult.data?.length ?? 0} active recruitment needs are recorded${needsResult.data?.length === 200 ? ' among the first 200 records' : ''}.`,
             source: 'Lanternmere record',
             href: `/muster?guild=${guildId}`,
+            modelValues: [needsResult.data?.length ?? 0],
           }
         : {
             id: 'recruitment-unavailable',
@@ -270,6 +287,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
               text: `${awards.data?.length ?? 0} recorded loot awards for the last raid${drops.data?.length === 200 || awards.data?.length === 200 ? ' among the first 200 drops or awards' : ''}. Awards are human decisions.`,
               source: 'Lanternmere record',
               href: `/guild-hall/raid-room?guild=${guildId}&operation=${lastRaid.id}`,
+              modelValues: [awards.data?.length ?? 0],
             }
           : {
               id: 'recent-loot-unavailable',
@@ -280,14 +298,17 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
       );
     }
     const cutoff = lastRaid?.event_date ?? utcDay(-7);
-    const auditResult = await supabase
-      .from('guild_audit_events')
-      .select('action, created_at')
-      .eq('guild_id', guildId)
-      .gte('created_at', `${cutoff}T00:00:00Z`)
-      .order('created_at', { ascending: false })
-      .limit(50);
-    const audit = auditResult.error ? null : auditSchema.safeParse(auditResult.data);
+    const auditResult = canReadAudit
+      ? await supabase
+          .from('guild_audit_events')
+          .select('action, created_at')
+          .eq('guild_id', guildId)
+          .gte('created_at', `${cutoff}T00:00:00Z`)
+          .order('created_at', { ascending: false })
+          .limit(50)
+      : null;
+    const audit =
+      auditResult && !auditResult.error ? auditSchema.safeParse(auditResult.data) : null;
     const categories = audit?.success
       ? audit.data.reduce(
           (counts, event) => {
@@ -304,21 +325,7 @@ export async function getLanternkeeperBrief(guildId: string, view: BriefingView)
           { raid: 0, loot: 0, recruitment: 0, other: 0 },
         )
       : null;
-    facts.push(
-      audit?.success && categories
-        ? {
-            id: 'recent-changes',
-            text: `Since ${lastRaid ? `the last recorded raid date (${cutoff})` : `${cutoff} (no earlier raid found)`}: ${categories.raid} raid, ${categories.loot} loot, ${categories.recruitment} recruitment, and ${categories.other} other Guild audit events. This list is capped at 50 and may not include every change.`,
-            source: 'Lanternmere record',
-            href: guildLink,
-          }
-        : {
-            id: 'changes-unavailable',
-            text: 'Recent change history could not be loaded.',
-            source: 'Missing data',
-            href: guildLink,
-          },
-    );
+    facts.push(recentChangesFact(canReadAudit, categories, cutoff, Boolean(lastRaid), guildLink));
     facts.push({
       id: 'readiness-history-missing',
       text: 'Current Guild-shared readiness is shown above. Historical readiness changes are not available to this briefing, so no change is inferred.',

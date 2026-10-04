@@ -26,6 +26,10 @@ values (current_setting('audit.m14_guild')::uuid, current_setting('audit.m14_lea
 insert into public.guild_member_roles(guild_member_id, role, granted_by)
 select id, 'guild_master', profile_id from public.guild_members
 where profile_id = current_setting('audit.m14_leader')::uuid;
+insert into public.guild_member_roles(guild_member_id, role, granted_by, granted_at)
+select id, 'raid_leader', current_setting('audit.m14_leader')::uuid,
+  now() - interval '1 day'
+from public.guild_members where profile_id = current_setting('audit.m14_other')::uuid;
 
 do $$ begin
   if has_table_privilege('authenticated', 'public.lanternkeeper_requests', 'select')
@@ -40,7 +44,7 @@ select set_config('request.jwt.claim.sub', current_setting('audit.m14_other'), t
 do $$ begin
   begin
     perform public.claim_lanternkeeper_request(current_setting('audit.m14_guild')::uuid, 'weekly');
-    raise exception 'Unverified member claimed AI budget';
+    raise exception 'Pre-claim Raid Leader claimed AI budget';
   exception when insufficient_privilege then null;
   end;
 end $$;
@@ -69,6 +73,21 @@ do $$ begin
   then raise exception 'Per-user hourly limit failed'; end if;
 end $$;
 reset role;
+
+update public.guild_verified_claims set expires_at = now() - interval '1 second'
+where guild_id = current_setting('audit.m14_guild')::uuid;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.m14_leader'), true);
+do $$ begin
+  begin
+    perform public.claim_lanternkeeper_request(current_setting('audit.m14_guild')::uuid, 'weekly');
+    raise exception 'Expired Guild claim accepted';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+update public.guild_verified_claims set expires_at = now() + interval '1 day'
+where guild_id = current_setting('audit.m14_guild')::uuid;
 
 -- Fill the Guild-wide window with synthetic metadata, then verify another leader is blocked.
 insert into public.lanternkeeper_requests(user_id, guild_id, view)
