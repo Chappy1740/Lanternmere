@@ -15,7 +15,6 @@ import { getViewer } from '@/lib/hearth/context';
 const offeringSchema = z.array(
   z.object({
     id: z.uuid(),
-    profile_id: z.uuid(),
     character_label: z.string(),
     profession: z.string(),
     specialization: z.string(),
@@ -26,14 +25,12 @@ const offeringSchema = z.array(
 const requestSchema = z.array(
   z.object({
     id: z.uuid(),
-    requested_by: z.uuid(),
     requester_name: z.string(),
     request_kind: z.enum(['craft', 'consumable', 'material']),
     item_name: z.string(),
     quantity: z.number(),
     details: z.string(),
     status: z.enum(['open', 'in_progress', 'completed', 'cancelled']),
-    volunteered_by: z.uuid().nullable(),
     volunteer_name: z.string().nullable(),
     created_at: z.string(),
   }),
@@ -50,6 +47,14 @@ const goalSchema = z.array(
 );
 const characterSchema = z.array(
   z.object({ id: z.uuid(), character_name: z.string(), realm_slug: z.string() }).passthrough(),
+);
+const actionFlagSchema = z.array(
+  z.object({
+    item_type: z.enum(['offering', 'request']),
+    item_id: z.uuid(),
+    is_owner: z.boolean(),
+    is_volunteer: z.boolean(),
+  }),
 );
 
 export default async function ArtisanHallPage({
@@ -113,26 +118,23 @@ export default async function ArtisanHallPage({
       : 1;
   let offeringQuery = supabase
     .from('guild_artisan_offerings')
-    .select(
-      'id, profile_id, character_label, profession, specialization, recipe_name, service_note',
-      { count: 'exact' },
-    )
+    .select('id, character_label, profession, specialization, recipe_name, service_note', {
+      count: 'exact',
+    })
     .eq('guild_id', guildId)
     .order('created_at', { ascending: false })
     .range((page - 1) * 50, page * 50 - 1);
-  if (!selected.verified) offeringQuery = offeringQuery.eq('profile_id', user.id);
   if (recipe) offeringQuery = offeringQuery.ilike('recipe_name', `%${recipe}%`);
   if (profession) offeringQuery = offeringQuery.ilike('profession', profession);
-  let requestQuery = supabase
+  const requestQuery = supabase
     .from('guild_crafting_requests')
     .select(
-      'id, requested_by, requester_name, request_kind, item_name, quantity, details, status, volunteered_by, volunteer_name, created_at',
+      'id, requester_name, request_kind, item_name, quantity, details, status, volunteer_name, created_at',
       { count: 'exact' },
     )
     .eq('guild_id', guildId)
     .order('created_at', { ascending: false })
     .range((requestPage - 1) * 50, requestPage * 50 - 1);
-  if (!selected.verified) requestQuery = requestQuery.eq('requested_by', user.id);
   let goalQuery = supabase
     .from('guild_supply_goals')
     .select('id, item_name, target_quantity, current_quantity, note, active', { count: 'exact' })
@@ -159,6 +161,20 @@ export default async function ArtisanHallPage({
   const characters = characterResult.error ? null : characterSchema.safeParse(characterResult.data);
   const list = offerings?.success ? offerings.data : null;
   const requestList = requests?.success ? requests.data : null;
+  const flagResult =
+    list !== null && requestList !== null
+      ? await supabase.rpc('guild_artisan_action_flags', {
+          p_guild_id: guildId,
+          p_offering_ids: list.map((offering) => offering.id),
+          p_request_ids: requestList.map((request) => request.id),
+        })
+      : null;
+  const parsedFlags = flagResult?.error ? null : actionFlagSchema.safeParse(flagResult?.data ?? []);
+  const flags = new Map(
+    parsedFlags?.success
+      ? parsedFlags.data.map((flag) => [`${flag.item_type}:${flag.item_id}`, flag] as const)
+      : [],
+  );
   const goalList = goals?.success ? goals.data : null;
   const visibleGoals = goalList?.filter((goal) => goal.active || canManage) ?? null;
   const search = new URLSearchParams({ guild: guildId });
@@ -183,6 +199,7 @@ export default async function ArtisanHallPage({
         <p className="text-text-muted mt-3">
           Crafting knowledge and requests shared by your Guild members. Capabilities, progress, and
           availability are entered by people; they are not live Blizzard or Guild-bank data.
+          Character ownership is not verified by Blizzard.
         </p>
         <Link
           href={`/guild-hall?guild=${guildId}`}
@@ -199,6 +216,11 @@ export default async function ArtisanHallPage({
           Guild verification is inactive. Existing items you posted remain visible to you for
           removal. New Guild-wide crafting activity is locked until a verified Guild Master renews
           the claim.
+        </p>
+      )}
+      {list !== null && requestList !== null && !parsedFlags?.success && (
+        <p role="alert" className="rounded-lg border border-amber-400/40 p-4 text-sm text-amber-200">
+          Item actions could not be loaded. Refresh this page before changing a request or listing.
         </p>
       )}
       <section className="lodge-panel p-6" aria-labelledby="artisan-offerings-heading">
@@ -254,7 +276,9 @@ export default async function ArtisanHallPage({
                     {offering.service_note}
                   </p>
                 )}
-                {offering.profile_id === user.id && <OfferingDeleteButton id={offering.id} />}
+                {flags.get(`offering:${offering.id}`)?.is_owner && (
+                  <OfferingDeleteButton id={offering.id} />
+                )}
               </li>
             ))}
           </ul>
@@ -296,7 +320,7 @@ export default async function ArtisanHallPage({
               <ArtisanOfferingForm guildId={guildId} characters={characters.data} />
             ) : (
               <p className="text-text-muted mt-3 text-sm">
-                Add your own World of Warcraft Traveler before posting a capability.
+                Add a World of Warcraft Traveler before posting a capability.
               </p>
             )}
           </div>
@@ -311,7 +335,8 @@ export default async function ArtisanHallPage({
         </h2>
         <p className="text-text-muted mt-2 text-sm">
           Requests and volunteer game nicknames are visible to this verified Guild. Status changes
-          are entered by members, not inferred from inventory.
+          are entered by members, not inferred from inventory. Nicknames are saved when posted or
+          volunteered; changing a nickname later does not update an older request.
         </p>
         {requestList === null ? (
           <p role="alert" className="text-text-muted mt-4">
@@ -322,8 +347,9 @@ export default async function ArtisanHallPage({
         ) : (
           <ul className="mt-4 grid gap-3">
             {requestList.map((request) => {
-              const isRequester = request.requested_by === user.id;
-              const isVolunteer = request.volunteered_by === user.id;
+              const flag = flags.get(`request:${request.id}`);
+              const isRequester = flag?.is_owner ?? false;
+              const isVolunteer = flag?.is_volunteer ?? false;
               const mayChange = isRequester || isVolunteer || canManage;
               return (
                 <li key={request.id} className="lodge-list-row space-y-2 p-4">

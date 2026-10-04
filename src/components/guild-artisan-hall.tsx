@@ -37,7 +37,7 @@ export function ArtisanOfferingForm({
     <form action={action} className="mt-4 grid gap-3 sm:grid-cols-2">
       <input type="hidden" name="guildId" value={guildId} />
       <label className="text-text-muted grid gap-1 text-sm">
-        Your Traveler
+        Traveler you added
         <select name="characterId" required className="lodge-field px-3 py-2" defaultValue="">
           <option value="" disabled>
             Choose a Traveler
@@ -73,7 +73,8 @@ export function ArtisanOfferingForm({
       </label>
       <p className="text-text-muted text-sm sm:col-span-2">
         Posting shares this Traveler and your player-entered capability with members of this
-        verified Guild. It does not prove recipe ownership or current inventory.
+        verified Guild. Adding a Traveler does not verify that you control the character. Recipes
+        and current inventory are not verified either.
       </p>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button disabled={pending || characters.length === 0} className="lodge-button px-4 py-2">
@@ -133,7 +134,9 @@ export function CraftingRequestForm({ guildId }: { guildId: string }) {
       </label>
       <p className="text-text-muted text-sm sm:col-span-2">
         Your game nickname and request will be visible to members of this verified Guild.
-        Volunteering also shares the volunteer&apos;s game nickname.
+        Volunteering also shares the volunteer&apos;s game nickname. These names are saved at the
+        time of posting or volunteering; changing your nickname later will not update an older
+        request.
       </p>
       <div className="flex items-center gap-3 sm:col-span-2">
         <button disabled={pending} className="lodge-button px-4 py-2">

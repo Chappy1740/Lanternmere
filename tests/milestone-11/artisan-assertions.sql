@@ -63,7 +63,22 @@ do $$ begin
       where guild_id = current_setting('audit.m11_guild')::uuid) <> 1
     or has_table_privilege('authenticated', 'public.guild_artisan_offerings', 'insert')
     or has_table_privilege('authenticated', 'public.guild_crafting_requests', 'update')
+    or has_column_privilege('authenticated', 'public.guild_artisan_offerings', 'profile_id', 'select')
+    or has_column_privilege('authenticated', 'public.guild_crafting_requests', 'requested_by', 'select')
+    or has_column_privilege('authenticated', 'public.guild_crafting_requests', 'volunteered_by', 'select')
+    or has_column_privilege('authenticated', 'public.guild_supply_goals', 'created_by', 'select')
   then raise exception 'Member capability or direct-write boundary failed'; end if;
+  if (select count(*) from public.guild_artisan_action_flags(
+      current_setting('audit.m11_guild')::uuid,
+      array[current_setting('audit.m11_offering')::uuid],
+      array[current_setting('audit.m11_member_request')::uuid])
+      where is_owner and not is_volunteer) <> 2
+  then raise exception 'Owner action flags failed (count=%)',
+    (select count(*) from public.guild_artisan_action_flags(
+      current_setting('audit.m11_guild')::uuid,
+      array[current_setting('audit.m11_offering')::uuid],
+      array[current_setting('audit.m11_member_request')::uuid])
+      where is_owner and not is_volunteer); end if;
   begin
     perform public.save_guild_supply_goal(current_setting('audit.m11_guild')::uuid,
       null, 'Audit Material', 100, 0, '', true);
@@ -89,6 +104,11 @@ do $$ begin
     or exists (select 1 from public.guild_crafting_requests
       where id = current_setting('audit.m11_member_request')::uuid)
   then raise exception 'Cross-Guild artisan data leaked'; end if;
+  if exists (select 1 from public.guild_artisan_action_flags(
+      current_setting('audit.m11_guild')::uuid,
+      array[current_setting('audit.m11_offering')::uuid],
+      array[current_setting('audit.m11_member_request')::uuid]))
+  then raise exception 'Cross-Guild action flags leaked'; end if;
   begin
     perform public.delete_guild_artisan_offering(current_setting('audit.m11_offering')::uuid);
     raise exception 'Other Guild removed capability';
@@ -109,6 +129,9 @@ select set_config('request.jwt.claim.sub', current_setting('audit.m11_master'), 
 select set_config('audit.m11_goal', public.save_guild_supply_goal(
   current_setting('audit.m11_guild')::uuid, null, 'Audit Material', 100, 12,
   'Manual synthetic progress, not inventory', true)::text, true);
+select public.save_guild_supply_goal(
+  current_setting('audit.m11_guild')::uuid, current_setting('audit.m11_goal')::uuid,
+  'Audit Material', 100, 12, 'Closed synthetic goal', false);
 select set_config('audit.m11_master_request', public.create_guild_crafting_request(
   current_setting('audit.m11_guild')::uuid, 'material', 'Audit Ore', 2,
   'Synthetic member-exit rehearsal')::text, true);
@@ -117,6 +140,11 @@ reset role;
 -- Member volunteers for the Master's request and the Master can mark the member's request complete.
 set local role authenticated;
 select set_config('request.jwt.claim.sub', current_setting('audit.m11_member'), true);
+do $$ begin
+  if exists (select 1 from public.guild_supply_goals
+      where id = current_setting('audit.m11_goal')::uuid)
+  then raise exception 'Closed leadership goal leaked to a member'; end if;
+end $$;
 select public.set_guild_crafting_request_status(
   current_setting('audit.m11_master_request')::uuid, 'in_progress');
 reset role;
