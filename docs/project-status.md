@@ -1,5 +1,10 @@
 # Project status and handoff
 
+## Signup confirmation guidance — October 5, 2026
+
+- A tester reported the generic temporary sign-in error and did not know email confirmation was required. The existing signup redirect included `confirmEmail=1`, but the sign-in screen did not render that notice. It now shows a prominent check-your-email panel with confirmation and spam-folder instructions; signup also explains the requirement next to submission.
+- The `email_not_confirmed` error now gives specific confirmation instructions instead of claiming temporary unavailability. Invalid credentials and other authentication errors retain their existing handling. Focused Front Door action regressions, ESLint, and both Next.js production/TypeScript and Workers builds passed. An initial standalone TypeScript check hit stale generated route types; the production build regenerated them and passed its TypeScript check. CR-022 records the repair; A-10 remains open for a fresh hosted signup and confirmation walkthrough. No test email was sent or account changed by the agent.
+
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
 ## Hosted private-schema acceptance — October 5, 2026

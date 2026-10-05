@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 42,
+  "revision": 43,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -15,7 +15,14 @@
       "number": 1,
       "name": "Front Door",
       "status": "implemented",
-      "work": [],
+      "work": [
+        {
+          "id": "M1-email-confirmation-guidance",
+          "title": "Show clear email-confirmation instructions after signup",
+          "status": "done",
+          "requestId": "CR-022"
+        }
+      ],
       "description": "Account registration, email confirmation, sign-in, and secure Lodge invitations.",
       "specification": "milestone-01-front-door.md"
     },
@@ -408,6 +415,14 @@
       "milestone": null,
       "status": "done",
       "note": "Will's live deletion succeeded, including Storage cleanup, but reloading the deleted detail page showed 404. Successful removal now redirects to the same Lodge's Chronicles list with a success message. Eight action checks, lint, and both builds passed. The new hosted redirect still needs a real-account retest."
+    },
+    {
+      "id": "CR-022",
+      "title": "Make signup email confirmation clear",
+      "requestedAt": "2026-10-05",
+      "milestone": 1,
+      "status": "done",
+      "note": "Signup now explains that email confirmation is required. The redirected sign-in screen shows a prominent check-your-email notice with spam-folder guidance. An unconfirmed sign-in returns specific confirmation instructions. Focused auth regressions and lint passed; hosted fresh-signup acceptance remains open."
     }
   ],
   "acceptance": [

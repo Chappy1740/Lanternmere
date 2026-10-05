@@ -40,6 +40,19 @@ function SignInForm() {
           </div>
         </div>
         <p className="text-text-muted mt-5 text-sm">Welcome back, Traveler.</p>
+        {params.get('confirmEmail') === '1' && (
+          <section role="status" className="mt-5 rounded-lg border border-accent bg-background/80 p-4">
+            <h2 className="text-accent text-lg font-bold">Check your email before signing in</h2>
+            <p className="text-text-primary mt-2 text-sm">
+              You will receive a confirmation email. Open it and click “Confirm email address” to
+              finish signing up. You must confirm your email before you can sign in.
+            </p>
+            <p className="text-text-muted mt-2 text-sm">
+              Allow a few minutes for delivery and check your spam or junk folder. If you already
+              have an account, you can sign in below.
+            </p>
+          </section>
+        )}
         {params.get('confirmationError') === '1' && (
           <p role="alert" className="mt-4 text-sm text-red-400">
             This confirmation link could not be opened. It may have expired or been opened in a different browser. Try the browser where you signed up, or sign in if your email is already confirmed.

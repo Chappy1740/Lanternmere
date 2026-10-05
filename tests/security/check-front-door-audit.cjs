@@ -77,6 +77,7 @@ async function checkInvitation(path, action, rpcName, destination) {
   );
 
   let signedOut = 0;
+  let signInError = null;
   const auth = load('src/app/(auth)/actions.ts', {
     ...next,
     'next/headers': { headers: async () => ({ get: () => null }) },
@@ -84,7 +85,7 @@ async function checkInvitation(path, action, rpcName, destination) {
     '@/lib/supabase/server': {
       createClient: async () => ({
         auth: {
-          signInWithPassword: async () => ({ error: null }),
+          signInWithPassword: async () => ({ error: signInError }),
           getUser: async () => ({ error: { code: 'account_suspended' } }),
           signOut: async () => { signedOut += 1; return { error: null }; },
         },
@@ -96,6 +97,13 @@ async function checkInvitation(path, action, rpcName, destination) {
   credentials.set('password', 'fixture-password');
   assert.match((await auth.signIn(state, credentials)).error, /cannot currently access/);
   assert.equal(signedOut, 1);
+  signInError = { code: 'email_not_confirmed' };
+  assert.match((await auth.signIn(state, credentials)).error, /Confirm your email before signing in/);
+  assert.equal(signedOut, 1);
+  signInError = { code: 'invalid_credentials' };
+  assert.equal((await auth.signIn(state, credentials)).error, 'Invalid email or password.');
+  signInError = { code: 'request_timeout' };
+  assert.match((await auth.signIn(state, credentials)).error, /temporarily unavailable/);
 
   let lodgeCalls = 0;
   const lodges = load('src/app/(app)/lodges/new/actions.ts', {

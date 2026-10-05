@@ -38,6 +38,12 @@ export async function signIn(
     if (error.code === 'invalid_credentials') {
       return { error: 'Invalid email or password.' };
     }
+    if (error.code === 'email_not_confirmed') {
+      return {
+        error:
+          'Confirm your email before signing in. Open your signup email and click “Confirm email address”. Check your spam or junk folder if you cannot find it.',
+      };
+    }
 
     return { error: 'Sign-in is temporarily unavailable. Check your connection and try again.' };
   }

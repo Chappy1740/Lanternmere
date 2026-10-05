@@ -125,6 +125,10 @@ function SignUpForm() {
           >
             {isPending ? 'Creating account…' : 'Create Account'}
           </button>
+          <p className="text-text-primary text-sm">
+            After signing up, you will receive a confirmation email. Click “Confirm email address”
+            in that email before signing in. Check your spam or junk folder if it does not arrive.
+          </p>
         </form>
 
         <p className="text-text-muted mt-6 text-center text-sm">
