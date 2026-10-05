@@ -2,6 +2,11 @@
 
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
+## Hosted private-schema acceptance — October 5, 2026
+
+- Will supplied a screenshot of the hosted Data API Exposed schemas selector. `public` and `graphql_public` are checked; `private` is unchecked. This verifies the hosted configuration boundary from the supplied screenshot, without changing settings or making a direct Data API probe.
+- A-16 remains open for actual expired-record deletion and real Chronicle Storage cleanup after deleting a disposable Lodge. Earlier security-header and scheduled-job execution evidence remains recorded separately; job execution alone does not prove record deletion.
+
 ## Verified Traveler reset and removal — October 5, 2026
 
 - Subsequent live evidence: Will confirmed successful hosted Traveler deletion and then successfully added the removed Traveler back. This verifies real-account removal and re-addition from his reports; the agent did not observe his browser or inspect restored data. Cross-account denial and private character-list isolation remain separate live checks under A-09.

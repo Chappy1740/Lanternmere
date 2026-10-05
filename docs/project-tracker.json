@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 39,
+  "revision": 40,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -484,7 +484,8 @@
     {
       "id": "A-16",
       "title": "Hosted private-schema setting, retention jobs, security headers, and Chronicle Storage cleanup after Lodge deletion",
-      "status": "open"
+      "status": "open",
+      "note": "Will's October 5 hosted settings screenshot shows public and graphql_public exposed, with private excluded. Security headers and scheduled retention-job execution are recorded; actual expired-record deletion and real Chronicle Storage cleanup remain open."
     }
   ]
 }
