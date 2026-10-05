@@ -221,6 +221,7 @@ export async function deleteChronicle(
 ): Promise<ChronicleState> {
   const chronicleId = chronicleIdSchema.safeParse(formData.get('chronicleId'));
   if (!chronicleId.success) return { error: 'Choose a valid Chronicle.', success: null };
+  let lodgeId: string;
   try {
     const session = await authenticatedClient();
     if (!session) return { error: 'Please sign in before removing a Chronicle.', success: null };
@@ -263,11 +264,12 @@ export async function deleteChronicle(
       .maybeSingle();
     if (error || !removed)
       return { error: 'The Chronicle could not be removed. Please try again.', success: null };
+    lodgeId = entry.lodge_id;
     refreshChronicleViews();
-    return { error: null, success: 'Chronicle removed.' };
   } catch {
     return { error: 'The Chronicle could not be removed. Please try again.', success: null };
   }
+  redirect(`/chronicles?lodge=${lodgeId}&removed=1`);
 }
 
 export async function deleteChronicleMedia(

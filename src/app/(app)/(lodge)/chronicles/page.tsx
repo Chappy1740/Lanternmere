@@ -14,6 +14,7 @@ export default async function ChroniclesPage({
     from?: string | string[];
     to?: string | string[];
     p?: string | string[];
+    removed?: string | string[];
   }>;
 }) {
   const [memberships, params, { supabase }] = await Promise.all([
@@ -67,6 +68,12 @@ export default async function ChroniclesPage({
           <Plus size={18} aria-hidden="true" /> Record a memory
         </Link>
       </header>
+
+      {params.removed === '1' && (
+        <p role="status" className="lodge-panel text-text-primary p-4">
+          Chronicle removed.
+        </p>
+      )}
 
       <form
         className="lodge-panel grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"

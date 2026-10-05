@@ -68,8 +68,8 @@ vm.runInNewContext(
       const dependencies = {
         'next/cache': { revalidatePath() {} },
         'next/navigation': {
-          redirect() {
-            throw new Error('redirect');
+          redirect(url) {
+            throw new Error(`redirect:${url}`);
           },
         },
         zod: require('zod'),
@@ -144,6 +144,16 @@ async function check(label, run) {
     const result = await actionExports.deleteChronicle({}, deleteForm());
     assert.match(result.error, /could not be removed/);
   });
+  await check(
+    'successful removal navigates to the same Lodge instead of the deleted page',
+    async () => {
+      await assert.rejects(
+        () => actionExports.deleteChronicle({}, deleteForm()),
+        (error) => error.message === `redirect:/chronicles?lodge=${lodgeId}&removed=1`,
+      );
+      assert.equal(operation, 'delete');
+    },
+  );
   await check('former member cannot remove Chronicle media', async () => {
     member = false;
     const result = await actionExports.deleteChronicleMedia({}, deleteMediaForm());
@@ -155,7 +165,7 @@ async function check(label, run) {
     assert.equal(result.success, 'Chronicle image removed.');
     assert.deepEqual(storageRemovals, [media.storage_path]);
   });
-  console.log('7 Chronicle action checks passed.');
+  console.log('8 Chronicle action checks passed.');
 })().catch((error) => {
   console.error(error);
   process.exitCode = 1;
