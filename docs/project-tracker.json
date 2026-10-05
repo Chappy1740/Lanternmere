@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 28,
+  "revision": 29,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -343,7 +343,7 @@
       "requestedAt": "2026-10-03",
       "milestone": null,
       "status": "in_progress",
-      "note": "Will provided a WoWAudit character screenshot as the Main Hearth reference. Hearth now shows Blizzard item level and optional item and boss details, player-entered Vault notes, and owner-only Raider.IO history. Upgrade tracks and crests are unavailable from this import. A phone screenshot exposed a responsive layout defect now under repair; live visual and accessibility acceptance remain open."
+      "note": "Will provided a WoWAudit character screenshot as the Main Hearth reference. Hearth now shows Blizzard item level and optional item and boss details, player-entered Vault notes, and owner-only Raider.IO history. Upgrade tracks and crests are unavailable from this import. Will confirmed the repaired cards fill his phone screen; broader visual and accessibility acceptance remain open."
     },
     {
       "id": "CR-014",
@@ -375,7 +375,7 @@
       "requestedAt": "2026-10-05",
       "milestone": null,
       "status": "done",
-      "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The focused repair constrains mobile cards, offers Verify ownership for existing public imports on the account list, and sends a newly added alternate to its own Traveler page. A hosted phone recheck remains open under A-09."
+      "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The repair constrains mobile cards, offers Verify ownership for existing public imports, and opens a newly added alternate on its own page. Will refreshed the hosted Hearth on his phone and confirmed the cards now fill the screen; Main ownership and wider A-09 checks remain open."
     }
   ],
   "acceptance": [
@@ -423,7 +423,7 @@
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
       "status": "open",
-      "note": "Will reported an add-to-Hearth redirect. His phone screenshot showed that the displayed Main was an earlier unverified public import and that the mobile layout overflowed. Corrected phone display, Main verification, second-account list privacy, and duplicate-claim behavior remain unverified."
+      "note": "Will reported an add-to-Hearth redirect and confirmed the repaired phone layout fills his screen. The displayed Main was an earlier unverified public import. Main verification, second-account list privacy, and duplicate-claim behavior remain unverified."
     },
     {
       "id": "A-10",
