@@ -5,6 +5,7 @@ import { CharacterPortrait } from '@/components/character-portrait';
 import { CharacterFreshness } from '@/components/character-freshness';
 import { CharacterRefreshControl } from '@/components/character-refresh-control';
 import { z } from 'zod';
+import { HearthProgressPanels } from '@/components/hearth-progress-panels';
 import { raidProgressionEntries } from '@/lib/raiderio-progress';
 import { weeklyResetForRegion } from '@/lib/war-table';
 
@@ -35,7 +36,7 @@ function shortDate(value: string) {
 }
 
 const linkClass =
-  'text-accent hover:text-accent-hover focus-visible:outline-accent inline-block rounded underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4';
+  'lodge-button-secondary inline-flex max-w-full items-center px-4 py-2 text-sm font-medium [overflow-wrap:anywhere]';
 
 export async function MainCharacterHighlight() {
   const { supabase, user } = await getViewer();
@@ -81,8 +82,10 @@ export async function MainCharacterHighlight() {
       ),
     ),
   ].sort();
-  const scores = history.filter((point) => point.mythic_plus_score !== null).reverse();
-  const topScore = Math.max(1, ...scores.map((point) => point.mythic_plus_score ?? 0));
+  const itemLevels = (equipment ?? []).flatMap((item) =>
+    item.item_level === null ? [] : [item.item_level],
+  );
+  const lowestItemLevel = itemLevels.length ? Math.min(...itemLevels) : null;
   const details = ready
     ? [
         ['Level', ready.character.level],
@@ -97,7 +100,7 @@ export async function MainCharacterHighlight() {
 
   return (
     <section aria-labelledby="main-character-heading" className="min-w-0 space-y-5">
-      <div className="lodge-panel min-w-0 p-6 sm:p-8">
+      <div className="lodge-panel min-w-0 p-5 sm:p-6">
         <p className="lodge-kicker">Your champion</p>
         <h1
           id="main-character-heading"
@@ -107,20 +110,24 @@ export async function MainCharacterHighlight() {
         </h1>
         {ready && name ? (
           <>
-            <div className="bg-surface-sunken/35 mt-5 flex items-center gap-4 rounded-lg border border-[color:var(--border-ornate)] p-4">
+            <div className="bg-surface-sunken/35 mt-4 flex flex-wrap items-center gap-4 rounded-lg border border-[color:var(--border-ornate)] p-4">
               <CharacterPortrait
                 src={ready.profile?.portrait_url}
                 name={name}
                 characterClass={ready.character.class}
                 gender={ready.profile?.gender?.name}
               />
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <h3 className="font-display text-text-primary text-2xl font-bold [overflow-wrap:anywhere] break-words">
                   {name}
                 </h3>
                 <p className="text-text-muted mt-1 break-words">
                   {ready.profile?.realm?.name || ready.character.realm_slug} ·{' '}
                   {ready.character.region.toUpperCase()}
+                </p>
+                <p className="text-text-primary mt-1 text-sm break-words">
+                  Level {ready.character.level ?? 'unknown'} ·{' '}
+                  {ready.profile?.active_spec?.name || ready.character.class || 'Class unavailable'}
                 </p>
                 <p className="text-text-muted mt-1 text-xs">
                   {ready.ownershipStatusUnavailable
@@ -135,16 +142,35 @@ export async function MainCharacterHighlight() {
                   </Link>
                 )}
               </div>
-            </div>
-            <dl className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-              {details.map(([label, value]) => (
-                <div key={label} className="lodge-data-cell">
-                  <dt className="text-text-muted text-sm">{label}</dt>
-                  <dd className="text-text-primary mt-1 break-words">{value}</dd>
+              <dl className="grid w-full grid-cols-2 gap-2 sm:w-auto">
+                <div className="lodge-data-cell text-center">
+                  <dt className="text-text-muted text-xs">Achievements</dt>
+                  <dd className="text-accent mt-1 text-xl">
+                    {ready.profile?.achievement_points ?? '—'}
+                  </dd>
                 </div>
-              ))}
-            </dl>
-            <div className="border-border mt-6 space-y-2 border-t pt-4">
+                <div className="lodge-data-cell text-center">
+                  <dt className="text-text-muted text-xs">Mythic+ score</dt>
+                  <dd className="text-accent mt-1 text-xl">
+                    {historyUnavailable ? '—' : (latest?.mythic_plus_score ?? '—')}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+            <details className="mt-4">
+              <summary className="text-accent cursor-pointer rounded py-2 focus-visible:outline-2 focus-visible:outline-offset-4">
+                Character details
+              </summary>
+              <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {details.map(([label, value]) => (
+                  <div key={label} className="lodge-data-cell">
+                    <dt className="text-text-muted text-sm">{label}</dt>
+                    <dd className="text-text-primary mt-1 break-words">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </details>
+            <div className="border-border mt-4 space-y-2 border-t pt-4">
               <p className="text-text-muted text-sm">
                 Source:{' '}
                 {ready.snapshot?.source === 'blizzard'
@@ -219,16 +245,25 @@ export async function MainCharacterHighlight() {
               </h3>
               <p className="text-text-muted mt-3 text-sm">
                 {equipment
-                  ? 'Item levels are listed below. Upgrade tracks and crest balances are not available from this import.'
-                  : 'Upgrade tracks and crest balances are not available from this import.'}
+                  ? 'Compare your equipped item levels below. Upgrade tracks and crest balances are not supplied by this snapshot.'
+                  : 'Upgrade tracks and crest balances are not supplied by this snapshot.'}
               </p>
+              {lowestItemLevel !== null && (
+                <p className="text-text-primary mt-3 text-sm">
+                  Lowest equipped item level:{' '}
+                  <span className="text-accent font-semibold">{lowestItemLevel}</span>
+                </p>
+              )}
+              <a href="#equipment-heading" className={`${linkClass} mt-4`}>
+                Inspect equipment
+              </a>
             </section>
             <section className="lodge-panel min-w-0 p-5" aria-labelledby="vault-heading">
               <h3 id="vault-heading" className="font-display text-text-primary text-lg font-bold">
                 Great Vault this week
               </h3>
               <p className="text-text-muted mt-1 text-xs">
-                Your War Table notes · reset {reset?.isoDate ?? 'unavailable'}
+                Player-entered notes · reset {reset?.isoDate ?? 'unavailable'}
               </p>
               {vaultUnavailable ? (
                 <p className="text-text-muted mt-3 text-sm">Vault notes could not be loaded.</p>
@@ -285,104 +320,29 @@ export async function MainCharacterHighlight() {
               )}
             </section>
           </div>
-          <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2">
-            <section className="lodge-panel min-w-0 p-5 sm:p-6" aria-labelledby="keystone-heading">
-              <h3
-                id="keystone-heading"
-                className="font-display text-text-primary text-xl font-bold"
-              >
-                Keystone progress
+          <HearthProgressPanels
+            history={history}
+            encounters={raidEncounters}
+            unavailable={historyUnavailable}
+          />
+          {!raidEncounters?.length && raidProgress.length > 0 && (
+            <section className="lodge-panel p-5" aria-labelledby="raid-summary-heading">
+              <h3 id="raid-summary-heading" className="font-display text-xl">
+                Raid summary
               </h3>
-              <p className="text-text-muted mt-1 text-sm">
-                Saved Raider.IO refreshes, oldest to newest. Gaps mean no saved refresh.
+              <p className="text-text-muted mt-2 text-sm">
+                Saved Raider.IO summaries; Blizzard boss details are unavailable.
               </p>
-              {historyUnavailable ? (
-                <p className="text-text-muted mt-5">History could not be loaded.</p>
-              ) : scores.length ? (
-                <ol
-                  className="mt-5 flex h-36 items-end gap-2"
-                  aria-label="Mythic plus scores by saved date"
-                >
-                  {scores.map((point) => (
-                    <li
-                      key={point.refreshed_at}
-                      className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1 text-center"
-                    >
-                      <span className="text-text-primary text-xs">{point.mythic_plus_score}</span>
-                      <div
-                        className="bg-accent w-full max-w-12 rounded-t"
-                        style={{
-                          height: `${Math.max(8, ((point.mythic_plus_score ?? 0) / topScore) * 90)}%`,
-                        }}
-                        aria-hidden="true"
-                      />
-                      <span className="text-text-muted text-xs">
-                        {shortDate(point.refreshed_at)}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                <p className="text-text-muted mt-5">
-                  Refresh Raider.IO on your Traveler page to start a trend.
-                </p>
-              )}
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                {raidProgress.map((entry) => (
+                  <li key={entry.raid} className="lodge-data-cell min-w-0">
+                    <span className="text-text-primary block break-words">{entry.raid}</span>
+                    <span className="text-accent text-sm">{entry.summary}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
-            <section
-              className="lodge-panel min-w-0 p-5 sm:p-6"
-              aria-labelledby="raid-progress-heading"
-            >
-              <h3
-                id="raid-progress-heading"
-                className="font-display text-text-primary text-xl font-bold"
-              >
-                Raid progress
-              </h3>
-              <p className="text-text-muted mt-1 text-sm">
-                {raidEncounters
-                  ? 'Blizzard encounter snapshot · kill counts can lag behind play.'
-                  : 'Raider.IO summary · Blizzard boss details unavailable.'}
-              </p>
-              {raidEncounters?.length ? (
-                <ul
-                  className="mt-4 flex gap-2 overflow-x-auto pb-2"
-                  aria-label="Recent raid boss kills"
-                >
-                  {raidEncounters.slice(0, 12).map((entry, index) => (
-                    <li
-                      key={`${entry.raid}:${entry.difficulty}:${entry.boss}:${index}`}
-                      className="lodge-data-cell max-w-48 min-w-36 shrink-0"
-                    >
-                      <span className="text-text-primary block text-sm font-medium [overflow-wrap:anywhere] break-words">
-                        {entry.boss}
-                      </span>
-                      <span className="text-text-muted mt-1 block text-xs break-words">
-                        {entry.raid} · {entry.difficulty}
-                      </span>
-                      <span className="text-accent mt-1 block text-sm">
-                        {entry.kills} {entry.kills === 1 ? 'kill' : 'kills'}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : historyUnavailable ? (
-                <p className="text-text-muted mt-5">History could not be loaded.</p>
-              ) : raidProgress.length ? (
-                <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                  {raidProgress.map((entry) => (
-                    <li key={entry.raid} className="lodge-data-cell min-w-0">
-                      <span className="text-text-primary block font-medium break-words">
-                        {entry.raid}
-                      </span>
-                      <span className="text-accent text-sm">{entry.summary}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-text-muted mt-5">No raid summary saved for your Main yet.</p>
-              )}
-            </section>
-          </div>
+          )}
           <section
             className="lodge-panel min-w-0 p-5 sm:p-6"
             aria-labelledby="history-gear-heading"
@@ -398,6 +358,12 @@ export async function MainCharacterHighlight() {
                 ? 'Blizzard reports the latest kill date for each boss and difficulty. This is a saved snapshot, not a complete raid log.'
                 : 'Saved Raider.IO raid summaries, newest first. A saved refresh is not proof of a raid on that date.'}
             </p>
+            {raidEncounters && raidEncounters.length > 20 && (
+              <p className="text-text-muted mt-2 text-xs">
+                Showing 20 of {raidEncounters.length} saved boss/difficulty records. Use the raid
+                filters above to explore the snapshot.
+              </p>
+            )}
             {encounterYears.length > 0 && (
               <ol
                 className="mt-4 flex flex-wrap gap-1"

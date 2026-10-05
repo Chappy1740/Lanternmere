@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 44,
+  "revision": 45,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -44,7 +44,14 @@
       "number": 3,
       "name": "The Hearth",
       "status": "implemented",
-      "work": [],
+      "work": [
+        {
+          "id": "M3-compact-main-dashboard",
+          "title": "Compact Main dashboard with filtered progress and provider credits",
+          "status": "done",
+          "requestId": "CR-024"
+        }
+      ],
       "description": "A personalized home for your selected Lodge and upcoming activity.",
       "specification": "milestone-03-the-hearth.md"
     },
@@ -437,6 +444,22 @@
       "milestone": 1,
       "status": "done",
       "note": "Sign-in now offers a signup-confirmation resend form with neutral account responses and safe rate-limit guidance. Provider errors and missing callback codes show recovery instructions. Real email delivery and tester confirmation remain pending under A-10."
+    },
+    {
+      "id": "CR-024",
+      "title": "Build a compact credited Main Hearth dashboard",
+      "requestedAt": "2026-10-05",
+      "milestone": 3,
+      "status": "done",
+      "note": "Will chose to build without a WoWAudit team. Main stats, season-separated score chart, raid/difficulty filters, equipment planning, and visible source/inspiration credits are implemented using existing owner-scoped data. Main/rendered-data checks, lint, and both builds passed. Hosted visual/keyboard acceptance remains open."
+    },
+    {
+      "id": "CR-025",
+      "title": "Evaluate an optional WoWAudit team API connection",
+      "requestedAt": "2026-10-05",
+      "milestone": null,
+      "status": "proposed",
+      "note": "Deferred while Will has no WoWAudit team. Review provider terms, exact supported fields, limits, team admin access, server-only keys, and consent boundaries before implementation; request provider clarification if intended use is unclear. No live API requests or outreach authorized by this deferred scope."
     }
   ],
   "acceptance": [

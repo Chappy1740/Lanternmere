@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Compact personal Hearth — October 5, 2026
+
+- Will authorized the WoWAudit-inspired Hearth changes and requested provider/inspiration credits. He does not have a WoWAudit team and chose to build the Hearth first. This patch makes no WoWAudit API connection and requires no new credentials or database migration.
+- The Hearth now has a compact welcome and Main identity, achievement/score badges, expandable character details, equipped-item planning context, a season-filtered score line chart with exact-value table, and raid/difficulty filters over the saved Blizzard encounters. Existing equipment, player-entered Vault notes, progression history, alternates, and trusted refresh controls remain. Source labels distinguish snapshots and notes; the score chart is not presented as weekly dungeon activity or a complete historical record. Mobile grids reflow without fixed dashboard proportions.
+- Visible source links credit Blizzard and Raider.IO; WoWAudit is credited as layout inspiration. `data-sources-and-inspiration.md` records the credit/review rule and deferred optional team-API scope. No outside code, screenshots, logos, or team data were imported, and no provider was contacted.
+- Nine existing Main ownership/failure checks, new rendered-panel regressions, focused lint, Next.js production/TypeScript, and the Workers bundle passed. The older `check-hearth-context.cjs` fixture cannot run because it references the removed `(lodge)/hearth` route; that is a recorded test-harness limitation, not a live acceptance result. Real phone/desktop layout, keyboard filter use, and populated-chart review remain open. CR-024 records the implemented UI; CR-025 keeps the optional API connection proposed.
+
 ## Signup confirmation recovery — October 5, 2026
 
 - Repair `0ce5126` is pushed and its connected Cloudflare Workers build succeeded. Public hosted checks returned 200 with the resend button present; a synthetic callback containing only an expired-error marker redirected to the rendered expired-link recovery notice. These checks used no confirmation token, sent no email, and do not prove real delivery or account verification.

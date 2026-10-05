@@ -58,7 +58,7 @@ export default async function HearthPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl min-w-0 space-y-8">
-      <header className="lodge-panel relative overflow-hidden px-6 py-8 sm:px-10 sm:py-12">
+      <header className="lodge-panel relative overflow-hidden px-5 py-5 sm:px-6 sm:py-6">
         <Image
           src="/brand/lanternmere-lodge-hero-v1.png"
           alt=""
@@ -68,13 +68,13 @@ export default async function HearthPage({
         />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,17,29,0.94),rgba(9,17,29,0.66)_56%,rgba(9,17,29,0.25)),linear-gradient(0deg,rgba(9,17,29,0.72),transparent)]" />
         <div className="relative">
-          <p className="text-accent mb-4 flex items-center gap-2 text-sm font-medium tracking-[0.16em] uppercase">
+          <p className="text-accent mb-2 flex items-center gap-2 text-sm font-medium tracking-[0.16em] uppercase">
             <Flame size={18} aria-hidden="true" /> A place to return to
           </p>
-          <h2 className="font-display text-text-primary text-4xl font-bold sm:text-5xl">
+          <h2 className="font-display text-text-primary text-2xl font-bold sm:text-3xl">
             The Hearth
           </h2>
-          <p className="text-text-primary mt-5 text-xl break-words sm:text-2xl">
+          <p className="text-text-primary mt-2 text-base break-words">
             {displayName ? `Welcome back, ${displayName}.` : 'Welcome back.'}
           </p>
           <p className="text-text-muted mt-2">Settle in. Your next chapter starts here.</p>
@@ -82,6 +82,37 @@ export default async function HearthPage({
       </header>
 
       <MainCharacterHighlight />
+      <aside
+        aria-label="Sources and design credit"
+        className="text-text-muted flex min-w-0 flex-wrap items-center gap-2 text-xs"
+      >
+        <span>Data sources:</span>
+        <a
+          href="https://develop.battle.net/documentation/world-of-warcraft/profile-apis"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lodge-button-secondary px-3 py-2"
+        >
+          Blizzard
+        </a>
+        <a
+          href="https://raider.io/api"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lodge-button-secondary px-3 py-2"
+        >
+          Raider.IO
+        </a>
+        <a
+          href="https://wowaudit.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lodge-button-secondary px-3 py-2"
+        >
+          Layout inspiration: WoWAudit
+        </a>
+        <span>Independent Lanternmere design.</span>
+      </aside>
 
       {alternates.length > 0 && (
         <section className="space-y-3" aria-labelledby="alternates-heading">
