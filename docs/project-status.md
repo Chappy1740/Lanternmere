@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Signup confirmation recovery — October 5, 2026
+
+- Will approved a confirmation-resend control after the tester remained unconfirmed. Read-only Auth log checks found recent expired-link verification failures and unconfirmed-password failures; these are project-level records, not a proven association to the tester's account. The tester's screenshot confirms the new unconfirmed-email message is deployed. No confirmation token was opened or printed by the agent.
+- Sign-in now includes a dedicated Lanternmere resend form, newest-email/same-browser instructions, neutral account-specific responses, and safe provider/network and rate-limit messages. The public server action uses the existing same-origin CSRF checks and provider resend limits. Callback provider errors and missing codes now route to recovery instructions; known expired-link errors get a specific notice. Password recovery remains separate, and successful exchanges retain the destination allowlist and session-cookie handling. When present, the SDK's callback flow ID selects the matching PKCE verifier.
+- Mocked Front Door regressions cover invalid inputs, resend payload/destination, neutral account responses, rate limits, provider/network failures, missing origin, expired/missing-code callbacks, successful redirects, matching flow IDs, and exchange failure. Focused lint, Next.js production/TypeScript, and Workers bundle builds passed. Real resend delivery, newest-link confirmation, and the Firefox Mobile tester's subsequent login remain open under A-10. CR-023 tracks this focused repair.
+
 ## Signup confirmation guidance — October 5, 2026
 
 - A tester reported the generic temporary sign-in error and did not know email confirmation was required. The existing signup redirect included `confirmEmail=1`, but the sign-in screen did not render that notice. It now shows a prominent check-your-email panel with confirmation and spam-folder instructions; signup also explains the requirement next to submission.

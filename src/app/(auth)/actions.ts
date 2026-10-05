@@ -113,6 +113,50 @@ export async function signOut(_previousState: AuthActionState): Promise<AuthActi
   redirect('/sign-in');
 }
 
+export async function resendConfirmation(
+  _previousState: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const emailValue = formData.get('email');
+  const email = typeof emailValue === 'string' ? emailValue.trim() : '';
+  if (!email || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
+    return { error: 'Enter the email address you used to sign up.' };
+  }
+  try {
+    const origin = (await headers()).get('origin');
+    if (!origin)
+      return { error: 'Confirmation emails are unavailable right now. Please try again.' };
+    const supabase = await createClient();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: `${origin}/auth/callback?next=/account` },
+    });
+    if (error) {
+      if (
+        error.status === 429 ||
+        error.code === 'over_email_send_rate_limit' ||
+        error.code === 'over_request_rate_limit'
+      ) {
+        return { error: 'Please wait a few minutes before requesting another confirmation email.' };
+      }
+      // Keep account-specific rejections indistinguishable from a successful request.
+      if (!error.status || error.status >= 500 || error.code === 'request_timeout') {
+        return {
+          error: 'A confirmation email could not be requested right now. Please try again later.',
+        };
+      }
+    }
+  } catch {
+    return { error: 'Confirmation emails are unavailable right now. Please try again.' };
+  }
+  return {
+    error: null,
+    success:
+      'If this email belongs to an account awaiting confirmation, a new link is on its way. Check your inbox and spam folder, use the newest email, and open the link in this browser.',
+  };
+}
+
 export async function requestPasswordReset(
   _prevState: AuthActionState,
   formData: FormData,

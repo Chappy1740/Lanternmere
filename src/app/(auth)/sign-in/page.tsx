@@ -4,12 +4,16 @@ import { Suspense, useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { signIn, type AuthActionState } from '../actions';
+import { resendConfirmation, signIn, type AuthActionState } from '../actions';
 
 const initialState: AuthActionState = { error: null };
 
 function SignInForm() {
   const [state, formAction, isPending] = useActionState(signIn, initialState);
+  const [confirmationState, confirmationAction, isResending] = useActionState(
+    resendConfirmation,
+    initialState,
+  );
   const params = useSearchParams();
   const next = params.get('next');
   const returnTo =
@@ -41,7 +45,10 @@ function SignInForm() {
         </div>
         <p className="text-text-muted mt-5 text-sm">Welcome back, Traveler.</p>
         {params.get('confirmEmail') === '1' && (
-          <section role="status" className="mt-5 rounded-lg border border-accent bg-background/80 p-4">
+          <section
+            role="status"
+            className="border-accent bg-background/80 mt-5 rounded-lg border p-4"
+          >
             <h2 className="text-accent text-lg font-bold">Check your email before signing in</h2>
             <p className="text-text-primary mt-2 text-sm">
               You will receive a confirmation email. Open it and click “Confirm email address” to
@@ -55,7 +62,9 @@ function SignInForm() {
         )}
         {params.get('confirmationError') === '1' && (
           <p role="alert" className="mt-4 text-sm text-red-400">
-            This confirmation link could not be opened. It may have expired or been opened in a different browser. Try the browser where you signed up, or sign in if your email is already confirmed.
+            {params.get('confirmationExpired') === '1'
+              ? 'This confirmation link has expired or is no longer valid. Request a new email below and use its newest link.'
+              : 'This confirmation link could not be completed. It may have expired, already been used, or been opened in a different browser. If your email is already confirmed, sign in. Otherwise request a new email below.'}
           </p>
         )}
 
@@ -110,6 +119,49 @@ function SignInForm() {
             {isPending ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+
+        <section
+          aria-labelledby="resend-heading"
+          className="mt-6 border-t border-[color:var(--border-ornate)] pt-5"
+        >
+          <h2 id="resend-heading" className="text-text-primary font-semibold">
+            Need a new confirmation email?
+          </h2>
+          <p className="text-text-muted mt-2 text-sm">
+            Enter your signup email, then open the newest confirmation link in this browser.
+          </p>
+          <form action={confirmationAction} className="mt-3 flex flex-col gap-3">
+            <label htmlFor="confirmation-email" className="text-text-primary text-sm">
+              Signup email
+            </label>
+            <input
+              id="confirmation-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+              className="lodge-field px-3 py-2"
+            />
+            {confirmationState.error && (
+              <p role="alert" className="text-sm text-red-400">
+                {confirmationState.error}
+              </p>
+            )}
+            {confirmationState.success && (
+              <p role="status" className="text-text-primary text-sm">
+                {confirmationState.success}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={isResending}
+              className="lodge-button px-4 py-2 font-medium disabled:opacity-60"
+            >
+              {isResending ? 'Requesting email…' : 'Resend confirmation email'}
+            </button>
+          </form>
+        </section>
 
         <p className="text-text-muted mt-6 text-center text-sm">
           New to Lanternmere?{' '}
