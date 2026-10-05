@@ -96,8 +96,8 @@ export async function MainCharacterHighlight() {
     : [];
 
   return (
-    <section aria-labelledby="main-character-heading" className="space-y-5">
-      <div className="lodge-panel p-6 sm:p-8">
+    <section aria-labelledby="main-character-heading" className="min-w-0 space-y-5">
+      <div className="lodge-panel min-w-0 p-6 sm:p-8">
         <p className="lodge-kicker">Your champion</p>
         <h1
           id="main-character-heading"
@@ -129,6 +129,11 @@ export async function MainCharacterHighlight() {
                       ? 'Battle.net account verified'
                       : 'Public import · ownership unverified'}
                 </p>
+                {!ready.ownershipStatusUnavailable && !ready.ownershipVerified && (
+                  <Link href="/account" className={`${linkClass} mt-2 text-xs`}>
+                    Verify this Main with Battle.net
+                  </Link>
+                )}
               </div>
             </div>
             <dl className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
@@ -187,8 +192,8 @@ export async function MainCharacterHighlight() {
       </div>
       {ready && (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <section className="lodge-panel p-5" aria-labelledby="gear-summary-heading">
+          <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="lodge-panel min-w-0 p-5" aria-labelledby="gear-summary-heading">
               <h3
                 id="gear-summary-heading"
                 className="font-display text-text-primary text-lg font-bold"
@@ -205,7 +210,7 @@ export async function MainCharacterHighlight() {
                   : 'Item details not available in this Blizzard snapshot.'}
               </p>
             </section>
-            <section className="lodge-panel p-5" aria-labelledby="upgrades-heading">
+            <section className="lodge-panel min-w-0 p-5" aria-labelledby="upgrades-heading">
               <h3
                 id="upgrades-heading"
                 className="font-display text-text-primary text-lg font-bold"
@@ -218,7 +223,7 @@ export async function MainCharacterHighlight() {
                   : 'Upgrade tracks and crest balances are not available from this import.'}
               </p>
             </section>
-            <section className="lodge-panel p-5" aria-labelledby="vault-heading">
+            <section className="lodge-panel min-w-0 p-5" aria-labelledby="vault-heading">
               <h3 id="vault-heading" className="font-display text-text-primary text-lg font-bold">
                 Great Vault this week
               </h3>
@@ -255,7 +260,7 @@ export async function MainCharacterHighlight() {
                 Open War Table
               </Link>
             </section>
-            <section className="lodge-panel p-5" aria-labelledby="score-heading">
+            <section className="lodge-panel min-w-0 p-5" aria-labelledby="score-heading">
               <h3 id="score-heading" className="font-display text-text-primary text-lg font-bold">
                 Mythic+ score
               </h3>
@@ -280,8 +285,8 @@ export async function MainCharacterHighlight() {
               )}
             </section>
           </div>
-          <div className="grid gap-5 lg:grid-cols-2">
-            <section className="lodge-panel p-5 sm:p-6" aria-labelledby="keystone-heading">
+          <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-2">
+            <section className="lodge-panel min-w-0 p-5 sm:p-6" aria-labelledby="keystone-heading">
               <h3
                 id="keystone-heading"
                 className="font-display text-text-primary text-xl font-bold"
@@ -323,7 +328,10 @@ export async function MainCharacterHighlight() {
                 </p>
               )}
             </section>
-            <section className="lodge-panel p-5 sm:p-6" aria-labelledby="raid-progress-heading">
+            <section
+              className="lodge-panel min-w-0 p-5 sm:p-6"
+              aria-labelledby="raid-progress-heading"
+            >
               <h3
                 id="raid-progress-heading"
                 className="font-display text-text-primary text-xl font-bold"
@@ -375,7 +383,10 @@ export async function MainCharacterHighlight() {
               )}
             </section>
           </div>
-          <section className="lodge-panel p-5 sm:p-6" aria-labelledby="history-gear-heading">
+          <section
+            className="lodge-panel min-w-0 p-5 sm:p-6"
+            aria-labelledby="history-gear-heading"
+          >
             <h3
               id="history-gear-heading"
               className="font-display text-text-primary text-xl font-bold"
@@ -440,7 +451,7 @@ export async function MainCharacterHighlight() {
               View dated progression history
             </Link>
           </section>
-          <section className="lodge-panel p-5 sm:p-6" aria-labelledby="equipment-heading">
+          <section className="lodge-panel min-w-0 p-5 sm:p-6" aria-labelledby="equipment-heading">
             <h3 id="equipment-heading" className="font-display text-text-primary text-xl font-bold">
               Equipment
             </h3>

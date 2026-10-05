@@ -30,6 +30,7 @@ export default async function AccountPage({
     { data: profile, error: profileError },
     { data: snapshot, error: snapshotError },
     claimsResult,
+    existingResult,
   ] = await Promise.all([
     supabase.from('profiles').select('display_name').eq('id', user.id).single(),
     supabase
@@ -38,8 +39,13 @@ export default async function AccountPage({
       .eq('profile_id', user.id)
       .maybeSingle(),
     supabase.from('wow_character_claims').select('blizzard_character_id').eq('profile_id', user.id),
+    supabase
+      .from('characters')
+      .select('region,realm_slug,character_name,games!inner(slug)')
+      .eq('profile_id', user.id)
+      .eq('games.slug', 'wow'),
   ]);
-  if (profileError || snapshotError || claimsResult.error)
+  if (profileError || snapshotError || claimsResult.error || existingResult.error)
     throw new Error('Unable to load your account.');
   const characters = z.array(ownedWowCharacterSchema).safeParse(snapshot?.characters ?? []);
   if (!characters.success) throw new Error('Unable to load your character list.');
@@ -47,6 +53,12 @@ export default async function AccountPage({
     (character) => character.level !== undefined && character.level >= WOW_MIN_TRAVELER_LEVEL,
   );
   const claimedIds = new Set(claimsResult.data.map((claim) => Number(claim.blizzard_character_id)));
+  const existingCharacters = new Set(
+    existingResult.data.map(
+      (character) =>
+        `${character.region}:${character.realm_slug.toLowerCase()}:${character.character_name.toLowerCase()}`,
+    ),
+  );
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <section className="lodge-panel p-6">
@@ -105,6 +117,12 @@ export default async function AccountPage({
             updated {new Date(snapshot.refreshed_at).toISOString().slice(0, 10)}
           </p>
         )}
+        {snapshot && (
+          <p className="text-text-muted mt-2 text-sm">
+            If a character was already saved from a public lookup, choose Verify ownership here to
+            connect it to your Battle.net account.
+          </p>
+        )}
         <ul className="mt-4 space-y-2">
           {eligibleCharacters.map((character) => (
             <li
@@ -119,6 +137,9 @@ export default async function AccountPage({
               <AddOwnedTravelerControl
                 characterId={character.id}
                 added={claimedIds.has(character.id)}
+                previouslyImported={existingCharacters.has(
+                  `${snapshot?.region}:${character.realm.slug.toLowerCase()}:${character.name?.toLowerCase()}`,
+                )}
               />
             </li>
           ))}

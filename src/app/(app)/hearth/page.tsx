@@ -57,7 +57,7 @@ export default async function HearthPage({
   const alternates = !alternateError && parsedAlternates.success ? parsedAlternates.data : [];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto w-full max-w-6xl min-w-0 space-y-8">
       <header className="lodge-panel relative overflow-hidden px-6 py-8 sm:px-10 sm:py-12">
         <Image
           src="/brand/lanternmere-lodge-hero-v1.png"

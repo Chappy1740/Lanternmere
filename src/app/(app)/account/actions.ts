@@ -54,7 +54,7 @@ export async function addOwnedTraveler(
     result.profile.name.toLowerCase() !== owned.name.toLowerCase()
   )
     return { error: 'Battle.net returned a different character. Refresh your list and try again.' };
-  const { error } = await admin.rpc('claim_owned_wow_character', {
+  const { data: savedId, error } = await admin.rpc('claim_owned_wow_character', {
     p_profile_id: user.id,
     p_region: result.region,
     p_profile: result.profile,
@@ -68,10 +68,20 @@ export async function addOwnedTraveler(
     return {
       error: 'This Traveler could not be saved. Refresh your Battle.net list and try again.',
     };
+  const saved = z.uuid().safeParse(savedId);
+  if (!saved.success)
+    return { error: 'The Traveler was saved, but its page could not be opened. Check Travelers.' };
+  const { data: character } = await supabase
+    .from('characters')
+    .select('is_main')
+    .eq('profile_id', user.id)
+    .eq('id', saved.data)
+    .maybeSingle();
   revalidatePath('/account');
   revalidatePath('/travelers');
   revalidatePath('/hearth');
-  redirect('/hearth');
+  revalidatePath(`/travelers/${saved.data}`);
+  redirect(character?.is_main ? '/hearth' : `/travelers/${saved.data}`);
 }
 export async function updateGameNickname(
   _previous: { error: string | null; success: string | null },

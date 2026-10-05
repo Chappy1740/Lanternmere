@@ -8,9 +8,11 @@ const initialState: AddOwnedTravelerState = { error: null };
 export function AddOwnedTravelerControl({
   characterId,
   added,
+  previouslyImported,
 }: {
   characterId: number;
   added: boolean;
+  previouslyImported: boolean;
 }) {
   const [state, action, pending] = useActionState(addOwnedTraveler, initialState);
   return (
@@ -21,7 +23,15 @@ export function AddOwnedTravelerControl({
         disabled={pending || added}
         className="lodge-button-secondary rounded px-3 py-2 text-sm disabled:opacity-60"
       >
-        {added ? 'In Travelers' : pending ? 'Adding…' : 'Add to Travelers'}
+        {added
+          ? 'Verified in Travelers'
+          : pending
+            ? previouslyImported
+              ? 'Verifying…'
+              : 'Adding…'
+            : previouslyImported
+              ? 'Verify ownership'
+              : 'Add to Travelers'}
       </button>
       {state.error && (
         <p role="alert" className="max-w-xs text-sm text-red-300">

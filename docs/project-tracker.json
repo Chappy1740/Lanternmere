@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 27,
+  "revision": 28,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -343,7 +343,7 @@
       "requestedAt": "2026-10-03",
       "milestone": null,
       "status": "in_progress",
-      "note": "Will provided a WoWAudit character screenshot as the feel for the signed-in Main Hearth Profile. Hearth now leads with the owned Main, Blizzard item level, player-entered Vault notes, owner-only Raider.IO score trend and raid summaries/history. Individual boss kills, item-by-item gear, enchant and upgrade details still need verified imports; live visual and accessibility acceptance remain open."
+      "note": "Will provided a WoWAudit character screenshot as the Main Hearth reference. Hearth now shows Blizzard item level and optional item and boss details, player-entered Vault notes, and owner-only Raider.IO history. Upgrade tracks and crests are unavailable from this import. A phone screenshot exposed a responsive layout defect now under repair; live visual and accessibility acceptance remain open."
     },
     {
       "id": "CR-014",
@@ -367,7 +367,15 @@
       "requestedAt": "2026-10-04",
       "milestone": null,
       "status": "done",
-      "note": "Will approved Battle.net account-list proof for every new Traveler. Hearth is available before a Lodge, offers level 80+ characters from the connected account, adds an exclusive claim, labels old public imports unverified, and adds optional Blizzard gear and boss-kill snapshots. The claim migration is installed and synthetic checks pass; real Battle.net, two-account, visual, accessibility, and hosted deployment acceptance remain open."
+      "note": "Will approved Battle.net account-list proof for every new Traveler. Hearth is available before a Lodge, offers level 80+ characters from the connected account, adds an exclusive claim, labels old public imports unverified, and adds optional Blizzard gear and boss-kill snapshots. The claim migration is installed and the hosted build passed; private-list, duplicate-claim, visual, and accessibility acceptance remain open."
+    },
+    {
+      "id": "CR-017",
+      "title": "Repair mobile Hearth width and clarify verification of older Travelers",
+      "requestedAt": "2026-10-05",
+      "milestone": null,
+      "status": "done",
+      "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The focused repair constrains mobile cards, offers Verify ownership for existing public imports on the account list, and sends a newly added alternate to its own Traveler page. A hosted phone recheck remains open under A-09."
     }
   ],
   "acceptance": [
@@ -415,7 +423,7 @@
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
       "status": "open",
-      "note": "Will reported that adding a character from his connected Battle.net list took him to his Main's Hearth. The signed-in display, second-account list privacy, and duplicate-claim behavior remain unverified."
+      "note": "Will reported an add-to-Hearth redirect. His phone screenshot showed that the displayed Main was an earlier unverified public import and that the mobile layout overflowed. Corrected phone display, Main verification, second-account list privacy, and duplicate-claim behavior remain unverified."
     },
     {
       "id": "A-10",
