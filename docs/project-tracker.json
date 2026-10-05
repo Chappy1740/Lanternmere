@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 36,
+  "revision": 37,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -399,7 +399,7 @@
       "requestedAt": "2026-10-05",
       "milestone": null,
       "status": "done",
-      "note": "The installed cleanup removes all unverified Travelers while preserving verified characters and accounts. New proof constraints, confirmed owner-only removal, and shared Lanternmere link-button styling are implemented. Local builds and rollback fixtures passed. Hosted delivery and real-account removal acceptance are separate checks."
+      "note": "The cleanup is installed, committed, pushed, and deployed. Unverified Travelers were removed while verified characters and accounts remain. Proof constraints, confirmed owner-only removal, and Lanternmere content-link buttons are implemented. Local builds and rollback fixtures passed; the connected Worker build succeeded and hosted styles returned 200. Real-account removal and visual/keyboard acceptance remain open."
     }
   ],
   "acceptance": [
