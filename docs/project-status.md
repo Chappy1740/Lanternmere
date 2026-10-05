@@ -4,6 +4,8 @@ The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequenc
 
 ## Hosted private-schema acceptance — October 5, 2026
 
+- Chronicle Storage cleanup is now in a live, disposable-Lodge rehearsal. Before deletion, read-only checks confirmed one test entry, one media record, and one matching stored file in the Acceptance Lodge. The latest check still finds all four records, including the Lodge itself; deletion and cleanup are not yet verified. Wait for Will to delete the explicitly selected test Lodge, then check both database rows and Storage objects by that Lodge's original prefix.
+- The walkthrough exposed a navigation defect: sidebar links omit the selected `lodge` query parameter, so Chronicles defaults to the first membership instead of the Lodge just selected on the Hearth. The first test entry was therefore created in the existing Lodge. Use explicitly scoped Chronicles and Caretaker links for the current test; do not delete the existing Lodge. Navigation context needs a focused follow-up repair, and the first test entry needs separate cleanup.
 - Will supplied a screenshot of the hosted Data API Exposed schemas selector. `public` and `graphql_public` are checked; `private` is unchecked. This verifies the hosted configuration boundary from the supplied screenshot, without changing settings or making a direct Data API probe.
 - A-16 remains open for actual expired-record deletion and real Chronicle Storage cleanup after deleting a disposable Lodge. Earlier security-header and scheduled-job execution evidence remains recorded separately; job execution alone does not prove record deletion.
 
