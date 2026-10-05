@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 37,
+  "revision": 38,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -449,7 +449,7 @@
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
       "status": "open",
-      "note": "Will reported an add-to-Hearth redirect, confirmed the repaired phone layout, and confirmed Verify ownership for his earlier Main returned the verified Hearth state. Second-account character-list privacy and duplicate-claim denial remain unverified."
+      "note": "Will reported an add-to-Hearth redirect, confirmed the repaired phone layout and Main verification, and confirmed successful hosted Traveler removal on October 5. Re-addition after removal, second-account character-list privacy, duplicate-claim denial, and cross-account removal denial remain unverified live."
     },
     {
       "id": "A-10",
