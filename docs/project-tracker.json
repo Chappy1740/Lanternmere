@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 24,
+  "revision": 25,
   "updatedAt": "2026-10-04",
   "milestones": [
     {
@@ -381,7 +381,7 @@
     {
       "id": "A-04",
       "title": "Fresh confirmation-email and hosted callback check",
-      "status": "open"
+      "status": "verified"
     },
     {
       "id": "A-05",

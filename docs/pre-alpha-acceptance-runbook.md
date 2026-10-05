@@ -7,7 +7,7 @@ Use this after the Milestone 0–14 and final integrated code audits. Work throu
 - Use test accounts and test-only Lodge/Guild records. Agree on cleanup before creating or deleting hosted records. Do not use an important Lodge or Guild for destructive tests.
 - Record the date, deployed commit or Worker build, role used, action, expected result, actual result, and any follow-up. Use role labels rather than names or account IDs in public notes. Never paste passwords, OAuth codes, email links, tokens, private notes, or API keys into chat or the tracker.
 - A failure stops that check. Preserve enough non-sensitive evidence to reproduce it, repair it, then rerun the failed path. Continue independent checks elsewhere.
-- A-03 and A-07 are already marked verified in the tracker; revisit only if a later change affects those boundaries.
+- A-03, A-04, and A-07 are already marked verified in the tracker; revisit only if a later change affects those boundaries.
 
 ## Suggested order and account setup
 

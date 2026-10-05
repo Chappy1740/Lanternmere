@@ -4,7 +4,7 @@ The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequenc
 
 ## Pre-alpha signup evidence — October 4, 2026
 
-- Will reports that he personally completed a Lanternmere signup and that there have been 11 signups. The confirmation email link led to the sign-in page, and he then signed in manually. This is firsthand evidence that signup has been used on the hosted app, but it does not establish a callback-created session or arrival at the intended `/account` destination. The nickname and optional directory-sharing defaults were not reported either. Keep A-04 and A-10 open until those specific outcomes are confirmed; do not ask Will to create another account solely to increase the signup count. The callback outcome needs diagnosis before another controlled signup test.
+- Will reports that he personally completed a Lanternmere signup and that there have been 11 signups. He supplied screenshots of the confirmation email and the hosted `/account` page showing the new game nickname, then clarified that `/account` opened directly from the email link before he entered a password again. This verifies the fresh confirmation-email, hosted callback, and signed-in destination required by A-04. His earlier description of signing in manually referred to a later action; it was not needed for this callback. A-04 is verified from Will's live observation, not an agent-run browser test. A-10 remains open because the optional directory-sharing default and opt-in were not checked. Do not ask Will to create another account solely to increase the signup count.
 
 ## Final integrated audit triage — October 4, 2026
 
