@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 32,
+  "revision": 33,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -383,7 +383,7 @@
       "requestedAt": "2026-10-05",
       "milestone": 1,
       "status": "done",
-      "note": "Will reported Forbidden after pressing Sign In. The focused referrer-policy repair preserves internal form origins and external referrer privacy while retaining cross-site request checks. Both builds and focused checks passed. Will approved direct deployment; the hosted header and credential-free origin probes passed. The authenticated A-03 live retest remains open."
+      "note": "Will reported Forbidden after pressing Sign In. The focused referrer-policy repair preserves internal form origins and external referrer privacy while retaining cross-site request checks. Both builds and focused checks passed. Will approved direct deployment; hosted probes passed and he confirmed fresh sign-in reaches his Hearth. A-03 still needs reload and sign-out checks."
     }
   ],
   "acceptance": [
@@ -401,7 +401,7 @@
       "id": "A-03",
       "title": "Authenticated Worker sign-in, sign-out, and session persistence",
       "status": "open",
-      "note": "Earlier hosted session checks passed. Will reported a native sign-in submission failure on October 5; the focused repair requires a new hosted sign-in, protected-page reload, and sign-out retest."
+      "note": "Earlier hosted session checks passed. After the October 5 native form repair was deployed, Will confirmed fresh sign-in reaches his Hearth. Protected-page reload and sign-out retests remain open."
     },
     {
       "id": "A-04",
