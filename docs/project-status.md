@@ -2,6 +2,10 @@
 
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
+## Pre-alpha signup evidence — October 4, 2026
+
+- Will reports that he personally completed a Lanternmere signup and that there have been 11 signups. The confirmation email link led to the sign-in page, and he then signed in manually. This is firsthand evidence that signup has been used on the hosted app, but it does not establish a callback-created session or arrival at the intended `/account` destination. The nickname and optional directory-sharing defaults were not reported either. Keep A-04 and A-10 open until those specific outcomes are confirmed; do not ask Will to create another account solely to increase the signup count. The callback outcome needs diagnosis before another controlled signup test.
+
 ## Final integrated audit triage — October 4, 2026
 
 - Will supplied Claude Code's read-only program-wide audit at clean `c9be135`. It inventoried 392 tracked files, found no high- or medium-severity defect or cross-feature authority bypass, and judged the code ready for **controlled live acceptance**, not live-accepted. Its migration grant inventory was partly regex-based; no linked SQL or hosted test ran in that audit.
