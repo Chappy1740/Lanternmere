@@ -2,6 +2,12 @@
 
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
+## Owner identity and inactivity scope — October 5, 2026
+
+- Will confirmed that hiding his optional alias and refreshing removes it from the owner list. A-06 remains open for non-owner isolation and the full opt-in path; this is user-reported revocation evidence only.
+- Will changed the requested account-management direction: owner labels should require the member's verified Main identity rather than an optional nickname, owner pages should omit emails, and accounts should become inactive after 30 days. He chose automatic restoration when the member signs in again. The [account identity and inactivity policy](account-identity-and-inactivity-policy.md) records this accepted direction, a clear disclosure/acknowledgment boundary for existing users, and the distinction between reversible inactivity and owner-imposed suspension.
+- CR-019 tracks this new work. It is specified, not implemented or deployed. The current optional directory UI, owner email projection, and manual suspension behavior remain the running implementation. Dormancy preserves data and does not reclaim storage. A-10's existing optional-consent requirement will need updating when the replacement onboarding policy is implemented; its current state stays open.
+
 ## Native sign-in submission repair — October 5, 2026
 
 - After deployment, Will answered "it does" when asked whether a fresh sign-in takes him to his Hearth, then confirmed "it works, so does the signout" after the protected-page refresh step. A-03 is verified again from Will's live confirmation of sign-in, session persistence on refresh, and sign-out. The agent did not observe his browser or session.

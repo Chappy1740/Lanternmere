@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 34,
+  "revision": 35,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -384,6 +384,14 @@
       "milestone": 1,
       "status": "done",
       "note": "Will reported Forbidden after pressing Sign In. The focused referrer-policy repair preserves internal form origins and external referrer privacy while retaining cross-site request checks. Both builds and focused checks passed. Will approved direct deployment; hosted probes passed and he confirmed sign-in, refresh persistence, and sign-out. A-03 is verified again."
+    },
+    {
+      "id": "CR-019",
+      "title": "Use verified Main account identity and reversible 30-day inactivity",
+      "requestedAt": "2026-10-05",
+      "milestone": null,
+      "status": "accepted",
+      "note": "Will wants Main-based owner labels without emails and chose automatic restoration after 30 inactive days. The policy is specified; implementation remains pending. Disclose required owner identity sharing before onboarding and obtain acknowledgment from existing users before exposure. Preserve manual suspensions and stored data; dormancy does not reclaim storage."
     }
   ],
   "acceptance": [
@@ -416,7 +424,8 @@
     {
       "id": "A-06",
       "title": "Live non-owner directory denial and alias opt-in/revocation",
-      "status": "open"
+      "status": "open",
+      "note": "Will confirmed hiding his optional alias removes it from the owner list and persists after refresh. Non-owner denial and the full opt-in path remain unverified. CR-019 specifies a replacement Main identity policy, which is not yet implemented."
     },
     {
       "id": "A-07",
