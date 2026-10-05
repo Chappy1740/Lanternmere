@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 38,
+  "revision": 39,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -399,7 +399,7 @@
       "requestedAt": "2026-10-05",
       "milestone": null,
       "status": "done",
-      "note": "The cleanup is installed, committed, pushed, and deployed. Unverified Travelers were removed while verified characters and accounts remain. Proof constraints, confirmed owner-only removal, and Lanternmere content-link buttons are implemented. Local builds and rollback fixtures passed; the connected Worker build succeeded and hosted styles returned 200. Real-account removal and visual/keyboard acceptance remain open."
+      "note": "The cleanup is installed, committed, pushed, and deployed. Unverified Travelers were removed while verified characters and accounts remain. Proof constraints, confirmed owner-only removal, and Lanternmere content-link buttons are implemented. Local builds and rollback fixtures passed; the connected Worker build succeeded and hosted styles returned 200. Will confirmed live removal and re-addition. Visual/keyboard acceptance remains open."
     }
   ],
   "acceptance": [
@@ -449,7 +449,7 @@
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
       "status": "open",
-      "note": "Will reported an add-to-Hearth redirect, confirmed the repaired phone layout and Main verification, and confirmed successful hosted Traveler removal on October 5. Re-addition after removal, second-account character-list privacy, duplicate-claim denial, and cross-account removal denial remain unverified live."
+      "note": "Will reported an add-to-Hearth redirect, confirmed the repaired phone layout and Main verification, and confirmed successful hosted Traveler removal and re-addition on October 5. Second-account character-list privacy, duplicate-claim denial, and cross-account removal denial remain unverified live."
     },
     {
       "id": "A-10",
