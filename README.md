@@ -1,6 +1,6 @@
 # Lanternmere
 
-Lanternmere is a World of Warcraft community app organized around Lodges and Travelers. The personal Hearth opens after sign-in, before joining a Lodge. New Travelers come from the member's connected Battle.net character list and use official public profiles for character details. The first Traveler becomes Main; Lodge sharing is optional. Earlier public-name imports remain saved and are labeled unverified.
+Lanternmere is a World of Warcraft community app organized around Lodges and Travelers. The personal Hearth opens after sign-in, before joining a Lodge. Travelers require the member's connected Battle.net character-list proof and use official public profiles for character details. The first Traveler becomes Main; Lodge sharing is optional. Earlier unverified public-name imports were removed on October 5. Members can remove their own Traveler from its detail page; re-adding starts fresh personal history.
 
 ## Start here
 

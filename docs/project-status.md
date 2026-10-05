@@ -2,6 +2,13 @@
 
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
+## Verified Traveler reset and removal — October 5, 2026
+
+- Will requested deletion of all Travelers without Battle.net proof, self-service removal, and Lanternmere button styling for links. The rehearsed `20261005140617_verified_traveler_cleanup_and_removal.sql` migration is installed: seven unverified Travelers and cascading personal records were removed; two verified Travelers remain. Accounts, Guilds, and Lodges remain. Shared RSVP and achievement records retain their content with the deleted character reference cleared.
+- New deferred proof constraints prevent privileged unverified character inserts and orphaned proof removal while allowing the trusted account-list importer to insert a character and claim in one transaction. Owner removal uses `auth.uid()`, rejects suspended or other-account callers, and serializes against Main selection. Direct authenticated table deletion is revoked. The UI requires explicit confirmation, explains permanent history deletion, and redirects to Travelers with a success message. Removing Main requires choosing or adding another Main; removing the final Traveler preserves the account. Re-addition releases and recreates the claim without restoring history.
+- Content links use shared Lanternmere button styling with keyboard focus and wrapping. Existing linked cards and shell navigation retain their branded layout. Current-session lint, five existing add-from-Battle.net action checks, focused removal action tests, Next.js production/TypeScript build, and Workers bundle passed. Pre-install cleanup and post-install owner-removal SQL rehearsals passed with rollback, including preservation of verified IDs and community records, other-account/suspension denial, unverified insert denial, claim retention, cascading history deletion, re-addition, and final-Traveler removal. Post-install aggregate checks found two verified Travelers, zero unverified Travelers, zero synthetic users, and the migration recorded exactly once.
+- CR-020 tracks this focused repair. Will approved direct deployment for this patch; hosted delivery is being verified. Real-account removal and hosted visual/keyboard acceptance remain open under A-09. CR-019's owner identity and inactivity policy is still specified, not implemented.
+
 ## Owner identity and inactivity scope — October 5, 2026
 
 - Will confirmed that hiding his optional alias and refreshing removes it from the owner list. A-06 remains open for non-owner isolation and the full opt-in path; this is user-reported revocation evidence only.

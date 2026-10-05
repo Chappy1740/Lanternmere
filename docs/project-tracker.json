@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 35,
+  "revision": 36,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -392,6 +392,14 @@
       "milestone": null,
       "status": "accepted",
       "note": "Will wants Main-based owner labels without emails and chose automatic restoration after 30 inactive days. The policy is specified; implementation remains pending. Disclose required owner identity sharing before onboarding and obtain acknowledgment from existing users before exposure. Preserve manual suspensions and stored data; dormancy does not reclaim storage."
+    },
+    {
+      "id": "CR-020",
+      "title": "Reset unverified Travelers, add owner removal, and style content links",
+      "requestedAt": "2026-10-05",
+      "milestone": null,
+      "status": "done",
+      "note": "The installed cleanup removes all unverified Travelers while preserving verified characters and accounts. New proof constraints, confirmed owner-only removal, and shared Lanternmere link-button styling are implemented. Local builds and rollback fixtures passed. Hosted delivery and real-account removal acceptance are separate checks."
     }
   ],
   "acceptance": [

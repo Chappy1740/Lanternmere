@@ -12,6 +12,7 @@ import { loadRefreshFailures } from '@/lib/wow/refresh-status';
 import { CharacterPortrait } from '@/components/character-portrait';
 import { CharacterFreshness } from '@/components/character-freshness';
 import { CharacterRefreshControl } from '@/components/character-refresh-control';
+import { RemoveTravelerControl } from '@/components/remove-traveler-control';
 import { raidProgressionEntries } from '@/lib/raiderio-progress';
 const characterSchema = z.object({
   id: z.uuid(),
@@ -372,6 +373,9 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
       <Link href="/travelers/new" className="text-accent hover:text-accent-hover mt-6 inline-block">
         Add another character
       </Link>
+      {isOwner && (
+        <RemoveTravelerControl characterId={character.id} name={name} isMain={character.is_main} />
+      )}
     </div>
   );
 }

@@ -25,7 +25,12 @@ const characterSchema = z.object({
   ),
 });
 
-export default async function TravelersPage() {
+export default async function TravelersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ removed?: string }>;
+}) {
+  const { removed } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -95,6 +100,12 @@ export default async function TravelersPage() {
           Add from Battle.net
         </Link>
       </div>
+
+      {removed === '1' && (
+        <p role="status" className="lodge-panel text-text-primary mt-6 p-4">
+          Traveler removed. If you removed your Main, choose another from Travelers.
+        </p>
+      )}
 
       {characters.length === 0 ? (
         <div className="lodge-empty mt-8 p-8">

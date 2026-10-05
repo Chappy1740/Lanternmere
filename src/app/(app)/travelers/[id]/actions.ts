@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { fetchRaiderIoProgress } from '@/lib/raiderio';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -10,6 +11,34 @@ export type CharacterStatusState = {
   error: string | null;
   success: string | null;
 };
+
+export async function removeTraveler(
+  _previous: CharacterStatusState,
+  formData: FormData,
+): Promise<CharacterStatusState> {
+  const parsed = z.object({ characterId: z.uuid(), confirm: z.literal('on') }).safeParse({
+    characterId: formData.get('characterId'),
+    confirm: formData.get('confirm'),
+  });
+  if (!parsed.success) return { error: 'Confirm removal of this Traveler.', success: null };
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) return { error: 'Sign in before removing a Traveler.', success: null };
+    const { data, error } = await supabase.rpc('remove_owned_traveler', {
+      p_character_id: parsed.data.characterId,
+    });
+    if (error || data !== parsed.data.characterId)
+      return { error: 'Only your own Traveler can be removed. Please try again.', success: null };
+  } catch {
+    return { error: 'Removal could not be completed. Please try again.', success: null };
+  }
+  revalidatePath('/', 'layout');
+  redirect('/travelers?removed=1');
+}
 
 const raidbotsReportSchema = z.object({
   characterId: z.uuid(),
