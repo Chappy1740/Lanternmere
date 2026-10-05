@@ -65,3 +65,7 @@ Multi-Lodge member
 
 ## Milestone boundary
 Milestone 3 surfaces later-system data but does not own full event management, Hall of Legends, or Chronicle authoring.
+
+## October 2026 personal Hearth amendment
+
+Will approved moving the Hearth ahead of Lodge creation. Its first screen is the signed-in player's own Main profile; Lodge context, roster, and activity appear only after they join a Lodge. New Travelers require a character in the player's connected Battle.net account list. The first saved Traveler becomes Main. Earlier name-based imports remain visible with an unverified ownership label. This amendment supersedes the Lodge-membership requirement in the original flow above; the original text remains as historical milestone scope.

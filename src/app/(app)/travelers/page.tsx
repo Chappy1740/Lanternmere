@@ -76,6 +76,11 @@ export default async function TravelersPage() {
     supabase,
     characters.map((character) => character.id),
   );
+  const { data: claims, error: claimsError } = await supabase
+    .from('wow_character_claims')
+    .select('character_id')
+    .eq('profile_id', user.id);
+  const verifiedIds = new Set((claims ?? []).map((claim) => claim.character_id));
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -86,11 +91,8 @@ export default async function TravelersPage() {
           <p className="text-text-muted mt-2">Your saved World of Warcraft characters.</p>
         </div>
 
-        <Link
-          href="/travelers/new"
-          className="lodge-button px-5 py-2.5 font-medium"
-        >
-          Add Character
+        <Link href="/travelers/new" className="lodge-button px-5 py-2.5 font-medium">
+          Add from Battle.net
         </Link>
       </div>
 
@@ -98,7 +100,7 @@ export default async function TravelersPage() {
         <div className="lodge-empty mt-8 p-8">
           <h2 className="font-display text-text-primary text-xl">Your journey starts here</h2>
           <p className="text-text-muted mt-2">
-            Add a character to bring their public Blizzard profile into Lanternmere.
+            Connect your Battle.net account and choose a character to make your Main.
           </p>
         </div>
       ) : (
@@ -138,6 +140,13 @@ export default async function TravelersPage() {
 
                 <p className="text-text-muted mt-2 text-sm">
                   {realm} · {character.region.toUpperCase()}
+                </p>
+                <p className="text-text-muted mt-1 text-xs">
+                  {claimsError
+                    ? 'Battle.net ownership status unavailable'
+                    : verifiedIds.has(character.id)
+                      ? 'Battle.net account verified'
+                      : 'Public import · ownership unverified'}
                 </p>
 
                 <p className="text-text-primary mt-4">

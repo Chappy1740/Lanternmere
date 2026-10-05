@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 25,
+  "revision": 26,
   "updatedAt": "2026-10-04",
   "milestones": [
     {
@@ -360,6 +360,14 @@
       "milestone": null,
       "status": "in_progress",
       "note": "Will requested a whole-program audit and guided live acceptance before the pre-alpha review. Claude reported no high or medium code defect. The focused retention, headers, suspension, accessibility, and documentation repairs are implemented; real-account and hosted acceptance remain open."
+    },
+    {
+      "id": "CR-016",
+      "title": "Make the Hearth personal and require Battle.net proof for new Travelers",
+      "requestedAt": "2026-10-04",
+      "milestone": null,
+      "status": "done",
+      "note": "Will approved Battle.net account-list proof for every new Traveler. Hearth is available before a Lodge, offers level 80+ characters from the connected account, adds an exclusive claim, labels old public imports unverified, and adds optional Blizzard gear and boss-kill snapshots. The claim migration is installed and synthetic checks pass; real Battle.net, two-account, visual, accessibility, and hosted deployment acceptance remain open."
     }
   ],
   "acceptance": [

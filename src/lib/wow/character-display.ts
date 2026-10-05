@@ -10,6 +10,34 @@ export const displayProfileSchema = z.object({
   gender: optionalName,
   equipped_item_level: z.number().int().nonnegative().optional().catch(undefined),
   average_item_level: z.number().int().nonnegative().optional().catch(undefined),
+  achievement_points: z.number().int().nonnegative().optional().catch(undefined),
+  equipment: z
+    .array(
+      z.object({
+        name: z.string(),
+        slot: z.string(),
+        item_level: z.number().int().nonnegative().nullable(),
+        quality: z.string().nullable(),
+        enchantments: z.array(z.string()),
+        sockets: z.array(z.string()),
+      }),
+    )
+    .max(40)
+    .optional()
+    .catch(undefined),
+  raid_encounters: z
+    .array(
+      z.object({
+        raid: z.string(),
+        difficulty: z.string(),
+        boss: z.string(),
+        kills: z.number().int().nonnegative(),
+        last_kill_at: z.string().datetime().nullable(),
+      }),
+    )
+    .max(200)
+    .optional()
+    .catch(undefined),
   portrait_url: z.string().refine(isBlizzardPortrait).optional().catch(undefined),
 });
 

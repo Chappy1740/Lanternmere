@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getViewer } from '@/lib/hearth/context';
 import { GameNicknameForm } from '@/components/game-nickname-form';
 import { ownedWowCharacterSchema } from '@/lib/wow/guild-claim';
+import { AddOwnedTravelerControl } from '@/components/add-owned-traveler-control';
+import { WOW_MIN_TRAVELER_LEVEL, WOW_RETAIL_LEVEL_CAP } from '@/lib/wow/level';
 export default async function AccountPage({
   searchParams,
 }: {
@@ -24,18 +26,27 @@ export default async function AccountPage({
     save: 'Your characters were retrieved, but could not be saved. Please try again.',
     unavailable: 'Battle.net connection could not be completed. Please try again.',
   };
-  const [{ data: profile, error: profileError }, { data: snapshot, error: snapshotError }] =
-    await Promise.all([
-      supabase.from('profiles').select('display_name').eq('id', user.id).single(),
-      supabase
-        .from('app_owned_wow_snapshots')
-        .select('region,characters,refreshed_at')
-        .eq('profile_id', user.id)
-        .maybeSingle(),
-    ]);
-  if (profileError || snapshotError) throw new Error('Unable to load your account.');
+  const [
+    { data: profile, error: profileError },
+    { data: snapshot, error: snapshotError },
+    claimsResult,
+  ] = await Promise.all([
+    supabase.from('profiles').select('display_name').eq('id', user.id).single(),
+    supabase
+      .from('app_owned_wow_snapshots')
+      .select('region,characters,refreshed_at')
+      .eq('profile_id', user.id)
+      .maybeSingle(),
+    supabase.from('wow_character_claims').select('blizzard_character_id').eq('profile_id', user.id),
+  ]);
+  if (profileError || snapshotError || claimsResult.error)
+    throw new Error('Unable to load your account.');
   const characters = z.array(ownedWowCharacterSchema).safeParse(snapshot?.characters ?? []);
   if (!characters.success) throw new Error('Unable to load your character list.');
+  const eligibleCharacters = characters.data.filter(
+    (character) => character.level !== undefined && character.level >= WOW_MIN_TRAVELER_LEVEL,
+  );
+  const claimedIds = new Set(claimsResult.data.map((claim) => Number(claim.blizzard_character_id)));
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <section className="lodge-panel p-6">
@@ -50,8 +61,9 @@ export default async function AccountPage({
         <h2 className="font-display text-2xl">Your Battle.net characters</h2>
         <p className="text-text-muted mt-3 text-sm">
           Authorize your own Battle.net account to see available WoW characters in your selected
-          region. This list is private to your Lanternmere account. Connecting does not grant Guild
-          leadership or share characters with a Guild or Lodge.
+          region. Only level {WOW_MIN_TRAVELER_LEVEL}+ characters (within ten levels of the current{' '}
+          {WOW_RETAIL_LEVEL_CAP} cap) appear here. This list is private to your Lanternmere account.
+          Connecting does not grant Guild leadership or share characters with a Guild or Lodge.
         </p>
         <form
           action="/api/battle-net/start"
@@ -89,21 +101,33 @@ export default async function AccountPage({
         )}
         {snapshot && (
           <p className="text-text-muted mt-4 text-sm">
-            {characters.data.length} available characters · {snapshot.region.toUpperCase()} ·
+            {eligibleCharacters.length} eligible characters · {snapshot.region.toUpperCase()} ·
             updated {new Date(snapshot.refreshed_at).toISOString().slice(0, 10)}
           </p>
         )}
         <ul className="mt-4 space-y-2">
-          {characters.data.map((character) => (
-            <li className="lodge-list-row p-3" key={`${character.realm.slug}:${character.id}`}>
-              {character.name ?? `Character ${character.id}`} ·{' '}
-              {character.realm.name ?? character.realm.slug}
-              {character.level !== undefined ? ` · Level ${character.level}` : ''}
+          {eligibleCharacters.map((character) => (
+            <li
+              className="lodge-list-row flex min-w-0 flex-wrap items-center justify-between gap-3 p-3"
+              key={`${character.realm.slug}:${character.id}`}
+            >
+              <span className="min-w-0 [overflow-wrap:anywhere] break-words">
+                {character.name ?? `Character ${character.id}`} ·{' '}
+                {character.realm.name ?? character.realm.slug}
+                {character.level !== undefined ? ` · Level ${character.level}` : ''}
+              </span>
+              <AddOwnedTravelerControl
+                characterId={character.id}
+                added={claimedIds.has(character.id)}
+              />
             </li>
           ))}
         </ul>
-        {snapshot && !characters.data.length && (
-          <p className="mt-3">Battle.net returned no available characters in this region.</p>
+        {snapshot && !eligibleCharacters.length && (
+          <p className="mt-3">
+            Battle.net returned no characters at level {WOW_MIN_TRAVELER_LEVEL} or higher in this
+            region.
+          </p>
         )}
       </section>
     </div>

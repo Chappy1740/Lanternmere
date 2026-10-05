@@ -74,6 +74,9 @@ export async function addCharacter(
     if (existing.error)
       return { error: 'Unable to check your saved characters. Please try again.' };
     if (existing.data) existingCharacterId = z.uuid().parse(existing.data.id);
+    if (!existingCharacterId) {
+      return { error: 'Connect Battle.net in Your account to add a new Traveler.' };
+    }
 
     const admin = createAdminClient();
     const { data: claimed, error: claimError } = await admin.rpc('claim_wow_profile_fetch', {
@@ -82,7 +85,8 @@ export async function addCharacter(
       p_realm_slug: input.data.realm,
       p_character_name: input.data.characterName,
     });
-    if (claimError) return { error: 'The character could not be checked right now. Please try again.' };
+    if (claimError)
+      return { error: 'The character could not be checked right now. Please try again.' };
     if (!claimed) return { error: 'This character can be checked again in five minutes.' };
 
     const result = await fetchCharacterProfile(input.data);
@@ -117,6 +121,9 @@ export async function addCharacter(
       p_fetched_at: result.fetchedAt,
     });
 
+    if (error?.code === '23505') {
+      return failure('This character is already claimed by another account.', 'save');
+    }
     if (error) {
       return failure('The character could not be saved. Please try again.', 'save');
     }
@@ -137,5 +144,5 @@ export async function addCharacter(
   revalidatePath('/travelers');
   revalidatePath('/hearth');
   revalidatePath(`/travelers/${characterId}`);
-  redirect(`/travelers/${characterId}`);
+  redirect(formData.get('returnTo') === 'hearth' ? '/hearth' : `/travelers/${characterId}`);
 }

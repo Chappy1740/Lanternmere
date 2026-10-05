@@ -11,6 +11,7 @@ import { displayProfileSchema } from '@/lib/wow/character-display';
 import { loadRefreshFailures } from '@/lib/wow/refresh-status';
 import { CharacterPortrait } from '@/components/character-portrait';
 import { CharacterFreshness } from '@/components/character-freshness';
+import { CharacterRefreshControl } from '@/components/character-refresh-control';
 import { raidProgressionEntries } from '@/lib/raiderio-progress';
 const characterSchema = z.object({
   id: z.uuid(),
@@ -91,6 +92,14 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
   const realm = profile?.realm?.name || character.realm_slug;
   const specialization = profile?.active_spec?.name;
   const isOwner = character.profile_id === user.id;
+  const { data: claim, error: claimError } = isOwner
+    ? await supabase
+        .from('wow_character_claims')
+        .select('character_id')
+        .eq('character_id', character.id)
+        .eq('profile_id', user.id)
+        .maybeSingle()
+    : { data: null, error: null };
   const failures = await loadRefreshFailures(supabase, [character.id]);
   const { data: raiderIoSnapshotData, error: raiderIoSnapshotError } = isOwner
     ? await createAdminClient()
@@ -175,7 +184,13 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
           {isOwner ? 'Your saved character' : 'Shared Lodge character'}
         </p>
         <p className="text-text-muted mt-2 text-sm">
-          This public profile import does not verify who owns the character.
+          {isOwner && claimError
+            ? 'Battle.net ownership status is temporarily unavailable.'
+            : isOwner && claim
+              ? 'Battle.net account verified. Profile details are still a public Blizzard snapshot.'
+              : isOwner
+                ? 'Public profile import · character ownership is unverified.'
+                : 'Public profile details · ownership proof is private to the character owner.'}
         </p>
 
         <h1 className="font-display text-text-primary mt-3 text-4xl font-bold">{name}</h1>
@@ -318,16 +333,16 @@ export default async function CharacterDetailPage({ params }: { params: Promise<
         </section>
       )}
       {isOwner && (
-        <p className="text-text-muted mt-4 text-sm">
-          To refresh this profile,{' '}
-          <Link
-            href="/travelers/new"
-            className="text-accent focus-visible:outline-accent underline focus-visible:outline-2"
-          >
-            import this character again
-          </Link>{' '}
-          using the same region, realm, and name. Main and Lodge sharing settings are preserved.
-        </p>
+        <div className="mt-5">
+          <CharacterRefreshControl
+            region={character.region}
+            realm={character.realm_slug}
+            name={character.character_name}
+          />
+          <p className="text-text-muted mt-2 text-sm">
+            Main and Lodge sharing settings stay as they are.
+          </p>
+        </div>
       )}
       {isOwner && (
         <RaiderIoSharingControl

@@ -3,6 +3,7 @@ import { getViewer } from '@/lib/hearth/context';
 import { loadMainCharacter } from '@/lib/hearth/main-character';
 import { CharacterPortrait } from '@/components/character-portrait';
 import { CharacterFreshness } from '@/components/character-freshness';
+import { CharacterRefreshControl } from '@/components/character-refresh-control';
 import { z } from 'zod';
 import { raidProgressionEntries } from '@/lib/raiderio-progress';
 import { weeklyResetForRegion } from '@/lib/war-table';
@@ -71,6 +72,15 @@ export async function MainCharacterHighlight() {
   const vaultUnavailable = Boolean(vaultResult.error || (vaultResult.data && !parsedVault.success));
   const latest = history[0];
   const raidProgress = raidProgressionEntries(latest?.raid_progression);
+  const equipment = ready?.profile?.equipment;
+  const raidEncounters = ready?.profile?.raid_encounters;
+  const encounterYears = [
+    ...new Set(
+      (raidEncounters ?? []).flatMap((entry) =>
+        entry.last_kill_at ? [entry.last_kill_at.slice(0, 4)] : [],
+      ),
+    ),
+  ].sort();
   const scores = history.filter((point) => point.mythic_plus_score !== null).reverse();
   const topScore = Math.max(1, ...scores.map((point) => point.mythic_plus_score ?? 0));
   const details = ready
@@ -105,12 +115,19 @@ export async function MainCharacterHighlight() {
                 gender={ready.profile?.gender?.name}
               />
               <div className="min-w-0">
-                <h3 className="font-display text-text-primary text-2xl font-bold break-words">
+                <h3 className="font-display text-text-primary text-2xl font-bold [overflow-wrap:anywhere] break-words">
                   {name}
                 </h3>
                 <p className="text-text-muted mt-1 break-words">
                   {ready.profile?.realm?.name || ready.character.realm_slug} ·{' '}
                   {ready.character.region.toUpperCase()}
+                </p>
+                <p className="text-text-muted mt-1 text-xs">
+                  {ready.ownershipStatusUnavailable
+                    ? 'Battle.net ownership status unavailable'
+                    : ready.ownershipVerified
+                      ? 'Battle.net account verified'
+                      : 'Public import · ownership unverified'}
                 </p>
               </div>
             </div>
@@ -141,6 +158,12 @@ export async function MainCharacterHighlight() {
               )}
             </div>
             <div className="mt-5 flex flex-wrap gap-5 text-sm">
+              <CharacterRefreshControl
+                region={ready.character.region}
+                realm={ready.character.realm_slug}
+                name={ready.character.character_name}
+                returnToHearth
+              />
               <Link href={`/travelers/${ready.character.id}`} className={linkClass}>
                 Manage {name}
               </Link>
@@ -156,8 +179,8 @@ export async function MainCharacterHighlight() {
                 ? 'A place is waiting for your Main. Add a World of Warcraft character or choose a Main in Travelers.'
                 : 'Your Main character could not be loaded right now. You can still visit Travelers and try again.'}
             </p>
-            <Link href="/travelers" className={linkClass}>
-              Visit Travelers
+            <Link href="/account" className="lodge-button inline-block px-5 py-2.5 text-sm">
+              Connect Battle.net and add your Main
             </Link>
           </div>
         )}
@@ -177,7 +200,9 @@ export async function MainCharacterHighlight() {
               </p>
               <p className="text-text-muted text-sm">Equipped item level · Blizzard snapshot</p>
               <p className="text-text-muted mt-3 text-sm">
-                Enchants, gems, and missing slots are not imported yet.
+                {equipment
+                  ? `${equipment.length} equipped items · ${equipment.filter((item) => item.enchantments.length > 0).length} with visible enchants`
+                  : 'Item details not available in this Blizzard snapshot.'}
               </p>
             </section>
             <section className="lodge-panel p-5" aria-labelledby="upgrades-heading">
@@ -188,7 +213,9 @@ export async function MainCharacterHighlight() {
                 Item upgrades
               </h3>
               <p className="text-text-muted mt-3 text-sm">
-                Upgrade tracks and crest balances are not imported yet.
+                {equipment
+                  ? 'Item levels are listed below. Upgrade tracks and crest balances are not available from this import.'
+                  : 'Upgrade tracks and crest balances are not available from this import.'}
               </p>
             </section>
             <section className="lodge-panel p-5" aria-labelledby="vault-heading">
@@ -304,9 +331,33 @@ export async function MainCharacterHighlight() {
                 Raid progress
               </h3>
               <p className="text-text-muted mt-1 text-sm">
-                Raider.IO summaries. Individual boss kills are not available in this import.
+                {raidEncounters
+                  ? 'Blizzard encounter snapshot · kill counts can lag behind play.'
+                  : 'Raider.IO summary · Blizzard boss details unavailable.'}
               </p>
-              {historyUnavailable ? (
+              {raidEncounters?.length ? (
+                <ul
+                  className="mt-4 flex gap-2 overflow-x-auto pb-2"
+                  aria-label="Recent raid boss kills"
+                >
+                  {raidEncounters.slice(0, 12).map((entry, index) => (
+                    <li
+                      key={`${entry.raid}:${entry.difficulty}:${entry.boss}:${index}`}
+                      className="lodge-data-cell max-w-48 min-w-36 shrink-0"
+                    >
+                      <span className="text-text-primary block text-sm font-medium [overflow-wrap:anywhere] break-words">
+                        {entry.boss}
+                      </span>
+                      <span className="text-text-muted mt-1 block text-xs break-words">
+                        {entry.raid} · {entry.difficulty}
+                      </span>
+                      <span className="text-accent mt-1 block text-sm">
+                        {entry.kills} {entry.kills === 1 ? 'kill' : 'kills'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : historyUnavailable ? (
                 <p className="text-text-muted mt-5">History could not be loaded.</p>
               ) : raidProgress.length ? (
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -332,10 +383,40 @@ export async function MainCharacterHighlight() {
               Raid history
             </h3>
             <p className="text-text-muted mt-2 text-sm">
-              Saved Raider.IO raid summaries, newest first. A saved refresh is a snapshot, not proof
-              of a raid on that date.
+              {raidEncounters
+                ? 'Blizzard reports the latest kill date for each boss and difficulty. This is a saved snapshot, not a complete raid log.'
+                : 'Saved Raider.IO raid summaries, newest first. A saved refresh is not proof of a raid on that date.'}
             </p>
-            {historyUnavailable ? (
+            {encounterYears.length > 0 && (
+              <ol
+                className="mt-4 flex flex-wrap gap-1"
+                aria-label="Years with saved raid encounter dates"
+              >
+                {encounterYears.map((year) => (
+                  <li key={year} className="bg-accent/15 text-accent rounded px-2 py-1 text-xs">
+                    {year}
+                  </li>
+                ))}
+              </ol>
+            )}
+            {raidEncounters?.length ? (
+              <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+                {raidEncounters.slice(0, 20).map((entry, index) => (
+                  <li
+                    key={`${entry.raid}:${entry.difficulty}:${entry.boss}:${index}`}
+                    className="lodge-data-cell min-w-0 text-sm"
+                  >
+                    <span className="text-text-primary block font-medium [overflow-wrap:anywhere] break-words">
+                      {entry.boss} · {entry.difficulty}
+                    </span>
+                    <span className="text-text-muted mt-1 block break-words">
+                      {entry.raid} · {entry.kills} {entry.kills === 1 ? 'kill' : 'kills'}
+                      {entry.last_kill_at ? ` · last ${shortDate(entry.last_kill_at)}` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            ) : historyUnavailable ? (
               <p className="text-text-muted mt-4 text-sm">Raid history could not be loaded.</p>
             ) : history.length ? (
               <ol className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -363,10 +444,60 @@ export async function MainCharacterHighlight() {
             <h3 id="equipment-heading" className="font-display text-text-primary text-xl font-bold">
               Equipment
             </h3>
-            <p className="text-text-muted mt-2 text-sm">
-              Item-by-item gear, enchants, and upgrade tracks need a separate verified import. Your
-              equipped item level appears above when Blizzard supplied it.
-            </p>
+            {equipment?.length ? (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[32rem] text-left text-sm">
+                  <caption className="sr-only">
+                    Equipped Blizzard items in the latest saved profile
+                  </caption>
+                  <thead className="text-text-muted border-border border-b">
+                    <tr>
+                      <th scope="col" className="p-2">
+                        Slot
+                      </th>
+                      <th scope="col" className="p-2">
+                        Item
+                      </th>
+                      <th scope="col" className="p-2">
+                        Enchantments
+                      </th>
+                      <th scope="col" className="p-2 text-right">
+                        Item level
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {equipment.map((item, index) => (
+                      <tr
+                        key={`${item.slot}:${index}`}
+                        className="border-border/60 border-b align-top"
+                      >
+                        <th
+                          scope="row"
+                          className="text-text-muted p-2 font-normal [overflow-wrap:anywhere] break-words"
+                        >
+                          {item.slot}
+                        </th>
+                        <td className="text-text-primary p-2 [overflow-wrap:anywhere] break-words">
+                          {item.name}
+                        </td>
+                        <td className="text-text-muted p-2 [overflow-wrap:anywhere] break-words">
+                          {item.enchantments.join(' · ') || '—'}
+                        </td>
+                        <td className="text-text-primary p-2 text-right">
+                          {item.item_level ?? '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-text-muted mt-2 text-sm">
+                Item-by-item gear is unavailable in this Blizzard snapshot. Refresh the profile to
+                check again.
+              </p>
+            )}
           </section>
         </>
       )}

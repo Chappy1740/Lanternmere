@@ -4,6 +4,12 @@ import { z } from 'zod';
 import { characterInputSchema } from './character-input';
 import { getBlizzardToken } from './blizzard-token';
 import { isBlizzardPortrait } from './portrait';
+import {
+  parseCharacterEquipment,
+  parseCharacterRaidEncounters,
+  type EquipmentItem,
+  type RaidEncounter,
+} from './character-details';
 
 const namedRecordSchema = z.object({
   id: z.number().int().positive(),
@@ -36,9 +42,14 @@ const profileSchema = z.object({
   active_spec: namedRecordSchema.optional(),
   equipped_item_level: z.number().int().nonnegative().optional().catch(undefined),
   average_item_level: z.number().int().nonnegative().optional().catch(undefined),
+  achievement_points: z.number().int().nonnegative().optional().catch(undefined),
 });
 
-export type CharacterProfile = z.infer<typeof profileSchema> & { portrait_url?: string };
+export type CharacterProfile = z.infer<typeof profileSchema> & {
+  portrait_url?: string;
+  equipment?: EquipmentItem[];
+  raid_encounters?: RaidEncounter[];
+};
 
 const mediaSchema = z.object({
   character: z.object({ id: z.number().int().positive() }),
@@ -173,9 +184,37 @@ export async function fetchCharacterProfile(input: unknown): Promise<ProfileResu
     // Keep the successful profile when media is unavailable or malformed.
   }
 
+  // Each optional endpoint is isolated so one unavailable detail cannot erase
+  // the verified public profile or the other successful detail response.
+  async function optionalDetails(path: string): Promise<unknown | null> {
+    try {
+      const detailsUrl = new URL(url);
+      detailsUrl.pathname += path;
+      const detailsResponse = await fetch(detailsUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8_000),
+      });
+      return detailsResponse.ok ? await detailsResponse.json() : null;
+    } catch {
+      return null;
+    }
+  }
+  const [equipmentBody, raidsBody] = await Promise.all([
+    optionalDetails('/equipment'),
+    optionalDetails('/encounters/raids'),
+  ]);
+  const equipment = parseCharacterEquipment(equipmentBody, profile.data.id);
+  const raidEncounters = parseCharacterRaidEncounters(raidsBody, profile.data.id);
+
   return {
     ok: true,
-    profile: { ...profile.data, ...(portraitUrl ? { portrait_url: portraitUrl } : {}) },
+    profile: {
+      ...profile.data,
+      ...(portraitUrl ? { portrait_url: portraitUrl } : {}),
+      ...(equipment ? { equipment } : {}),
+      ...(raidEncounters ? { raid_encounters: raidEncounters } : {}),
+    },
     region,
     source: 'blizzard',
     fetchedAt: new Date().toISOString(),

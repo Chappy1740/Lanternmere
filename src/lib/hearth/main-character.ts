@@ -36,7 +36,7 @@ export async function loadMainCharacter(
     const parsed = mainSchema.safeParse(result.data);
     if (!parsed.success) return { state: 'error' as const };
     const character = parsed.data;
-    const [snapshotResult, failures] = await Promise.all([
+    const [snapshotResult, failures, claimResult] = await Promise.all([
       supabase
         .from('character_snapshots')
         .select('source, last_refreshed_at, snapshot_data')
@@ -50,6 +50,12 @@ export async function loadMainCharacter(
           () => ({ data: null, error: true }),
         ),
       loadRefreshFailures(supabase, [character.id]),
+      supabase
+        .from('wow_character_claims')
+        .select('character_id')
+        .eq('character_id', character.id)
+        .eq('profile_id', userId)
+        .maybeSingle(),
     ]);
     const snapshotParsed = snapshotSchema.safeParse(snapshotResult.data);
     const snapshot = !snapshotResult.error && snapshotParsed.success ? snapshotParsed.data : null;
@@ -64,6 +70,8 @@ export async function loadMainCharacter(
       ),
       failedAt: failures.latest.get(character.id),
       statusUnavailable: failures.unavailable,
+      ownershipVerified: !claimResult.error && Boolean(claimResult.data),
+      ownershipStatusUnavailable: Boolean(claimResult.error),
     };
   } catch {
     return { state: 'error' as const };

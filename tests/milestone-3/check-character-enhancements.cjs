@@ -29,11 +29,13 @@ function load(file, dependencies) {
 const portrait = load('src/lib/wow/portrait.ts', {});
 const input = load('src/lib/wow/character-input.ts', { zod });
 const display = load('src/lib/wow/character-display.ts', { zod, './portrait': portrait });
+const details = load('src/lib/wow/character-details.ts', { zod });
 const { fetchCharacterProfile } = load('src/lib/wow/character-profile.ts', {
   'server-only': {},
   zod,
   './character-input': input,
   './portrait': portrait,
+  './character-details': details,
   './blizzard-token': { getBlizzardToken: async () => 'FAKE_TOKEN' },
 });
 const profile = {
@@ -75,6 +77,62 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.equal(result.profile.gender.name, 'Male');
     assert.equal(result.profile.portrait_url, avatar);
   });
+  await check(
+    'optional equipment and boss kills are saved only for the fetched character',
+    async () => {
+      responder = (url) => {
+        if (url.pathname.endsWith('/character-media')) return Response.json(media);
+        if (url.pathname.endsWith('/equipment'))
+          return Response.json({
+            character: { id: 7 },
+            equipped_items: [
+              {
+                name: 'Test Blade',
+                slot: { name: 'Main Hand' },
+                level: { value: 321 },
+                enchantments: [{ display_string: 'Test Enchant' }],
+              },
+            ],
+          });
+        if (url.pathname.endsWith('/encounters/raids'))
+          return Response.json({
+            character: { id: 7 },
+            expansions: [
+              {
+                instances: [
+                  {
+                    instance: { name: 'Test Raid' },
+                    modes: [
+                      {
+                        difficulty: { name: 'Heroic' },
+                        progress: {
+                          encounters: [
+                            {
+                              encounter: { name: 'Test Boss' },
+                              completed_count: 2,
+                              last_kill_timestamp: 1780000000000,
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          });
+        return Response.json(profile);
+      };
+      const result = await fetchCharacterProfile(given);
+      assert.equal(result.ok, true);
+      assert.equal(result.profile.equipment[0].item_level, 321);
+      assert.equal(result.profile.raid_encounters[0].kills, 2);
+      assert.equal(
+        details.parseCharacterEquipment({ character: { id: 8 }, equipped_items: [] }, 7),
+        null,
+      );
+    },
+  );
   for (const [label, response] of [
     ['404', () => new Response('', { status: 404 })],
     ['429', () => new Response('', { status: 429 })],
@@ -217,7 +275,10 @@ async function fetchWith(mediaResponse, body = profile) {
     },
     async maybeSingle() {
       lookups++;
-      return { data: (lookups === 1 ? existing : canonicalExists) ? { id: saved } : null, error: lookupError };
+      return {
+        data: (lookups === 1 ? existing : canonicalExists) ? { id: saved } : null,
+        error: lookupError,
+      };
     },
   };
   const { addCharacter } = load('src/app/(app)/travelers/new/actions.ts', {
@@ -283,11 +344,12 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.equal(rpcCalls[0].name, 'claim_wow_profile_fetch');
     assert.ok(refreshed.includes('/hearth'));
   });
-  await check('new imports and failed ownership lookups create no failure record', async () => {
+  await check('name-only imports cannot create new Travelers', async () => {
     reset();
     existing = false;
-    await addCharacter({}, form());
+    assert.match((await addCharacter({}, form())).error, /Connect Battle.net/);
     assert.equal(writes.length, 0);
+    assert.equal(rpcCalls.length, 0);
     reset();
     lookupError = true;
     await addCharacter({}, form());
@@ -322,7 +384,7 @@ async function fetchWith(mediaResponse, body = profile) {
     assert.equal(rpcCalls.length, 1);
     assert.equal(writes.length, 0);
   });
-  await check('canonical Blizzard realm identifies the saved character for failure status', async () => {
+  await check('new name-only imports are blocked before a canonical profile lookup', async () => {
     reset();
     existing = false;
     canonicalExists = true;
@@ -333,11 +395,9 @@ async function fetchWith(mediaResponse, body = profile) {
       region: 'us',
       fetchedAt: new Date().toISOString(),
     };
-    await addCharacter({}, form());
-    assert.equal(lookups, 2);
-    assert.ok(filters.some(([key, value]) => key === 'realm_slug' && value === 'canonical-realm'));
-    assert.equal(writes[0].row.character_id, saved);
-    assert.equal(writes[0].row.failure_code, 'save');
+    assert.match((await addCharacter({}, form())).error, /Connect Battle.net/);
+    assert.equal(lookups, 1);
+    assert.equal(writes.length, 0);
   });
   console.log(`${passed} checks passed. No live network or credentials used.`);
 })().catch((error) => {
