@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 29,
+  "revision": 30,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -375,7 +375,7 @@
       "requestedAt": "2026-10-05",
       "milestone": null,
       "status": "done",
-      "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The repair constrains mobile cards, offers Verify ownership for existing public imports, and opens a newly added alternate on its own page. Will refreshed the hosted Hearth on his phone and confirmed the cards now fill the screen; Main ownership and wider A-09 checks remain open."
+      "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The repair constrains mobile cards, offers Verify ownership for existing public imports, and opens a newly added alternate on its own page. Will confirmed the cards fill his phone screen and the Main verification path works. Separate-account A-09 checks remain open."
     }
   ],
   "acceptance": [
@@ -423,7 +423,7 @@
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
       "status": "open",
-      "note": "Will reported an add-to-Hearth redirect and confirmed the repaired phone layout fills his screen. The displayed Main was an earlier unverified public import. Main verification, second-account list privacy, and duplicate-claim behavior remain unverified."
+      "note": "Will reported an add-to-Hearth redirect, confirmed the repaired phone layout, and confirmed Verify ownership for his earlier Main returned the verified Hearth state. Second-account character-list privacy and duplicate-claim denial remain unverified."
     },
     {
       "id": "A-10",
