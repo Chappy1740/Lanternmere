@@ -11,6 +11,18 @@ export const displayProfileSchema = z.object({
   equipped_item_level: z.number().int().nonnegative().optional().catch(undefined),
   average_item_level: z.number().int().nonnegative().optional().catch(undefined),
   achievement_points: z.number().int().nonnegative().optional().catch(undefined),
+  raid_milestones: z
+    .array(
+      z.object({
+        achievement_id: z.number().int().positive(),
+        name: z.string(),
+        kind: z.enum(['AOTC', 'CE']),
+        completed_at: z.string().datetime(),
+      }),
+    )
+    .max(100)
+    .optional()
+    .catch(undefined),
   equipment: z
     .array(
       z.object({

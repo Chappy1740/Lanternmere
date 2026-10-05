@@ -82,37 +82,42 @@ export default async function HearthPage({
       </header>
 
       <MainCharacterHighlight />
-      <aside
-        aria-label="Sources and design credit"
-        className="text-text-muted flex min-w-0 flex-wrap items-center gap-2 text-xs"
-      >
-        <span>Data sources:</span>
-        <a
-          href="https://develop.battle.net/documentation/world-of-warcraft/profile-apis"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="lodge-button-secondary px-3 py-2"
+      <details className="text-text-muted text-xs">
+        <summary className="cursor-pointer rounded py-2 focus-visible:outline-2 focus-visible:outline-offset-4">
+          Sources and inspiration
+        </summary>
+        <aside
+          aria-label="Sources and design credit"
+          className="text-text-muted flex min-w-0 flex-wrap items-center gap-2 text-xs"
         >
-          Blizzard
-        </a>
-        <a
-          href="https://raider.io/api"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="lodge-button-secondary px-3 py-2"
-        >
-          Raider.IO
-        </a>
-        <a
-          href="https://wowaudit.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="lodge-button-secondary px-3 py-2"
-        >
-          Layout inspiration: WoWAudit
-        </a>
-        <span>Independent Lanternmere design.</span>
-      </aside>
+          <span>Data sources:</span>
+          <a
+            href="https://develop.battle.net/documentation/world-of-warcraft/profile-apis"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lodge-button-secondary px-3 py-2"
+          >
+            Blizzard
+          </a>
+          <a
+            href="https://raider.io/api"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lodge-button-secondary px-3 py-2"
+          >
+            Raider.IO
+          </a>
+          <a
+            href="https://wowaudit.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lodge-button-secondary px-3 py-2"
+          >
+            Layout inspiration: WoWAudit
+          </a>
+          <span>Independent Lanternmere design.</span>
+        </aside>
+      </details>
 
       {alternates.length > 0 && (
         <section className="space-y-3" aria-labelledby="alternates-heading">
@@ -149,79 +154,86 @@ export default async function HearthPage({
         </section>
       )}
 
-      {selected && lodge ? (
-        <section aria-labelledby="lodge-heading" className="lodge-panel p-6 sm:p-8">
-          <p className="text-accent text-sm font-medium tracking-[0.14em] uppercase">Your Lodge</p>
-          <h2
-            id="lodge-heading"
-            className="font-display text-text-primary mt-2 text-2xl font-bold break-words"
-          >
-            {lodge.name}
-          </h2>
-          {lodge.description?.trim() && (
-            <p className="text-text-primary mt-3 max-w-2xl break-words whitespace-pre-line">
-              {lodge.description}
+      <details className="space-y-5">
+        <summary className="font-display text-text-primary cursor-pointer rounded py-3 text-xl focus-visible:outline-2 focus-visible:outline-offset-4">
+          {lodge ? `Your Lodge · ${lodge.name}` : 'Lodge and community (optional)'}
+        </summary>
+        {selected && lodge ? (
+          <section aria-labelledby="lodge-heading" className="lodge-panel p-6 sm:p-8">
+            <p className="text-accent text-sm font-medium tracking-[0.14em] uppercase">
+              Your Lodge
             </p>
-          )}
-          <p className="text-text-muted mt-4 text-sm">
-            Your role: <span className="capitalize">{selected.role}</span>
-          </p>
-          <Link
-            href="/travelers"
-            className="lodge-button-secondary focus-visible:outline-accent mt-6 inline-block px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-4"
-          >
-            Visit your Travelers
-          </Link>
-          {selected.role === 'owner' && (
-            <Link
-              href={`/caretakers-office?lodge=${lodge.id}`}
-              className="text-accent focus-visible:outline-accent mt-4 ml-4 inline-block text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+            <h2
+              id="lodge-heading"
+              className="font-display text-text-primary mt-2 text-2xl font-bold break-words"
             >
-              Edit this Lodge
+              {lodge.name}
+            </h2>
+            {lodge.description?.trim() && (
+              <p className="text-text-primary mt-3 max-w-2xl break-words whitespace-pre-line">
+                {lodge.description}
+              </p>
+            )}
+            <p className="text-text-muted mt-4 text-sm">
+              Your role: <span className="capitalize">{selected.role}</span>
+            </p>
+            <Link
+              href="/travelers"
+              className="lodge-button-secondary focus-visible:outline-accent mt-6 inline-block px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              Visit your Travelers
             </Link>
-          )}
-        </section>
-      ) : (
-        <section className="lodge-panel p-6 sm:p-8" aria-labelledby="lodge-heading">
-          <p className="lodge-kicker">Optional company</p>
-          <h2 id="lodge-heading" className="font-display text-text-primary mt-2 text-2xl">
-            Your Lodge can come later
-          </h2>
-          <p className="text-text-muted mt-3">
-            Your Hearth and Main Traveler belong to you. Join or create a Lodge when you are ready
-            to gather with others.
-          </p>
-          <Link href="/lodges/new" className="lodge-button-secondary mt-5 inline-block px-4 py-2">
-            Create a Lodge
-          </Link>
-        </section>
-      )}
+            {selected.role === 'owner' && (
+              <Link
+                href={`/caretakers-office?lodge=${lodge.id}`}
+                className="text-accent focus-visible:outline-accent mt-4 ml-4 inline-block text-sm font-medium underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+              >
+                Edit this Lodge
+              </Link>
+            )}
+          </section>
+        ) : (
+          <section className="lodge-panel p-6 sm:p-8" aria-labelledby="lodge-heading">
+            <p className="lodge-kicker">Optional company</p>
+            <h2 id="lodge-heading" className="font-display text-text-primary mt-2 text-2xl">
+              Your Lodge can come later
+            </h2>
+            <p className="text-text-muted mt-3">
+              Your Hearth and Main Traveler belong to you. Join or create a Lodge when you are ready
+              to gather with others.
+            </p>
+            <Link href="/lodges/new" className="lodge-button-secondary mt-5 inline-block px-4 py-2">
+              Create a Lodge
+            </Link>
+          </section>
+        )}
 
-      {selected && lodge && (
-        <>
-          <LodgeRoster lodgeId={lodge.id} />
-          <LodgeActivity lodgeId={lodge.id} />
-        </>
-      )}
+        {selected && lodge && (
+          <>
+            <LodgeRoster lodgeId={lodge.id} />
+            <LodgeActivity lodgeId={lodge.id} />
+          </>
+        )}
 
-      {selected && lodge && memberships.length > 1 && (
-        <nav aria-label="Choose a Lodge">
-          <h2 className="font-display text-text-primary text-lg">Gather at another Lodge</h2>
-          <ul className="mt-3 flex flex-wrap gap-3">
-            {memberships.map((membership) => (
-              <li key={membership.lodge_id}>
-                <Link
-                  href={`/hearth?lodge=${membership.lodge_id}`}
-                  aria-current={membership.lodge_id === lodge.id ? 'page' : undefined}
-                  className="lodge-button-secondary focus-visible:outline-accent block px-4 py-2 break-words focus-visible:outline-2 focus-visible:outline-offset-4"
-                >
-                  {membership.lodges.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+        {selected && lodge && memberships.length > 1 && (
+          <nav aria-label="Choose a Lodge">
+            <h2 className="font-display text-text-primary text-lg">Gather at another Lodge</h2>
+            <ul className="mt-3 flex flex-wrap gap-3">
+              {memberships.map((membership) => (
+                <li key={membership.lodge_id}>
+                  <Link
+                    href={`/hearth?lodge=${membership.lodge_id}`}
+                    aria-current={membership.lodge_id === lodge.id ? 'page' : undefined}
+                    className="lodge-button-secondary focus-visible:outline-accent block px-4 py-2 break-words focus-visible:outline-2 focus-visible:outline-offset-4"
+                  >
+                    {membership.lodges.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </details>
     </div>
   );
 }

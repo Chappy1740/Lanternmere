@@ -94,6 +94,16 @@ async function fetchWith(mediaResponse, body = profile) {
               },
             ],
           });
+        if (url.pathname.endsWith('/achievements'))
+          return Response.json({
+            character: { id: 7 },
+            achievements: [
+              {
+                achievement: { id: 42, name: 'Ahead of the Curve: Test Boss' },
+                completed_timestamp: 1780000000000,
+              },
+            ],
+          });
         if (url.pathname.endsWith('/encounters/raids'))
           return Response.json({
             character: { id: 7 },
@@ -127,9 +137,55 @@ async function fetchWith(mediaResponse, body = profile) {
       assert.equal(result.ok, true);
       assert.equal(result.profile.equipment[0].item_level, 321);
       assert.equal(result.profile.raid_encounters[0].kills, 2);
+      assert.equal(result.profile.raid_milestones[0].kind, 'AOTC');
+      assert.equal(
+        result.profile.raid_milestones[0].completed_at,
+        new Date(1780000000000).toISOString(),
+      );
       assert.equal(
         details.parseCharacterEquipment({ character: { id: 8 }, equipped_items: [] }, 7),
         null,
+      );
+    },
+  );
+  await check(
+    'raid milestones keep earned dates only, deduplicate IDs, and reject a different character',
+    async () => {
+      const earned = {
+        character: { id: 7 },
+        achievements: [
+          {
+            achievement: { id: 42, name: 'Ahead of the Curve: Test Boss' },
+            completed_timestamp: 1780000000000,
+          },
+          {
+            achievement: { id: 42, name: 'Ahead of the Curve: Test Boss' },
+            completed_timestamp: 1781000000000,
+          },
+          {
+            achievement: { id: 43, name: 'Cutting Edge: Test Boss' },
+            completed_timestamp: 1782000000000,
+          },
+          { achievement: { id: 44, name: 'Ahead of the Curve: Unfinished' } },
+          {
+            achievement: { id: 45, name: 'Ordinary achievement' },
+            completed_timestamp: 1780000000000,
+          },
+        ],
+      };
+      const milestones = details.parseCharacterRaidMilestones(earned, 7);
+      assert.equal(milestones.length, 2);
+      assert.equal(milestones[0].kind, 'CE');
+      assert.equal(milestones[1].completed_at, new Date(1780000000000).toISOString());
+      assert.equal(details.parseCharacterRaidMilestones(earned, 8), null);
+      assert.equal(
+        details.parseCharacterRaidMilestones({ character: { id: 7 }, achievements: [] }, 7).length,
+        0,
+      );
+      assert.equal(details.parseCharacterRaidMilestones(null, 7), null);
+      assert.equal(
+        display.displayProfileSchema.safeParse({ raid_milestones: milestones }).success,
+        true,
       );
     },
   );

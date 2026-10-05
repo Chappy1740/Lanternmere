@@ -90,6 +90,56 @@ export type RaidEncounter = {
   last_kill_at: string | null;
 };
 
+export type RaidMilestone = {
+  achievement_id: number;
+  name: string;
+  kind: 'AOTC' | 'CE';
+  completed_at: string;
+};
+
+const achievementResponse = z.object({
+  character: z.object({ id: z.number().int().positive() }),
+  achievements: z
+    .array(
+      z.object({
+        achievement: z.object({ id: z.number().int().positive(), name }),
+        completed_timestamp: z.number().int().positive().optional(),
+      }),
+    )
+    .max(10000),
+});
+
+export function parseCharacterRaidMilestones(
+  value: unknown,
+  characterId: number,
+): RaidMilestone[] | null {
+  const parsed = achievementResponse.safeParse(value);
+  if (!parsed.success || parsed.data.character.id !== characterId) return null;
+  const milestones = new Map<number, RaidMilestone>();
+  for (const entry of parsed.data.achievements) {
+    const kind = entry.achievement.name.startsWith('Ahead of the Curve:')
+      ? 'AOTC'
+      : entry.achievement.name.startsWith('Cutting Edge:')
+        ? 'CE'
+        : null;
+    if (!kind || !entry.completed_timestamp) continue;
+    const completed = new Date(entry.completed_timestamp);
+    if (!Number.isFinite(completed.getTime())) continue;
+    const milestone: RaidMilestone = {
+      achievement_id: entry.achievement.id,
+      name: entry.achievement.name,
+      kind,
+      completed_at: completed.toISOString(),
+    };
+    const previous = milestones.get(milestone.achievement_id);
+    if (!previous || milestone.completed_at < previous.completed_at)
+      milestones.set(milestone.achievement_id, milestone);
+  }
+  return [...milestones.values()]
+    .sort((a, b) => b.completed_at.localeCompare(a.completed_at))
+    .slice(0, 100);
+}
+
 export function parseCharacterRaidEncounters(
   value: unknown,
   characterId: number,

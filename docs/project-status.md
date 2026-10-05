@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Hearth raid milestones and reduced density — October 5, 2026
+
+- Will requested first-kill-style raid history using AOTC/Cutting Edge dates and a less crowded Hearth. The repeat boss/difficulty history and latest-kill dates are removed from the default history view. A compact list now shows one dated AOTC or CE entry per achievement ID, newest first, with older milestones expandable. Achievement dates are not labeled as per-character first-kill dates: Blizzard can report account-wide completion.
+- The existing trusted Blizzard refresh adds the optional character achievements endpoint. Its response must match the fetched official character ID; only completed, dated English AOTC/CE names are retained, duplicate IDs keep the earliest returned date, and unavailable/malformed data is isolated from the core profile. No database migration or live character refresh was performed by the agent. Existing snapshots need a successful refresh to populate the new field, subject to the existing refresh cooldown.
+- Duplicate score and unsupported upgrade cards were removed. Score charts, boss detail, equipment, source credits, and optional Lodge/community content now open on demand; character details remain expandable. Main identity, headline stats, gear/Vault summary, and raid milestones are the default view. Source attribution remains accessible.
+- Twenty-five mocked profile/import regressions, rendered-data checks, focused lint, Next.js production/TypeScript, and the Workers bundle passed. Real achievement availability, fresh import, phone layout, and keyboard review remain open. CR-026 records the focused correction; the pre-existing outdated Hearth-context fixture limitation remains recorded below.
+
 ## Compact personal Hearth — October 5, 2026
 
 - Will authorized the WoWAudit-inspired Hearth changes and requested provider/inspiration credits. He does not have a WoWAudit team and chose to build the Hearth first. This patch makes no WoWAudit API connection and requires no new credentials or database migration.

@@ -7,8 +7,10 @@ import { isBlizzardPortrait } from './portrait';
 import {
   parseCharacterEquipment,
   parseCharacterRaidEncounters,
+  parseCharacterRaidMilestones,
   type EquipmentItem,
   type RaidEncounter,
+  type RaidMilestone,
 } from './character-details';
 
 const namedRecordSchema = z.object({
@@ -49,6 +51,7 @@ export type CharacterProfile = z.infer<typeof profileSchema> & {
   portrait_url?: string;
   equipment?: EquipmentItem[];
   raid_encounters?: RaidEncounter[];
+  raid_milestones?: RaidMilestone[];
 };
 
 const mediaSchema = z.object({
@@ -200,12 +203,14 @@ export async function fetchCharacterProfile(input: unknown): Promise<ProfileResu
       return null;
     }
   }
-  const [equipmentBody, raidsBody] = await Promise.all([
+  const [equipmentBody, raidsBody, achievementsBody] = await Promise.all([
     optionalDetails('/equipment'),
     optionalDetails('/encounters/raids'),
+    optionalDetails('/achievements'),
   ]);
   const equipment = parseCharacterEquipment(equipmentBody, profile.data.id);
   const raidEncounters = parseCharacterRaidEncounters(raidsBody, profile.data.id);
+  const raidMilestones = parseCharacterRaidMilestones(achievementsBody, profile.data.id);
 
   return {
     ok: true,
@@ -214,6 +219,7 @@ export async function fetchCharacterProfile(input: unknown): Promise<ProfileResu
       ...(portraitUrl ? { portrait_url: portraitUrl } : {}),
       ...(equipment ? { equipment } : {}),
       ...(raidEncounters ? { raid_encounters: raidEncounters } : {}),
+      ...(raidMilestones ? { raid_milestones: raidMilestones } : {}),
     },
     region,
     source: 'blizzard',

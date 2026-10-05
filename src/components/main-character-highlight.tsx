@@ -24,17 +24,6 @@ const vaultSchema = z.object({
   world_progress: z.string().nullable(),
 });
 
-function shortDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? 'Unknown date'
-    : new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'UTC',
-      }).format(date);
-}
-
 const linkClass =
   'lodge-button-secondary inline-flex max-w-full items-center px-4 py-2 text-sm font-medium [overflow-wrap:anywhere]';
 
@@ -75,17 +64,28 @@ export async function MainCharacterHighlight() {
   const raidProgress = raidProgressionEntries(latest?.raid_progression);
   const equipment = ready?.profile?.equipment;
   const raidEncounters = ready?.profile?.raid_encounters;
-  const encounterYears = [
-    ...new Set(
-      (raidEncounters ?? []).flatMap((entry) =>
-        entry.last_kill_at ? [entry.last_kill_at.slice(0, 4)] : [],
-      ),
-    ),
-  ].sort();
-  const itemLevels = (equipment ?? []).flatMap((item) =>
-    item.item_level === null ? [] : [item.item_level],
-  );
-  const lowestItemLevel = itemLevels.length ? Math.min(...itemLevels) : null;
+  const milestones = ready?.profile?.raid_milestones;
+  function milestoneRows(entries: NonNullable<typeof milestones>) {
+    return entries.map((entry) => (
+      <li
+        key={entry.achievement_id}
+        className="border-border flex min-w-0 flex-wrap items-center justify-between gap-2 border-b py-3 last:border-0"
+      >
+        <span className="text-text-primary min-w-0 break-words">
+          <span className="text-accent mr-2 text-xs font-semibold">{entry.kind}</span>
+          {entry.name.replace(/^(Ahead of the Curve|Cutting Edge):\s*/, '')}
+        </span>
+        <time className="text-text-muted text-sm" dateTime={entry.completed_at}>
+          {new Date(entry.completed_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'UTC',
+          })}
+        </time>
+      </li>
+    ));
+  }
   const details = ready
     ? [
         ['Level', ready.character.level],
@@ -218,7 +218,7 @@ export async function MainCharacterHighlight() {
       </div>
       {ready && (
         <>
-          <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
             <section className="lodge-panel min-w-0 p-5" aria-labelledby="gear-summary-heading">
               <h3
                 id="gear-summary-heading"
@@ -235,28 +235,6 @@ export async function MainCharacterHighlight() {
                   ? `${equipment.length} equipped items · ${equipment.filter((item) => item.enchantments.length > 0).length} with visible enchants`
                   : 'Item details not available in this Blizzard snapshot.'}
               </p>
-            </section>
-            <section className="lodge-panel min-w-0 p-5" aria-labelledby="upgrades-heading">
-              <h3
-                id="upgrades-heading"
-                className="font-display text-text-primary text-lg font-bold"
-              >
-                Item upgrades
-              </h3>
-              <p className="text-text-muted mt-3 text-sm">
-                {equipment
-                  ? 'Compare your equipped item levels below. Upgrade tracks and crest balances are not supplied by this snapshot.'
-                  : 'Upgrade tracks and crest balances are not supplied by this snapshot.'}
-              </p>
-              {lowestItemLevel !== null && (
-                <p className="text-text-primary mt-3 text-sm">
-                  Lowest equipped item level:{' '}
-                  <span className="text-accent font-semibold">{lowestItemLevel}</span>
-                </p>
-              )}
-              <a href="#equipment-heading" className={`${linkClass} mt-4`}>
-                Inspect equipment
-              </a>
             </section>
             <section className="lodge-panel min-w-0 p-5" aria-labelledby="vault-heading">
               <h3 id="vault-heading" className="font-display text-text-primary text-lg font-bold">
@@ -295,31 +273,41 @@ export async function MainCharacterHighlight() {
                 Open War Table
               </Link>
             </section>
-            <section className="lodge-panel min-w-0 p-5" aria-labelledby="score-heading">
-              <h3 id="score-heading" className="font-display text-text-primary text-lg font-bold">
-                Mythic+ score
-              </h3>
-              <p className="text-accent mt-3 text-3xl font-semibold">
-                {historyUnavailable ? '—' : (latest?.mythic_plus_score ?? '—')}
-              </p>
-              <p className="text-text-muted text-sm">
-                {latest?.season_label || 'Season not recorded'} · Raider.IO snapshot
-              </p>
-              {latest && (
-                <p className="text-text-muted text-xs">Saved {shortDate(latest.refreshed_at)}</p>
-              )}
-              {latest && (
-                <a
-                  href={latest.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${linkClass} mt-4 text-sm`}
-                >
-                  View source
-                </a>
-              )}
-            </section>
           </div>
+          <section className="lodge-panel min-w-0 p-5" aria-labelledby="history-gear-heading">
+            <h3
+              id="history-gear-heading"
+              className="font-display text-text-primary text-xl font-bold"
+            >
+              Raid milestones
+            </h3>
+            <p className="text-text-muted mt-2 text-xs">
+              AOTC and Cutting Edge achievement dates (UTC). Blizzard may report account-wide
+              completion, not this character’s first kill.
+            </p>
+            {milestones === undefined ? (
+              <p className="text-text-muted mt-3 text-sm">
+                Refresh your Blizzard profile to load AOTC and Cutting Edge dates. If achievements
+                are private or unavailable, dates will remain unavailable.
+              </p>
+            ) : milestones.length === 0 ? (
+              <p className="text-text-muted mt-3 text-sm">
+                No dated AOTC or Cutting Edge achievements returned by Blizzard.
+              </p>
+            ) : (
+              <>
+                <ul className="mt-3">{milestoneRows(milestones.slice(0, 6))}</ul>
+                {milestones.length > 6 && (
+                  <details className="mt-3">
+                    <summary className="text-accent cursor-pointer py-2 focus-visible:outline-2 focus-visible:outline-offset-4">
+                      Older milestones ({milestones.length - 6})
+                    </summary>
+                    <ul>{milestoneRows(milestones.slice(6))}</ul>
+                  </details>
+                )}
+              </>
+            )}
+          </section>
           <HearthProgressPanels
             history={history}
             encounters={raidEncounters}
@@ -343,84 +331,13 @@ export async function MainCharacterHighlight() {
               </ul>
             </section>
           )}
-          <section
-            className="lodge-panel min-w-0 p-5 sm:p-6"
-            aria-labelledby="history-gear-heading"
-          >
-            <h3
-              id="history-gear-heading"
-              className="font-display text-text-primary text-xl font-bold"
+          <details className="lodge-panel min-w-0 p-5 sm:p-6">
+            <summary
+              id="equipment-heading"
+              className="font-display text-text-primary cursor-pointer rounded text-xl font-bold focus-visible:outline-2 focus-visible:outline-offset-4"
             >
-              Raid history
-            </h3>
-            <p className="text-text-muted mt-2 text-sm">
-              {raidEncounters
-                ? 'Blizzard reports the latest kill date for each boss and difficulty. This is a saved snapshot, not a complete raid log.'
-                : 'Saved Raider.IO raid summaries, newest first. A saved refresh is not proof of a raid on that date.'}
-            </p>
-            {raidEncounters && raidEncounters.length > 20 && (
-              <p className="text-text-muted mt-2 text-xs">
-                Showing 20 of {raidEncounters.length} saved boss/difficulty records. Use the raid
-                filters above to explore the snapshot.
-              </p>
-            )}
-            {encounterYears.length > 0 && (
-              <ol
-                className="mt-4 flex flex-wrap gap-1"
-                aria-label="Years with saved raid encounter dates"
-              >
-                {encounterYears.map((year) => (
-                  <li key={year} className="bg-accent/15 text-accent rounded px-2 py-1 text-xs">
-                    {year}
-                  </li>
-                ))}
-              </ol>
-            )}
-            {raidEncounters?.length ? (
-              <ol className="mt-4 grid gap-2 sm:grid-cols-2">
-                {raidEncounters.slice(0, 20).map((entry, index) => (
-                  <li
-                    key={`${entry.raid}:${entry.difficulty}:${entry.boss}:${index}`}
-                    className="lodge-data-cell min-w-0 text-sm"
-                  >
-                    <span className="text-text-primary block font-medium [overflow-wrap:anywhere] break-words">
-                      {entry.boss} · {entry.difficulty}
-                    </span>
-                    <span className="text-text-muted mt-1 block break-words">
-                      {entry.raid} · {entry.kills} {entry.kills === 1 ? 'kill' : 'kills'}
-                      {entry.last_kill_at ? ` · last ${shortDate(entry.last_kill_at)}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : historyUnavailable ? (
-              <p className="text-text-muted mt-4 text-sm">Raid history could not be loaded.</p>
-            ) : history.length ? (
-              <ol className="mt-4 grid gap-2 sm:grid-cols-2">
-                {history.map((point) => (
-                  <li key={point.refreshed_at} className="lodge-data-cell text-sm">
-                    <span className="text-text-primary font-medium">
-                      Saved {shortDate(point.refreshed_at)}
-                    </span>
-                    <span className="text-text-muted mt-1 block break-words">
-                      {raidProgressionEntries(point.raid_progression)
-                        .map((entry) => `${entry.raid}: ${entry.summary}`)
-                        .join(' · ') || 'No raid summary in this snapshot'}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-text-muted mt-4 text-sm">No progression snapshots saved yet.</p>
-            )}
-            <Link href="/chronicle-lens" className={`${linkClass} mt-4 text-sm`}>
-              View dated progression history
-            </Link>
-          </section>
-          <section className="lodge-panel min-w-0 p-5 sm:p-6" aria-labelledby="equipment-heading">
-            <h3 id="equipment-heading" className="font-display text-text-primary text-xl font-bold">
               Equipment
-            </h3>
+            </summary>
             {equipment?.length ? (
               <div className="mt-4 overflow-x-auto">
                 <table className="w-full min-w-[32rem] text-left text-sm">
@@ -475,7 +392,7 @@ export async function MainCharacterHighlight() {
                 check again.
               </p>
             )}
-          </section>
+          </details>
         </>
       )}
     </section>

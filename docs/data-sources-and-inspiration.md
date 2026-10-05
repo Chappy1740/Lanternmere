@@ -17,3 +17,7 @@ Will does not currently administer a WoWAudit team and chose to build the Hearth
 The published schema includes recorded activity/vault data, best gear, and wishlists. It does not establish that every field on the public character dashboard is available through the API. Confirm actual supported fields, freshness, and limits before promising an integration. No team key was requested, no provider was contacted, and no API connection was made in this layout patch.
 
 Other integrations retain their existing source labels and contracts. Apply this review and credit rule to each new provider or reused asset; record outreach and approval evidence before claiming endorsement or permission.
+
+### Raid achievement dates
+
+The Hearth's AOTC/CE milestones use completion dates returned by Blizzard's character achievements endpoint. They do not use encounter `last_kill_timestamp` as a first-kill date. [Blizzard's explanation of achievement completion](https://us.forums.blizzard.com/en/blizzard/t/character-achievements-api-when-is-an-achievement-completed/7171) describes account-wide versus character completion and privacy settings. The UI labels that limitation and never infers a first character kill from an achievement date.

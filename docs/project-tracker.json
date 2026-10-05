@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 45,
+  "revision": 46,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -50,6 +50,12 @@
           "title": "Compact Main dashboard with filtered progress and provider credits",
           "status": "done",
           "requestId": "CR-024"
+        },
+        {
+          "id": "M3-raid-milestones-density",
+          "title": "Compact AOTC/CE history and expandable Hearth details",
+          "status": "done",
+          "requestId": "CR-026"
         }
       ],
       "description": "A personalized home for your selected Lodge and upcoming activity.",
@@ -460,6 +466,14 @@
       "milestone": null,
       "status": "proposed",
       "note": "Deferred while Will has no WoWAudit team. Review provider terms, exact supported fields, limits, team admin access, server-only keys, and consent boundaries before implementation; request provider clarification if intended use is unclear. No live API requests or outreach authorized by this deferred scope."
+    },
+    {
+      "id": "CR-026",
+      "title": "Simplify Hearth and show AOTC/CE raid milestones",
+      "requestedAt": "2026-10-05",
+      "milestone": 3,
+      "status": "done",
+      "note": "Default raid history now shows dated AOTC/CE achievements rather than repeated boss counts or latest kills. A trusted optional Blizzard achievements import matches character identity and isolates unavailable data. Duplicate cards were removed; charts, boss details, equipment, credits, and Lodge content are expandable. Achievement dates may be account-wide, not character first kills. Existing snapshots need a successful refresh; live data and visual review remain open."
     }
   ],
   "acceptance": [
