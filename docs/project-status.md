@@ -1,5 +1,7 @@
 # Project status and handoff
 
+The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
+
 ## Final integrated audit triage — October 4, 2026
 
 - Will supplied Claude Code's read-only program-wide audit at clean `c9be135`. It inventoried 392 tracked files, found no high- or medium-severity defect or cross-feature authority bypass, and judged the code ready for **controlled live acceptance**, not live-accepted. Its migration grant inventory was partly regex-based; no linked SQL or hosted test ran in that audit.
