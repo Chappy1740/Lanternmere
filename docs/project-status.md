@@ -2,6 +2,12 @@
 
 The [pre-alpha live acceptance runbook](pre-alpha-acceptance-runbook.md) sequences A-01–A-16 one check at a time, including prerequisites, pass evidence, and privacy-safe notes. It is a test plan, not a record of live passes.
 
+## Native sign-in submission repair — October 5, 2026
+
+- Will reported a plain **Forbidden** page after pressing Sign In. Hosted signed-out GET requests returned 200, while credential-free nonexistent-action POST probes returned 404 with the real same-site Origin and 403 with `Origin: null`. The deployed `no-referrer` header makes browsers send a null Origin on native form POSTs; vinext rejects it before the authentication action. This reproduces the rejection path without accessing credentials or changing account data; the agent did not capture Will's actual request headers.
+- The focused configuration repair uses `Referrer-Policy: same-origin`, which retains the Origin for native internal forms and omits referrers on external requests. CSRF origin validation stays enabled, with no allowance for null or foreign origins. A-03 is reopened for a hosted sign-in, reload, and sign-out retest; earlier successful session evidence remains historical.
+- Current-session checks: two origin-security regressions, focused ESLint and Prettier, tracker JSON parsing, the Next.js production build, and the Workers bundle build passed. The built local Worker returned `same-origin` on the sign-in page; credential-free native multipart form probes passed its origin gate for the real local origin (404 for the deliberately nonexistent action) and rejected foreign and null origins (403). No actual sign-in or account data change was performed. Hosted deployment and Will's fresh sign-in retest remain pending.
+
 ## Mobile Hearth and existing-import follow-up — October 5, 2026
 
 - After the repair, Will answered "yep that works" to the hosted step of selecting **Verify ownership** for his earlier Main and checking the returned Hearth for the **Battle.net account verified** label. Record this as Will's live confirmation of that one-account path; the agent did not observe the screen or inspect the claim row. A-09 stays open for a separate-account private-list check and duplicate-claim denial.

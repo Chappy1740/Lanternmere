@@ -11,7 +11,9 @@ const nextConfig: NextConfig = {
             value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
           },
           { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'Referrer-Policy', value: 'no-referrer' },
+          // Native form POSTs need a real Origin for Server Action CSRF checks.
+          // Keep referrers within Lanternmere and omit them on external requests.
+          { key: 'Referrer-Policy', value: 'same-origin' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
         ],
       },

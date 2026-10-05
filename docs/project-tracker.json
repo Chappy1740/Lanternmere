@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 30,
+  "revision": 31,
   "updatedAt": "2026-10-05",
   "milestones": [
     {
@@ -376,6 +376,14 @@
       "milestone": null,
       "status": "done",
       "note": "Will's signed-in phone screenshot exposed horizontal overflow and an unverified older Main after adding a different Battle.net character. The repair constrains mobile cards, offers Verify ownership for existing public imports, and opens a newly added alternate on its own page. Will confirmed the cards fill his phone screen and the Main verification path works. Separate-account A-09 checks remain open."
+    },
+    {
+      "id": "CR-018",
+      "title": "Repair native sign-in form submission",
+      "requestedAt": "2026-10-05",
+      "milestone": 1,
+      "status": "done",
+      "note": "Will reported Forbidden after pressing Sign In. The focused referrer-policy repair preserves internal form origins and external referrer privacy while retaining cross-site request checks. Both builds, focused checks, and local Worker origin probes passed; hosted deployment and the A-03 live retest remain pending."
     }
   ],
   "acceptance": [
@@ -392,7 +400,8 @@
     {
       "id": "A-03",
       "title": "Authenticated Worker sign-in, sign-out, and session persistence",
-      "status": "verified"
+      "status": "open",
+      "note": "Earlier hosted session checks passed. Will reported a native sign-in submission failure on October 5; the focused repair requires a new hosted sign-in, protected-page reload, and sign-out retest."
     },
     {
       "id": "A-04",
