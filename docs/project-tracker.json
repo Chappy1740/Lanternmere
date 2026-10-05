@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 26,
-  "updatedAt": "2026-10-04",
+  "revision": 27,
+  "updatedAt": "2026-10-05",
   "milestones": [
     {
       "number": 0,
@@ -414,7 +414,8 @@
     {
       "id": "A-09",
       "title": "Live personal Battle.net connection and private character-list visibility",
-      "status": "open"
+      "status": "open",
+      "note": "Will reported that adding a character from his connected Battle.net list took him to his Main's Hearth. The signed-in display, second-account list privacy, and duplicate-claim behavior remain unverified."
     },
     {
       "id": "A-10",
