@@ -83,12 +83,12 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
       <section aria-label="Overall roadmap progress" className="lodge-panel p-5 sm:p-7">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="lodge-kicker">Overall feature scope</p>
+            <p className="lodge-kicker">Overall tracked completion</p>
             <p className="font-display text-accent mt-2 text-5xl font-semibold">
               {progress.percent}%
             </p>
             <p className="text-text-muted mt-2 text-sm">
-              {progress.implemented} of {progress.total} roadmap milestones implemented
+              {progress.completed} of {progress.required} required checkpoints complete
             </p>
           </div>
           <div className="text-text-muted text-sm sm:text-right">
@@ -98,10 +98,10 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
         </div>
         <div
           role="progressbar"
-          aria-label="Implemented roadmap milestones"
-          aria-valuenow={progress.implemented}
+          aria-label="Overall tracked completion"
+          aria-valuenow={progress.completed}
           aria-valuemin={0}
-          aria-valuemax={progress.total}
+          aria-valuemax={progress.required}
           className="bg-surface-sunken border-border mt-6 h-3 overflow-hidden rounded-full border"
         >
           <div
@@ -110,11 +110,56 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
           />
         </div>
         <p className="text-text-muted mt-4 text-xs leading-relaxed">
-          Each milestone counts once. This measures implemented scope, not elapsed time or live
-          acceptance. New requests assigned to a milestone are added to its work before it can be
-          marked implemented.
+          Counts roadmap milestones, live acceptance checks, and accepted standalone requests once
+          each. Unfinished work or accepted repairs keep their milestone incomplete. Proposed ideas
+          are excluded. This is a checklist count, not a time estimate or a guarantee of security.
+        </p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          <p>
+            <strong>Features: {progress.featurePercent}%</strong>
+            <br />
+            {progress.implemented}/{progress.total} milestones implemented
+          </p>
+          <p>
+            <strong>Live acceptance</strong>
+            <br />
+            {progress.verified}/{progress.acceptanceTotal} checks verified
+          </p>
+          <p>
+            <strong>Accepted work remaining</strong>
+            <br />
+            {progress.openRequests.length} requests · {progress.openWork.length} unfinished tasks
+          </p>
+        </div>
+        <p className="text-accent mt-4 font-semibold">
+          {progress.required > 0 && progress.completed === progress.required
+            ? 'All recorded checkpoints complete'
+            : 'Pre-alpha validation and accepted work remain open'}
         </p>
       </section>
+
+      {(progress.openRequests.length > 0 || progress.openWork.length > 0) && (
+        <section className="lodge-panel p-5 sm:p-7" aria-labelledby="remaining-work">
+          <h2 id="remaining-work" className="font-display text-2xl">
+            Remaining accepted work
+          </h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            {progress.openRequests.map((request) => (
+              <li key={request.id}>
+                <a href={`#${request.id}`} className="text-accent underline underline-offset-4">
+                  {request.id} · {request.title}
+                </a>{' '}
+                · {requestState[request.status]}
+              </li>
+            ))}
+            {progress.openWork.map((item) => (
+              <li key={item.id}>
+                Milestone {item.milestone} · {item.title} · {workState[item.status]}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {activeMilestone && (
         <section className="lodge-panel p-5 sm:p-7" aria-labelledby="current-milestone">
@@ -272,7 +317,10 @@ export function ProjectStatusDashboard({ initialTracker }: { initialTracker: Pro
           <ul className="mt-4 space-y-2">
             {openAcceptance.map((item) => (
               <li key={item.id} className="lodge-list-row px-4 py-3 text-sm">
-                {item.title}
+                <p>
+                  {item.id} · {item.title}
+                </p>
+                {item.note && <p className="text-text-muted mt-2">{item.note}</p>}
               </li>
             ))}
             {openAcceptance.length === 0 && (

@@ -1,5 +1,10 @@
 # Project status and handoff
 
+## Status dashboard completion correction — October 7, 2026
+
+- The main `/status` percentage now counts implemented milestones, verified live acceptance checks, and accepted standalone requests. Linked accepted work must be done before its milestone counts complete. Proposed ideas are excluded. The dashboard shows feature-only progress and live acceptance separately, plus the remaining accepted work and open checks. This prevents a fully implemented roadmap from appearing to mean that pre-alpha is fully accepted. The percentage is a checklist count, not a time or security guarantee.
+- The tracker was revised to 47. Current tracker data produces 31 of 49 checkpoints, or 63% overall, alongside 15 of 15 implemented milestones and 3 of 16 verified live checks. This change does not mark any pending work or live acceptance complete. The dashboard preserves acceptance evidence notes so partial checks are visible. A regression checks open versus fully complete states; focused lint, Next.js production/TypeScript, and Workers bundle builds passed. Hosted display remains to be confirmed after delivery.
+
 ## Hearth raid milestones and reduced density — October 5, 2026
 
 - Will requested first-kill-style raid history using AOTC/Cutting Edge dates and a less crowded Hearth. The repeat boss/difficulty history and latest-kill dates are removed from the default history view. A compact list now shows one dated AOTC or CE entry per achievement ID, newest first, with older milestones expandable. Achievement dates are not labeled as per-character first-kill dates: Blizzard can report account-wide completion.

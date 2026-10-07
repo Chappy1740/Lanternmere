@@ -8,7 +8,7 @@ Each milestone includes a concise `description` and the filename of its `specifi
 
 ## Counting rule
 
-The overall percentage is **implemented milestones / all roadmap milestones**. Each milestone counts once, so the current baseline is 14 / 15 = 93% (rounded). This is feature-scope progress, not a time estimate or a claim that live acceptance has passed. The active milestone's work items and the separate acceptance list provide the finer detail. A new request assigned to a milestone is added to that milestone's work list; it must be finished before the milestone is marked implemented.
+The main percentage is **completed required checkpoints / all required checkpoints**, rounded down. Each roadmap milestone and live acceptance check counts once. An accepted request outside a milestone counts once; a request linked to a milestone is included in that milestone. A milestone counts as complete only when it is implemented, all its tracked work is done, and all linked accepted requests are done. Proposed ideas are excluded. The page also shows the original feature-only milestone percentage and the verified acceptance count separately. These are checklist counts, not time estimates or guarantees that the app is secure. Keep the tracker current as new scope and evidence arrive.
 
 ## Updating the tracker
 

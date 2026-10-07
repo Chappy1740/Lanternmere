@@ -39,6 +39,7 @@ export const trackerSchema = z.object({
       id: z.string(),
       title: z.string(),
       status: z.enum(['open', 'verified']),
+      note: z.string().optional(),
     }),
   ),
 });
@@ -51,5 +52,44 @@ export function projectProgress(tracker: ProjectTracker) {
     (milestone) => milestone.status === 'implemented',
   ).length;
   const total = tracker.milestones.length;
-  return { implemented, total, percent: total ? Math.round((implemented / total) * 100) : 0 };
+  const acceptedRequests = tracker.requests.filter((request) =>
+    ['accepted', 'in_progress', 'done'].includes(request.status),
+  );
+  const completedMilestones = tracker.milestones.filter(
+    (milestone) =>
+      milestone.status === 'implemented' &&
+      milestone.work.every((item) => item.status === 'done') &&
+      acceptedRequests
+        .filter((request) => request.milestone === milestone.number)
+        .every((request) => request.status === 'done'),
+  ).length;
+  // Linked requests count within their milestone; standalone accepted scope counts once.
+  const standaloneRequests = acceptedRequests.filter(
+    (request) => !tracker.milestones.some((milestone) => milestone.number === request.milestone),
+  );
+  const verified = tracker.acceptance.filter((item) => item.status === 'verified').length;
+  const completed =
+    completedMilestones +
+    verified +
+    standaloneRequests.filter((request) => request.status === 'done').length;
+  const required = total + tracker.acceptance.length + standaloneRequests.length;
+  return {
+    implemented,
+    total,
+    verified,
+    acceptanceTotal: tracker.acceptance.length,
+    completed,
+    required,
+    percent: required ? Math.floor((completed / required) * 100) : 0,
+    featurePercent: total ? Math.floor((implemented / total) * 100) : 0,
+    openRequests: acceptedRequests.filter((request) => request.status !== 'done'),
+    openWork: tracker.milestones.flatMap((milestone) =>
+      milestone.work
+        .filter((item) => item.status !== 'done')
+        .map((item) => ({
+          ...item,
+          milestone: milestone.number,
+        })),
+    ),
+  };
 }
