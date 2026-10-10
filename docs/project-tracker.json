@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 52,
+  "revision": 53,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -487,7 +487,7 @@
       "requestedAt": "2026-10-10",
       "milestone": 1,
       "status": "in_progress",
-      "note": "Will's iPhone reset email returned to the request form. Local callback and email-template changes now prepare browser-independent recovery-token verification and explain failed links. The hosted Reset Password template and app patch are not installed; a fresh live reset is still required."
+      "note": "Will's iPhone reset email returned to the request form. The app repair is published and its hosted error notice rendered, but Supabase's default Reset Password email template remains locked until custom SMTP, the Pro email option, or a Send Email hook is configured. Browser-independent recovery and a fresh live reset remain unverified."
     }
   ],
   "acceptance": [
