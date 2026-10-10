@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 58,
+  "revision": 59,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "The feature is published and a two-account database isolation fixture passed. Verify signed-in submission, receipt, two-way private replies, owner-only triage, cross-account denial through real accounts, input and abuse limits, and phone accessibility. Signed-out member and owner routes redirected to sign-in."
+      "note": "The feature is published and a two-account database isolation fixture passed. Signed-out member and owner routes redirected to sign-in. Will's October 10 phone screenshot shows one directly inserted test problem in the signed-in owner inbox with account label and New status. This does not test the Send button. Still verify actual signed-in submission and receipt, private replies, owner-only triage, real-account cross-account denial, input and abuse limits, and broader phone accessibility."
     }
   ]
 }
