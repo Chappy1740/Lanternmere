@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 55,
+  "revision": 56,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -276,6 +276,33 @@
       ],
       "description": "Permission-aware assistance, weekly summaries, and operational briefings.",
       "specification": "milestone-14-lanternkeeper.md"
+    },
+    {
+      "number": 15,
+      "name": "The Signal Fire",
+      "status": "planned",
+      "work": [
+        {
+          "id": "M15-01",
+          "title": "Let people send a problem report or idea to Lanternmere",
+          "status": "todo",
+          "requestId": "CR-029"
+        },
+        {
+          "id": "M15-02",
+          "title": "Give the owner a private inbox, replies, and triage states",
+          "status": "todo",
+          "requestId": "CR-029"
+        },
+        {
+          "id": "M15-03",
+          "title": "Protect submissions and verify the complete feedback flow",
+          "status": "todo",
+          "requestId": "CR-029"
+        }
+      ],
+      "description": "Private problem reports and ideas sent to Lanternmere for review.",
+      "specification": "milestone-15-signal-fire.md"
     }
   ],
   "requests": [
@@ -502,6 +529,14 @@
       "milestone": 1,
       "status": "done",
       "note": "Will wants returning members who try Create Account to see that their email may already be used. Supabase deliberately obscures duplicate signup results when confirmation is enabled, so the published copy gives a truthful conditional notice and sign-in path. Commit c5148a1 was pushed to main; hosted sign-up and sign-in screens were verified in the browser. A real duplicate-account submission was not tested."
+    },
+    {
+      "id": "CR-029",
+      "title": "Let people report problems and send ideas to Lanternmere",
+      "requestedAt": "2026-10-10",
+      "milestone": 15,
+      "status": "accepted",
+      "note": "Will requested a new milestone for 'this is broken' reports, suggestions, and ideas. He chose signed-in submissions so the owner can reply to the member in a private thread. The Signal Fire is planned, not built or live."
     }
   ],
   "acceptance": [
@@ -595,6 +630,12 @@
       "title": "Live password reset from an email opened in a different browser session",
       "status": "open",
       "note": "Will reported that the reset email returns to Forgot password on iPhone. The repaired flow requires hosted template installation, application release, and a fresh real-account reset before this can be verified."
+    },
+    {
+      "id": "A-18",
+      "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
+      "status": "open",
+      "note": "Milestone 15 is planned only. Verify signed-in submission, signed-out denial, receipts, two-way private replies, owner-only triage, cross-account denial, input and abuse limits, and phone accessibility after implementation."
     }
   ]
 }

@@ -2,7 +2,7 @@
 
 ## Current
 
-- Milestones 0–14 — feature scope implemented. Independent audits and live acceptance remain tracked in `docs/project-status.md`.
+- Milestones 0–14 — feature scope implemented. Milestone 15 is accepted and planned. Independent audits and live acceptance remain tracked in `docs/project-status.md`.
 
 ## Guild Operations era
 
@@ -14,6 +14,7 @@
 - Milestone 12 — The Expedition Board: Mythic+ Operations — guild key groups, role matching, weekly goals, Vault context, and key-night planning.
 - Milestone 13 — The Chronicle Lens: Progression Intelligence — Warcraft Logs, Raider.IO, Raidbots handoffs, trends, and post-raid review.
 - Milestone 14 — The Lanternkeeper: Assisted Guild Intelligence — permission-aware summaries and operational briefings built from Lanternmere's authorized data. Architecture is defined early in `docs/lanternkeeper-ai-architecture.md` so Milestones 7–13 remain AI-ready without making AI a dependency.
+- Milestone 15 — The Signal Fire: Problems and Ideas — a private route for problem reports and suggestions, with an owner review inbox. See [the specification](milestone-15-signal-fire.md).
 
 ## Cross-cutting product direction
 

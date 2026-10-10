@@ -21,8 +21,8 @@ const { projectProgress, trackerSchema } = exportsObject;
 const current = trackerSchema.parse(tracker);
 const currentProgress = projectProgress(current);
 assert.equal(currentProgress.implemented, 14);
-assert.equal(currentProgress.total, 15);
-assert.equal(currentProgress.acceptanceTotal, 17);
+assert.equal(currentProgress.total, 16);
+assert.equal(currentProgress.acceptanceTotal, 18);
 assert.equal(currentProgress.verified, 3);
 assert.ok(currentProgress.percent < 100);
 assert.equal(
@@ -31,7 +31,9 @@ assert.equal(
 );
 assert.ok(currentProgress.completed < currentProgress.required);
 assert.ok(currentProgress.openRequests.some((request) => request.id === 'CR-027'));
+assert.ok(currentProgress.openRequests.some((request) => request.id === 'CR-029'));
 assert.ok(currentProgress.openWork.some((item) => item.id === 'M1-password-recovery-link'));
+assert.ok(currentProgress.openWork.some((item) => item.id === 'M15-01'));
 
 const ready = structuredClone(current);
 for (const item of ready.acceptance) item.status = 'verified';

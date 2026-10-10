@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Milestone 15 — The Signal Fire: Problems and Ideas — October 10, 2026
+
+- Will requested a new way for someone to tell Lanternmere that something is broken or suggest an idea. Milestone 15 is accepted and planned as a private submission flow and owner triage inbox; it is not implemented or available on the hosted site. CR-029 tracks the request, and A-18 reserves live acceptance for submission, access isolation, abuse limits, and phone usability.
+- Will chose signed-in submissions so he can reply to the correct member. The planned first release uses short text reports, receipts, a private two-way conversation, owner review, and sender-visible status. Reports are not automatically published to the project tracker; there is no public intake or email alert in the first release. The [specification](milestones/milestone-15-signal-fire.md) records these boundaries.
+- Tracker revision 56 adds one planned milestone and one open acceptance check. Existing Milestones 0–14 and their evidence remain unchanged. Will approved committing and publishing this roadmap update; it does not establish a working feedback form.
+
 ## CR-028 returning-member signup guidance — October 10, 2026
 
 - Will asked that Create Account tell someone who has used the email before that it is already used. Supabase intentionally obscures existing-account results while email confirmation is enabled, so the app cannot reliably make a definite claim for any submitted address. The local repair says the address **may already be in use**, directs returning members to sign in, and promises a confirmation email only for a new account. Explicit duplicate provider errors follow the same neutral result as other signup submissions rather than revealing account existence.
