@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Signal Fire phone checks and unavailable conversation message — October 10, 2026
+
+- Will confirmed all four review statuses remain after saving and refreshing; reopening the closed report preserves Closed. His phone screenshot shows the actual Send-button test report with its submission receipt. He confirmed a reply appears and survives refresh, then closing hides the reply box and shows the 180-day removal notice. This owner-account self-conversation does not establish separate sender/owner reply delivery or actual scheduled deletion.
+- Will switched to a second account: the owner dashboard was hidden, and opening the copied private report link returned 404. This is reported live cross-account read denial, not a direct owner-route test. He requested friendlier unavailable-page wording. The Signal Fire detail route now says “Sorry, this conversation isn’t available to this account,” explains the private audience and missing/removed-link possibilities, and offers a return link. The same page covers denied and missing reports without confirming private record existence; authorization and database behavior remain unchanged.
+- Tracker revision 61 records these partial results and keeps A-18 open. Remaining checks include a report sent by the second account with an owner reply read by that sender, direct owner-inbox denial, input/abuse limits, and broader phone accessibility. The new unavailable message still needs hosted confirmation after publication.
+- Current-session checks passed: focused ESLint, status dashboard regression, Workers bundle, regenerated Next route types with TypeScript, and diff whitespace review. The page is a scoped presentation change using the existing detail route's `notFound()` branches.
+
 ## Signal Fire status persistence repair — October 10, 2026
 
 - Will reported a detail page showing “Status saved.” while Review state still displayed New, and required saved status to survive saving, refreshing, and reopening. The uncontrolled selector used `defaultValue`, so a successful form action could reset it to its original value while refreshed server props did not control the selection. This explains the display failure; the screenshot alone does not prove that the database reverted.
