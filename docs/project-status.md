@@ -1,5 +1,10 @@
 # Project status and handoff
 
+## Owner account dormancy display — October 10, 2026
+
+- CR-019 is in progress. The owner-only account management page now derives Active, Dormant, or No verified visit recorded from the existing server-recorded activity timestamp. The boundary is 30 days; the next verified visit changes the display back to Active. Owner-imposed suspension takes precedence. No account is deleted, suspended automatically, or billed differently; this change does not reclaim storage.
+- The verified Main identity and acknowledgment work in CR-019 is still pending. Existing optional alias and sign-in email behavior remains until that privacy-safe replacement is ready. The exact date-boundary regression, focused lint, Next.js production/TypeScript build, and Workers bundle passed. A standalone TypeScript check after the Workers build hit stale generated Next route types; the final Next.js build regenerated them and passed. Live return and owner-only visibility remain acceptance work.
+
 ## Status dashboard completion correction — October 7, 2026
 
 - The main `/status` percentage now counts implemented milestones, verified live acceptance checks, and accepted standalone requests. Linked accepted work must be done before its milestone counts complete. Proposed ideas are excluded. The dashboard shows feature-only progress and live acceptance separately, plus the remaining accepted work and open checks. This prevents a fully implemented roadmap from appearing to mean that pre-alpha is fully accepted. The percentage is a checklist count, not a time or security guarantee.

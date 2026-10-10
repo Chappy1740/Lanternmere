@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 47,
-  "updatedAt": "2026-10-07",
+  "revision": 48,
+  "updatedAt": "2026-10-10",
   "milestones": [
     {
       "number": 0,
@@ -416,8 +416,8 @@
       "title": "Use verified Main account identity and reversible 30-day inactivity",
       "requestedAt": "2026-10-05",
       "milestone": null,
-      "status": "accepted",
-      "note": "Will wants Main-based owner labels without emails and chose automatic restoration after 30 inactive days. The policy is specified; implementation remains pending. Disclose required owner identity sharing before onboarding and obtain acknowledgment from existing users before exposure. Preserve manual suspensions and stored data; dormancy does not reclaim storage."
+      "status": "in_progress",
+      "note": "Owner account management now derives a 30-day dormant label from the last verified app visit. Returning activity restores active status without changing stored data or manual suspension. Main-based owner labels without emails remain pending; disclose required sharing before onboarding and obtain acknowledgment from existing users before exposure. Dormancy does not reclaim storage."
     },
     {
       "id": "CR-020",

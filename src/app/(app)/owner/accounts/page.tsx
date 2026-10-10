@@ -6,6 +6,7 @@ import { getViewer } from '@/lib/hearth/context';
 import { serverEnv } from '@/lib/env.server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { AccountAccessControl } from '@/components/account-access-control';
+import { accountActivityState } from '@/lib/account-dormancy';
 
 export default async function OwnerAccounts({
   searchParams,
@@ -52,6 +53,7 @@ export default async function OwnerAccounts({
     { data: preferences, error: preferenceError },
     { data: access, error: accessError },
     { data: logins, error: loginError },
+    { data: activity, error: pageActivityError },
   ] = ids.length
     ? await Promise.all([
         admin
@@ -60,18 +62,29 @@ export default async function OwnerAccounts({
           .in('profile_id', ids),
         admin.from('app_account_access').select('profile_id,suspended').in('profile_id', ids),
         admin.rpc('app_account_logins', { p_profile_ids: ids }),
+        admin.from('app_account_activity').select('profile_id,last_seen_at').in('profile_id', ids),
       ])
     : [
         { data: [], error: null },
         { data: [], error: null },
         { data: [], error: null },
+        { data: [], error: null },
       ];
-  if (preferenceError || accessError) throw new Error('Unable to load account privacy choices.');
+  if (preferenceError || accessError || pageActivityError)
+    throw new Error('Unable to load account privacy choices.');
   const parsedLogins = z
     .array(z.object({ profile_id: z.uuid(), login: z.string().nullable() }))
     .safeParse(logins);
   if (loginError || !parsedLogins.success) throw new Error('Unable to load account logins.');
   const loginById = new Map(parsedLogins.data.map((row) => [row.profile_id, row.login]));
+  const parsedActivity = z
+    .array(z.object({ profile_id: z.uuid(), last_seen_at: z.string().datetime({ offset: true }) }))
+    .safeParse(activity);
+  if (!parsedActivity.success) throw new Error('Unable to load account activity.');
+  const lastSeenById = new Map(
+    parsedActivity.data.map((row) => [row.profile_id, row.last_seen_at]),
+  );
+  const now = new Date();
   const formatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' });
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -85,7 +98,8 @@ export default async function OwnerAccounts({
         <p className="text-text-muted mt-2 text-sm">
           Activity counts verified app visits since this feature was enabled, not historical usage.
           Sign-in emails identify accounts for owner administration. Nicknames remain opt-in.
-          Suspension preserves account data and can be reversed.
+          Dormant means no verified app visit for 30 days; a return visit restores active status.
+          Dormancy preserves data and does not override manual suspension.
         </p>
         <Link href="/owner/design-studio" className="text-accent mt-4 inline-block underline">
           Open private design studio
@@ -97,6 +111,7 @@ export default async function OwnerAccounts({
           const suspended = access?.find((a) => a.profile_id === member.id)?.suspended === true;
           const sharedNickname = pref?.visible_to_owner ? pref.alias : null;
           const login = loginById.get(member.id);
+          const activityState = accountActivityState(lastSeenById.get(member.id) ?? null, now);
           const label =
             sharedNickname ||
             login ||
@@ -112,7 +127,13 @@ export default async function OwnerAccounts({
               )}
               <p className="text-text-muted text-sm">
                 Registered {formatter.format(new Date(member.created_at))} UTC ·{' '}
-                {suspended ? 'Suspended' : 'Access enabled'}
+                {suspended
+                  ? 'Suspended by owner'
+                  : activityState === 'dormant'
+                    ? 'Dormant · returns to active on next verified visit'
+                    : activityState === 'unknown'
+                      ? 'No verified visit recorded'
+                      : 'Active'}
               </p>
               {member.id !== user.id && (
                 <AccountAccessControl profileId={member.id} suspended={suspended} />
