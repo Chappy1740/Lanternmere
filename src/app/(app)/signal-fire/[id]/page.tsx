@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import SignalFireUnavailable from './not-found';
 import { z } from 'zod';
 import { getViewer } from '@/lib/hearth/context';
 import { serverEnv } from '@/lib/env.server';
@@ -33,7 +33,7 @@ export default async function SignalFireDetail({
   searchParams: Promise<{ sent?: string }>;
 }) {
   const id = (await params).id;
-  if (!z.uuid().safeParse(id).success) notFound();
+  if (!z.uuid().safeParse(id).success) return <SignalFireUnavailable />;
   const { supabase, user } = await getViewer();
   const owner = Boolean(
     serverEnv.APP_OWNER_PROFILE_ID && user.id === serverEnv.APP_OWNER_PROFILE_ID,
@@ -45,8 +45,8 @@ export default async function SignalFireDetail({
     .eq('id', id)
     .maybeSingle();
   const report = reportSchema.safeParse(data);
-  if (error || !report.success) notFound();
-  if (!owner && report.data.sender_id !== user.id) notFound();
+  if (error || !report.success) return <SignalFireUnavailable />;
+  if (!owner && report.data.sender_id !== user.id) return <SignalFireUnavailable />;
   const { data: replyData, error: replyError } = await reader
     .from('app_feedback_replies')
     .select('id,author_kind,body,created_at')

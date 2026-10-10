@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Signal Fire unavailable-page rendering correction — October 10, 2026
+
+- Will's second-account screenshot after release `64daf83` still shows the generic 404. The connected build succeeded and deployment `82373c51-dcfe-4345-a008-7d19870b8fc8` activated the release, but the custom nested not-found boundary did not render in the shown hosted path. Its exact framework cause is not established.
+- The detail page now directly returns the existing neutral unavailable component for invalid IDs, failed/missing lookups, and cross-account ownership denial. This avoids dependence on the nested not-found boundary. Valid unavailable detail URLs now render an explanatory page rather than deliberately throwing an HTTP 404; record contents and replies remain inaccessible, and database permissions and action authorization are unchanged. A focused mocked regression checks missing, failed, and foreign-owner results all return the same component without querying replies.
+- Tracker revision 62 keeps A-18 open. Hosted wording still requires Will's confirmation; previous cross-account denial and phone results remain recorded.
+- Current-session focused fallback regression, ESLint, status regression, Workers build, regenerated route types with TypeScript, and diff review passed.
+
 ## Signal Fire phone checks and unavailable conversation message — October 10, 2026
 
 - Will confirmed all four review statuses remain after saving and refreshing; reopening the closed report preserves Closed. His phone screenshot shows the actual Send-button test report with its submission receipt. He confirmed a reply appears and survives refresh, then closing hides the reply box and shows the 180-day removal notice. This owner-account self-conversation does not establish separate sender/owner reply delivery or actual scheduled deletion.
