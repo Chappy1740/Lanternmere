@@ -4,7 +4,7 @@
 
 - Will requested a new way for someone to tell Lanternmere that something is broken or suggest an idea. Milestone 15 is accepted and planned as a private submission flow and owner triage inbox; it is not implemented or available on the hosted site. CR-029 tracks the request, and A-18 reserves live acceptance for submission, access isolation, abuse limits, and phone usability.
 - Will chose signed-in submissions so he can reply to the correct member. The planned first release uses short text reports, receipts, a private two-way conversation, owner review, and sender-visible status. Reports are not automatically published to the project tracker; there is no public intake or email alert in the first release. The [specification](milestones/milestone-15-signal-fire.md) records these boundaries.
-- Tracker revision 56 adds one planned milestone and one open acceptance check. Existing Milestones 0–14 and their evidence remain unchanged. Will approved committing and publishing this roadmap update; it does not establish a working feedback form.
+- Tracker revision 56 adds one planned milestone and one open acceptance check. Existing Milestones 0–14 and their evidence remain unchanged. Will approved committing and publishing this roadmap update. Commit `e986efa` was pushed to `main`; the hosted `/status` page then showed The Signal Fire as planned, 14 of 16 milestones implemented, and 31 of 52 required checkpoints complete from its bundled snapshot. This does not establish a working feedback form.
 
 ## CR-028 returning-member signup guidance — October 10, 2026
 
