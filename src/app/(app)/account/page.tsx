@@ -5,6 +5,7 @@ import { GameNicknameForm } from '@/components/game-nickname-form';
 import { ownedWowCharacterSchema } from '@/lib/wow/guild-claim';
 import { AddOwnedTravelerControl } from '@/components/add-owned-traveler-control';
 import { WOW_MIN_TRAVELER_LEVEL, WOW_RETAIL_LEVEL_CAP } from '@/lib/wow/level';
+import { MainIdentityConsentForm } from '@/components/main-identity-consent-form';
 export default async function AccountPage({
   searchParams,
 }: {
@@ -31,6 +32,7 @@ export default async function AccountPage({
     { data: snapshot, error: snapshotError },
     claimsResult,
     existingResult,
+    acknowledgmentResult,
   ] = await Promise.all([
     supabase.from('profiles').select('display_name').eq('id', user.id).single(),
     supabase
@@ -44,8 +46,20 @@ export default async function AccountPage({
       .select('region,realm_slug,character_name,games!inner(slug)')
       .eq('profile_id', user.id)
       .eq('games.slug', 'wow'),
+    supabase
+      .from('app_main_identity_acknowledgments')
+      .select('profile_id')
+      .eq('profile_id', user.id)
+      .eq('policy_version', '2026-10')
+      .maybeSingle(),
   ]);
-  if (profileError || snapshotError || claimsResult.error || existingResult.error)
+  if (
+    profileError ||
+    snapshotError ||
+    claimsResult.error ||
+    existingResult.error ||
+    acknowledgmentResult.error
+  )
     throw new Error('Unable to load your account.');
   const characters = z.array(ownedWowCharacterSchema).safeParse(snapshot?.characters ?? []);
   if (!characters.success) throw new Error('Unable to load your character list.');
@@ -66,8 +80,18 @@ export default async function AccountPage({
         <h1 className="font-display mt-2 text-3xl">Nickname and characters</h1>
         <GameNicknameForm nickname={profile?.display_name ?? ''} />
         <Link href="/membership" className="text-accent mt-5 inline-block">
-          Directory privacy
+          Main identity sharing
         </Link>
+      </section>
+      <section className="lodge-panel p-6">
+        <h2 className="font-display text-2xl">Before adding a Traveler</h2>
+        <p className="text-text-muted mt-3 text-sm">
+          Your selected Battle.net-verified Main’s name, realm, and region are shown to the app
+          owner for account management after you acknowledge this policy. Existing Travelers stay
+          private until you do. Your other character details and private Battle.net list are not
+          shown.
+        </p>
+        <MainIdentityConsentForm acknowledged={Boolean(acknowledgmentResult.data)} />
       </section>
       <section className="lodge-panel p-6">
         <h2 className="font-display text-2xl">Your Battle.net characters</h2>
@@ -137,6 +161,7 @@ export default async function AccountPage({
               <AddOwnedTravelerControl
                 characterId={character.id}
                 added={claimedIds.has(character.id)}
+                identityAcknowledged={Boolean(acknowledgmentResult.data)}
                 previouslyImported={existingCharacters.has(
                   `${snapshot?.region}:${character.realm.slug.toLowerCase()}:${character.name?.toLowerCase()}`,
                 )}

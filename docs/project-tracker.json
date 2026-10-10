@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 48,
+  "revision": 49,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -321,7 +321,7 @@
       "requestedAt": "2026-10-02",
       "milestone": null,
       "status": "done",
-      "note": "Signup requires a game nickname with optional owner sharing. Existing accounts can edit their nickname on Your account. Fresh signup and consent acceptance remains open under A-10."
+      "note": "Signup requires a game nickname. The former optional owner sharing was superseded by CR-019's acknowledged, verified Main identity policy. Existing accounts can still edit their nickname on Your account. Fresh signup acceptance remains open under A-10."
     },
     {
       "id": "CR-008",
@@ -345,7 +345,7 @@
       "requestedAt": "2026-10-02",
       "milestone": null,
       "status": "done",
-      "note": "The app owner explicitly requested sign-in identities instead of member pseudonyms for account administration. Owner-only management shows sign-in email via a bounded service-only projection. Nickname sharing remains optional; signup and Membership explain owner email access."
+      "note": "Historical delivery: owner-only management used a bounded sign-in email projection. CR-019 superseded this policy; the owner pages now use acknowledged, verified Main identities and do not query or display emails."
     },
     {
       "id": "CR-011",
@@ -353,7 +353,7 @@
       "requestedAt": "2026-10-02",
       "milestone": null,
       "status": "done",
-      "note": "Owner management uses an opted-in game nickname as the main label with sign-in email underneath. Accounts without a shared nickname retain email as their main identifier. Hidden nicknames remain hidden."
+      "note": "Historical delivery: the opted-in nickname appeared above the sign-in email. CR-019 replaced both in owner pages with an acknowledged, verified Main identity or a stable numbered reference."
     },
     {
       "id": "CR-012",
@@ -416,8 +416,8 @@
       "title": "Use verified Main account identity and reversible 30-day inactivity",
       "requestedAt": "2026-10-05",
       "milestone": null,
-      "status": "in_progress",
-      "note": "Owner account management now derives a 30-day dormant label from the last verified app visit. Returning activity restores active status without changing stored data or manual suspension. Main-based owner labels without emails remain pending; disclose required sharing before onboarding and obtain acknowledgment from existing users before exposure. Dormancy does not reclaim storage."
+      "status": "done",
+      "note": "Owner account management derives a reversible 30-day dormant label from verified app visits while preserving manual suspension and all data. A new RLS-protected acknowledgment table gates Traveler additions and owner-visible labels from verified Main claims. Existing users must acknowledge before their Main is shown; owner pages no longer query or display sign-in email. Synthetic and build checks passed; hosted multi-account acceptance remains open. Dormancy does not reclaim storage."
     },
     {
       "id": "CR-020",
@@ -505,9 +505,9 @@
     },
     {
       "id": "A-06",
-      "title": "Live non-owner directory denial and alias opt-in/revocation",
+      "title": "Live non-owner account-list denial and verified Main acknowledgment boundary",
       "status": "open",
-      "note": "Will confirmed hiding his optional alias removes it from the owner list and persists after refresh. Non-owner denial and the full opt-in path remain unverified. CR-019 specifies a replacement Main identity policy, which is not yet implemented."
+      "note": "Will confirmed the former optional-alias revocation on October 5. CR-019 replaced that owner view with an acknowledged, Battle.net-verified Main identity or numbered reference. Real non-owner denial, acknowledgment before exposure, and Main-change behavior remain unverified."
     },
     {
       "id": "A-07",
@@ -527,7 +527,7 @@
     },
     {
       "id": "A-10",
-      "title": "Fresh signup nickname, confirmation, and optional directory-sharing consent",
+      "title": "Fresh signup nickname, confirmation, and required Main identity acknowledgment",
       "status": "open"
     },
     {

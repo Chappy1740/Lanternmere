@@ -91,6 +91,6 @@ export const navItems: NavItem[] = [
     href: '/lodges/new',
     icon: PlusCircle,
   },
-  { label: 'Membership', subtitle: 'Your directory privacy', href: '/membership', icon: Users },
+  { label: 'Membership', subtitle: 'Main identity sharing', href: '/membership', icon: Users },
   { label: 'Your account', subtitle: 'Nickname & Battle.net', href: '/account', icon: Users },
 ];

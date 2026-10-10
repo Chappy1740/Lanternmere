@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
 import Link from 'next/link';
 import { z } from 'zod';
-import { AppDirectoryPreferenceForm } from '@/components/app-directory-preference-form';
+import { MainIdentityConsentForm } from '@/components/main-identity-consent-form';
 import { serverEnv } from '@/lib/env.server';
 import { getViewer } from '@/lib/hearth/context';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { ownerAccountReference, ownerMainIdentities } from '@/lib/owner-main-identities';
 
 const pageSize = 50;
 
@@ -14,12 +14,13 @@ export default async function MembershipPage({
   searchParams: Promise<{ page?: string | string[] }>;
 }) {
   const [{ supabase, user }, params] = await Promise.all([getViewer(), searchParams]);
-  const { data: preference, error: preferenceError } = await supabase
-    .from('app_member_directory_preferences')
-    .select('alias, visible_to_owner')
+  const { data: acknowledgment, error: acknowledgmentError } = await supabase
+    .from('app_main_identity_acknowledgments')
+    .select('profile_id')
     .eq('profile_id', user.id)
+    .eq('policy_version', '2026-10')
     .maybeSingle();
-  if (preferenceError) throw new Error('Unable to load your directory preference.');
+  if (acknowledgmentError) throw new Error('Unable to load your Main identity choice.');
 
   const isOwner = serverEnv.APP_OWNER_PROFILE_ID === user.id;
   const parsedPage = z.coerce.number().int().min(1).max(10_000).safeParse(params.page);
@@ -44,35 +45,15 @@ export default async function MembershipPage({
     if (error || !parsedProfiles.success) throw new Error('Unable to load app membership.');
     total = count ?? 0;
     const ids = parsedProfiles.data.map(({ id }) => id);
-    const { data: preferences, error: directoryError } = ids.length
-      ? await admin
-          .from('app_member_directory_preferences')
-          .select('profile_id, alias, visible_to_owner')
-          .in('profile_id', ids)
-      : { data: [], error: null };
-    const parsedPreferences = z
-      .array(
-        z.object({
-          profile_id: z.uuid(),
-          alias: z.string().nullable(),
-          visible_to_owner: z.boolean(),
-        }),
-      )
-      .safeParse(preferences);
-    if (directoryError || !parsedPreferences.success)
-      throw new Error('Unable to load app membership preferences.');
-    const aliasById = new Map(parsedPreferences.data.map((entry) => [entry.profile_id, entry]));
+    const labels = await ownerMainIdentities(user.id, ids);
     const signupDateFormatter = new Intl.DateTimeFormat('en-US', {
       dateStyle: 'medium',
       timeZone: 'UTC',
     });
     memberRows = parsedProfiles.data.map((profile) => {
-      const choice = aliasById.get(profile.id);
       return {
         label:
-          choice?.visible_to_owner && choice.alias
-            ? choice.alias
-            : `Member ${createHash('sha256').update(profile.id).digest('hex').slice(0, 10).toUpperCase()}`,
+          labels.get(profile.id) ?? `${ownerAccountReference(profile.id)} · Main identity pending`,
         signedUpOn: signupDateFormatter.format(new Date(profile.created_at)),
       };
     });
@@ -86,18 +67,15 @@ export default async function MembershipPage({
         </Link>
         <p className="lodge-kicker">Application membership</p>
         <h1 className="font-display text-text-primary mt-2 text-3xl font-bold">
-          Directory privacy
+          Main identity sharing
         </h1>
         <p className="text-text-muted mt-3 text-sm">
-          This is separate from Guild and Lodge membership. Your nickname is shown to the app owner
-          only if you opt in. The app owner can see your sign-in email on the account-management
-          page to manage access. Passwords and private game data are not shown there. Please avoid
-          real-life details in your nickname.
+          This is separate from Guild and Lodge membership. After you acknowledge the policy, the
+          app owner can see only your selected Battle.net-verified Main’s name, realm, and region
+          for account management. Existing Main identities remain hidden until acknowledgment. Your
+          sign-in email and alternate characters are not shown in the owner account lists.
         </p>
-        <AppDirectoryPreferenceForm
-          alias={preference?.alias ?? null}
-          visible={preference?.visible_to_owner ?? false}
-        />
+        <MainIdentityConsentForm acknowledged={Boolean(acknowledgment)} />
         <p className="text-text-muted mt-6 text-xs">
           Your Lanternmere account reference (visible only to you):{' '}
           <code className="text-text-primary break-all">{user.id}</code>
@@ -113,8 +91,8 @@ export default async function MembershipPage({
             Registered members · {total}
           </h2>
           <p className="text-text-muted mt-2 text-sm">
-            Signup dates and opt-in aliases only. A numbered label means that member has not chosen
-            to share an alias. This list does not measure active users.
+            Signup dates and acknowledged, verified Main identities only. A numbered label means
+            that no Main identity can be shown yet. This list does not measure active users.
           </p>
           <ul className="mt-5 space-y-2">
             {memberRows.map((member, index) => (

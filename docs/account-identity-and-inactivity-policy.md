@@ -1,6 +1,6 @@
 # Owner account identity and inactivity policy
 
-Accepted direction from Will on October 5, 2026. This document specifies the next account-management change; it is not a record of implemented or deployed behavior.
+Accepted direction from Will on October 5, 2026. The implementation and linked acknowledgment migration were prepared and verified on October 10; live multi-account acceptance remains open. See `project-status.md` for release evidence.
 
 ## Owner-visible account identity
 
@@ -28,4 +28,4 @@ Prepare the smallest acknowledgment schema and a bounded server-only identity pr
 
 Verify owner/non-owner isolation, no email or alternate-character leakage, acknowledgment before exposure of existing private identities, verified-Main selection and changes, the exact 30-day boundary, return-to-active behavior, unknown activity, and preservation of manual suspensions. Rehearse any migration inside a rollback transaction before installation. Keep real-account acceptance separate from synthetic checks.
 
-The October 5 test of the current optional alias flow succeeded: Will hid his alias, refreshed, and confirmed it was removed from the owner list. This is evidence for that existing revocation path, not acceptance of the future Main identity policy or non-owner isolation.
+The October 5 test of the former optional alias flow succeeded: Will hid his alias, refreshed, and confirmed it was removed from the owner list. This is historical evidence for that revocation path, not acceptance of the new Main identity policy or non-owner isolation.

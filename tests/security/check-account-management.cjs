@@ -278,17 +278,9 @@ const state = { error: null, success: null };
     },
     app_account_activity: { data: [], count: 1, error: null },
     app_account_access: { data: [], count: 0, error: null },
-    app_member_directory_preferences: {
-      data: [
-        { profile_id: other, alias: 'HiddenFixtureNickname', visible_to_owner: false },
-        { profile_id: owner, alias: 'SharedFixtureNickname', visible_to_owner: true },
-      ],
-      error: null,
-    },
   };
   const ownerPage = load('src/app/(app)/owner/accounts/page.tsx', {
     'react/jsx-runtime': require('react/jsx-runtime'),
-    'node:crypto': require('node:crypto'),
     'next/link': { default: () => null },
     'next/navigation': {
       notFound() {
@@ -299,6 +291,15 @@ const state = { error: null, success: null };
     '@/lib/hearth/context': { getViewer: async () => ({ user: { id: actor } }) },
     '@/lib/env.server': { serverEnv: { APP_OWNER_PROFILE_ID: owner } },
     '@/components/account-access-control': { AccountAccessControl: () => null },
+    '@/lib/account-dormancy': { accountActivityState: () => 'active' },
+    '@/lib/owner-main-identities': {
+      ownerAccountReference: () => 'Member PENDING',
+      ownerMainIdentities: async (viewer, ids) => {
+        assert.equal(viewer, owner);
+        assert.deepEqual(Array.from(ids), [owner, other]);
+        return new Map([[owner, 'Wrenx · stormrage (US)']]);
+      },
+    },
     '@/lib/supabase/admin': {
       createAdminClient() {
         ownerQueries++;
@@ -329,17 +330,6 @@ const state = { error: null, success: null };
             };
             return query;
           },
-          rpc: async (name, args) => {
-            assert.equal(name, 'app_account_logins');
-            assert.deepEqual(Array.from(args.p_profile_ids), [owner, other]);
-            return {
-              data: [
-                { profile_id: owner, login: 'owner@example.invalid' },
-                { profile_id: other, login: 'member@example.invalid' },
-              ],
-              error: null,
-            };
-          },
         };
       },
     },
@@ -351,12 +341,12 @@ const state = { error: null, success: null };
   const ownerHtml = require('react-dom/server').renderToStaticMarkup(
     await ownerPage.default({ searchParams: Promise.resolve({}) }),
   );
-  assert.ok(ownerHtml.includes('member@example.invalid'));
-  assert.ok(!ownerHtml.includes('HiddenFixtureNickname'));
-  assert.ok(ownerHtml.includes('SharedFixtureNickname'));
-  assert.ok(ownerHtml.includes('Sign-in email: owner@example.invalid'));
+  assert.ok(ownerHtml.includes('Wrenx · stormrage (US)'));
+  assert.ok(ownerHtml.includes('Member PENDING'));
+  assert.ok(ownerHtml.includes('Main identity pending'));
+  assert.ok(!ownerHtml.includes('@example.invalid'));
   console.log(
-    'Account management, signup consent, personal OAuth, and owner-only login rendering passed.',
+    'Account management, signup consent, personal OAuth, and owner-only Main rendering passed.',
   );
 })().catch((error) => {
   console.error(error);

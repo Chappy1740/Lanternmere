@@ -63,13 +63,12 @@ function SignUpForm() {
             Use a game nickname, not your real name or email.
           </p>
           <p className="text-text-muted text-xs">
-            The app owner can see your sign-in email to manage account access. Your password and
-            private character list are not shown.
+            Before adding a Traveler, you will be asked to acknowledge that the app owner can see
+            your selected, Battle.net-verified Main’s name, realm, and region for account
+            management. This is required to add a Traveler. Your sign-in email and private character
+            list are not shown in the owner account lists. Existing members must acknowledge this
+            separately.
           </p>
-          <label className="text-text-muted flex items-start gap-2 text-sm">
-            <input type="checkbox" name="directoryOptIn" className="mt-1" />
-            Show my nickname to the app owner. I can hide it later in Membership.
-          </label>
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-text-primary text-sm">
               Email

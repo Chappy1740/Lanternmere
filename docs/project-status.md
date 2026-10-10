@@ -1,9 +1,15 @@
 # Project status and handoff
 
+## CR-019 verified Main identity and dormancy — October 10, 2026
+
+- The linked acknowledgment migration `20261010122415_main_identity_acknowledgment.sql` is installed. Its SQL and a role-isolation fixture passed in a rollback-only transaction before installation and again afterward; a read check found zero acknowledgments, enabled RLS, no anonymous read, and no authenticated update grant. The error-level security advisor reported no issues.
+- The app patch in this commit requires explicit acknowledgment before adding a verified Traveler. Owner account pages use only a matching Battle.net claim for an acknowledged selected Main; otherwise they show a stable numbered reference. They no longer query or render sign-in email or optional aliases. Prior optional nickname sharing does not count as acknowledgment; existing users' Main names remain hidden until they accept the new disclosure. Old alias preference storage remains for now but is no longer used by the owner views.
+- Focused owner-projection, account-management, Membership, and dormancy regressions, formatting, ESLint, TypeScript after route type generation, and the Cloudflare Workers bundle passed in this session. The local Next.js production build hit a Turbopack CSS-worker process crash twice; it had passed earlier before final copy and consent-refresh edits. Connected Workers deployment and real-account owner/non-owner acceptance remain to verify. No account was deleted, suspended automatically, or billed differently.
+
 ## Owner account dormancy display — October 10, 2026
 
-- CR-019 is in progress. The owner-only account management page now derives Active, Dormant, or No verified visit recorded from the existing server-recorded activity timestamp. The boundary is 30 days; the next verified visit changes the display back to Active. Owner-imposed suspension takes precedence. No account is deleted, suspended automatically, or billed differently; this change does not reclaim storage.
-- The verified Main identity and acknowledgment work in CR-019 is still pending. Existing optional alias and sign-in email behavior remains until that privacy-safe replacement is ready. The exact date-boundary regression, focused lint, Next.js production/TypeScript build, and Workers bundle passed. A standalone TypeScript check after the Workers build hit stale generated Next route types; the final Next.js build regenerated them and passed. Live return and owner-only visibility remain acceptance work.
+- This earlier CR-019 slice added the owner-only Active, Dormant, or No verified visit recorded display from the existing server-recorded activity timestamp. The boundary is 30 days; the next verified visit changes the display back to Active. Owner-imposed suspension takes precedence. No account is deleted, suspended automatically, or billed differently; this change does not reclaim storage.
+- At this checkpoint, verified Main identity and acknowledgment were still pending, and the optional alias and sign-in email behavior remained. The exact date-boundary regression, focused lint, Next.js production/TypeScript build, and Workers bundle passed. A standalone TypeScript check after the Workers build hit stale generated Next route types; the final Next.js build regenerated them and passed. Live return and owner-only visibility remain acceptance work.
 
 ## Status dashboard completion correction — October 7, 2026
 

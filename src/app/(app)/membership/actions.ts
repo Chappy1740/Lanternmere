@@ -46,3 +46,25 @@ export async function updateDirectoryPreference(
       : 'Your alias is hidden from the app owner.',
   };
 }
+
+export type MainIdentityConsentState = { error: string | null; success: string | null };
+
+export async function acknowledgeMainIdentity(
+  _previous: MainIdentityConsentState,
+  formData: FormData,
+): Promise<MainIdentityConsentState> {
+  if (formData.get('acknowledgeMainIdentity') !== 'yes')
+    return {
+      error: 'Confirm that the app owner may see your verified Main identity.',
+      success: null,
+    };
+  const { supabase, user } = await getViewer();
+  const { error } = await supabase
+    .from('app_main_identity_acknowledgments')
+    .insert({ profile_id: user.id });
+  if (error && error.code !== '23505')
+    return { error: 'Your acknowledgment could not be saved. Please try again.', success: null };
+  revalidatePath('/membership');
+  revalidatePath('/account');
+  return { error: null, success: 'Main identity acknowledgment saved.' };
+}

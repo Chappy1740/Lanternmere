@@ -18,6 +18,14 @@ export async function addOwnedTraveler(
   const requested = z.coerce.number().int().positive().safeParse(form.get('characterId'));
   if (!requested.success) return { error: 'Choose a character from your Battle.net list.' };
   const { supabase, user } = await getViewer();
+  const { data: identityAcknowledgment, error: identityError } = await supabase
+    .from('app_main_identity_acknowledgments')
+    .select('profile_id')
+    .eq('profile_id', user.id)
+    .eq('policy_version', '2026-10')
+    .maybeSingle();
+  if (identityError || !identityAcknowledgment)
+    return { error: 'Acknowledge Main identity sharing on this page before adding a Traveler.' };
   const { data: snapshot, error: snapshotError } = await supabase
     .from('app_owned_wow_snapshots')
     .select('region,characters,refreshed_at')
@@ -100,5 +108,5 @@ export async function updateGameNickname(
     .eq('id', user.id);
   if (error) return { error: 'Your nickname could not be saved.', success: null };
   revalidatePath('/account');
-  return { error: null, success: 'Your game nickname is saved. Directory sharing is unchanged.' };
+  return { error: null, success: 'Your game nickname is saved.' };
 }

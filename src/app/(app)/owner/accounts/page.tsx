@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
@@ -7,6 +6,7 @@ import { serverEnv } from '@/lib/env.server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { AccountAccessControl } from '@/components/account-access-control';
 import { accountActivityState } from '@/lib/account-dormancy';
+import { ownerAccountReference, ownerMainIdentities } from '@/lib/owner-main-identities';
 
 export default async function OwnerAccounts({
   searchParams,
@@ -50,33 +50,17 @@ export default async function OwnerAccounts({
     throw new Error('Unable to load account management.');
   const ids = members.data.map((m) => m.id);
   const [
-    { data: preferences, error: preferenceError },
     { data: access, error: accessError },
-    { data: logins, error: loginError },
     { data: activity, error: pageActivityError },
+    mainLabels,
   ] = ids.length
     ? await Promise.all([
-        admin
-          .from('app_member_directory_preferences')
-          .select('profile_id,alias,visible_to_owner')
-          .in('profile_id', ids),
         admin.from('app_account_access').select('profile_id,suspended').in('profile_id', ids),
-        admin.rpc('app_account_logins', { p_profile_ids: ids }),
         admin.from('app_account_activity').select('profile_id,last_seen_at').in('profile_id', ids),
+        ownerMainIdentities(user.id, ids),
       ])
-    : [
-        { data: [], error: null },
-        { data: [], error: null },
-        { data: [], error: null },
-        { data: [], error: null },
-      ];
-  if (preferenceError || accessError || pageActivityError)
-    throw new Error('Unable to load account privacy choices.');
-  const parsedLogins = z
-    .array(z.object({ profile_id: z.uuid(), login: z.string().nullable() }))
-    .safeParse(logins);
-  if (loginError || !parsedLogins.success) throw new Error('Unable to load account logins.');
-  const loginById = new Map(parsedLogins.data.map((row) => [row.profile_id, row.login]));
+    : [{ data: [], error: null }, { data: [], error: null }, new Map<string, string>()];
+  if (accessError || pageActivityError) throw new Error('Unable to load account access.');
   const parsedActivity = z
     .array(z.object({ profile_id: z.uuid(), last_seen_at: z.string().datetime({ offset: true }) }))
     .safeParse(activity);
@@ -97,7 +81,7 @@ export default async function OwnerAccounts({
         </p>
         <p className="text-text-muted mt-2 text-sm">
           Activity counts verified app visits since this feature was enabled, not historical usage.
-          Sign-in emails identify accounts for owner administration. Nicknames remain opt-in.
+          Accounts show a verified Main only after the member accepts this visibility policy.
           Dormant means no verified app visit for 30 days; a return visit restores active status.
           Dormancy preserves data and does not override manual suspension.
         </p>
@@ -107,24 +91,17 @@ export default async function OwnerAccounts({
       </header>
       <ul className="space-y-3">
         {members.data.map((member) => {
-          const pref = preferences?.find((p) => p.profile_id === member.id);
           const suspended = access?.find((a) => a.profile_id === member.id)?.suspended === true;
-          const sharedNickname = pref?.visible_to_owner ? pref.alias : null;
-          const login = loginById.get(member.id);
           const activityState = accountActivityState(lastSeenById.get(member.id) ?? null, now);
-          const label =
-            sharedNickname ||
-            login ||
-            `Member ${createHash('sha256').update(member.id).digest('hex').slice(0, 10).toUpperCase()}`;
+          const mainLabel = mainLabels.get(member.id);
+          const label = mainLabel ?? ownerAccountReference(member.id);
           return (
             <li className="lodge-panel p-5" key={member.id}>
               <h2 className="break-all">
                 {label}
                 {member.id === user.id ? ' · App owner' : ''}
               </h2>
-              {sharedNickname && login && (
-                <p className="text-text-muted text-sm break-all">Sign-in email: {login}</p>
-              )}
+              {!mainLabel && <p className="text-text-muted text-sm">Main identity pending</p>}
               <p className="text-text-muted text-sm">
                 Registered {formatter.format(new Date(member.created_at))} UTC ·{' '}
                 {suspended

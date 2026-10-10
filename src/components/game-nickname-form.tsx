@@ -21,8 +21,8 @@ export function GameNicknameForm({ nickname }: { nickname: string }) {
         />
       </label>
       <p className="text-text-muted text-sm">
-        Choose a game nickname, not your real name or email. Sharing it with the app owner is
-        optional in Membership.
+        Choose a game nickname, not your real name or email. The owner account lists use your
+        acknowledged, verified Main identity instead.
       </p>
       <button disabled={pending} className="lodge-button px-4 py-2">
         {pending ? 'Saving…' : 'Save nickname'}
