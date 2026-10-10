@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 54,
+  "revision": 55,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -37,7 +37,7 @@
         {
           "id": "M1-existing-email-guidance",
           "title": "Guide returning members who try to create another account",
-          "status": "in_progress",
+          "status": "done",
           "requestId": "CR-028"
         }
       ],
@@ -500,8 +500,8 @@
       "title": "Explain when a signup email may already be used",
       "requestedAt": "2026-10-10",
       "milestone": 1,
-      "status": "in_progress",
-      "note": "Will wants returning members who try Create Account to see that their email may already be used. Supabase deliberately obscures duplicate signup results when confirmation is enabled, so the prepared local copy gives a truthful conditional notice and sign-in path. Hosted release is pending."
+      "status": "done",
+      "note": "Will wants returning members who try Create Account to see that their email may already be used. Supabase deliberately obscures duplicate signup results when confirmation is enabled, so the published copy gives a truthful conditional notice and sign-in path. Commit c5148a1 was pushed to main; hosted sign-up and sign-in screens were verified in the browser. A real duplicate-account submission was not tested."
     }
   ],
   "acceptance": [

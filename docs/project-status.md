@@ -4,7 +4,7 @@
 
 - Will asked that Create Account tell someone who has used the email before that it is already used. Supabase intentionally obscures existing-account results while email confirmation is enabled, so the app cannot reliably make a definite claim for any submitted address. The local repair says the address **may already be in use**, directs returning members to sign in, and promises a confirmation email only for a new account. Explicit duplicate provider errors follow the same neutral result as other signup submissions rather than revealing account existence.
 - Focused account, Front Door, and status regressions, ESLint, the Workers bundle, regenerated Next route types with TypeScript, and `git diff --check` passed locally. No real duplicate email or live signup was used for testing.
-- This is prepared locally. No real account was created or queried, and the hosted page has not been updated. CR-028 and its Milestone 1 work item remain in progress until release and a browser check.
+- Will approved commit and publication. Commit `c5148a1` was pushed to `main`, and the hosted `/sign-up` and `/sign-in?confirmEmail=1` screens were verified in the browser with the new text. No real account was created or queried. CR-028 and its Milestone 1 work item are done; CR-027 password recovery remains in progress and Milestone 1 acceptance remains open.
 
 ## CR-027 mobile password recovery — October 10, 2026
 
