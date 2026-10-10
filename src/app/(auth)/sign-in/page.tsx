@@ -49,14 +49,15 @@ function SignInForm() {
             role="status"
             className="border-accent bg-background/80 mt-5 rounded-lg border p-4"
           >
-            <h2 className="text-accent text-lg font-bold">Check your email before signing in</h2>
+            <h2 className="text-accent text-lg font-bold">Check your email or sign in</h2>
             <p className="text-text-primary mt-2 text-sm">
-              You will receive a confirmation email. Open it and click “Confirm email address” to
-              finish signing up. You must confirm your email before you can sign in.
+              If this is a new account, you should receive a confirmation email. Open it and click
+              “Confirm email address” before signing in.
             </p>
             <p className="text-text-muted mt-2 text-sm">
-              Allow a few minutes for delivery and check your spam or junk folder. If you already
-              have an account, you can sign in below.
+              This email may already be in use. If it belongs to an existing account, no new account
+              was created; sign in below instead. For a new account, allow a few minutes and check
+              your spam or junk folder.
             </p>
           </section>
         )}

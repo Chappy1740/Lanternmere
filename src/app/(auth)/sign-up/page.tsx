@@ -82,7 +82,6 @@ function SignUpForm() {
               className="lodge-field px-3 py-2"
             />
           </div>
-
           <div className="flex flex-col gap-1">
             <label htmlFor="password" className="text-text-primary text-sm">
               Password
@@ -131,12 +130,12 @@ function SignUpForm() {
         </form>
 
         <p className="text-text-muted mt-6 text-center text-sm">
-          Already have an account?{' '}
+          Already used this email for Lanternmere?{' '}
           <Link
             href={returnTo ? `/sign-in?next=${encodeURIComponent(returnTo)}` : '/sign-in'}
-            className="text-accent hover:text-accent-hover"
+            className="lodge-button mt-2 inline-block px-4 py-2"
           >
-            Sign in
+            Sign in instead
           </Link>
         </p>
       </div>

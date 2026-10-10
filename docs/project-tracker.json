@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 53,
+  "revision": 54,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -33,6 +33,12 @@
           "title": "Make password-reset links work across browser sessions",
           "status": "in_progress",
           "requestId": "CR-027"
+        },
+        {
+          "id": "M1-existing-email-guidance",
+          "title": "Guide returning members who try to create another account",
+          "status": "in_progress",
+          "requestId": "CR-028"
         }
       ],
       "description": "Account registration, email confirmation, sign-in, and secure Lodge invitations.",
@@ -488,6 +494,14 @@
       "milestone": 1,
       "status": "in_progress",
       "note": "Will's iPhone reset email returned to the request form. The app repair is published and its hosted error notice rendered, but Supabase's default Reset Password email template remains locked until custom SMTP, the Pro email option, or a Send Email hook is configured. Browser-independent recovery and a fresh live reset remain unverified."
+    },
+    {
+      "id": "CR-028",
+      "title": "Explain when a signup email may already be used",
+      "requestedAt": "2026-10-10",
+      "milestone": 1,
+      "status": "in_progress",
+      "note": "Will wants returning members who try Create Account to see that their email may already be used. Supabase deliberately obscures duplicate signup results when confirmation is enabled, so the prepared local copy gives a truthful conditional notice and sign-in path. Hosted release is pending."
     }
   ],
   "acceptance": [

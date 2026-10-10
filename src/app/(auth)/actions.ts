@@ -95,7 +95,10 @@ export async function signUp(
     },
   });
 
-  if (error) {
+  if (
+    error &&
+    !['user_already_exists', 'email_exists', 'identity_already_exists'].includes(error.code ?? '')
+  ) {
     return { error: error.message };
   }
 

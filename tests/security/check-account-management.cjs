@@ -45,6 +45,7 @@ const actions = load('src/app/(app)/owner/accounts/actions.ts', {
   },
 });
 const signups = [];
+let signupError = null;
 const auth = load('src/app/(auth)/actions.ts', {
   'next/cache': { revalidatePath() {} },
   'next/headers': { headers: async () => ({ get: () => 'https://example.invalid' }) },
@@ -59,7 +60,7 @@ const auth = load('src/app/(auth)/actions.ts', {
       auth: {
         signUp: async (payload) => {
           signups.push(payload);
-          return { error: null };
+          return { error: signupError };
         },
       },
     }),
@@ -106,6 +107,11 @@ const state = { error: null, success: null };
   registration.delete('directoryOptIn');
   await assert.rejects(() => auth.signUp(state, registration), /redirect/);
   assert.equal(signups[1].options.data.directory_opt_in, false);
+  signupError = { code: 'user_already_exists', message: 'User already registered' };
+  await assert.rejects(() => auth.signUp(state, registration), /redirect/);
+  signupError = { code: 'weak_password', message: 'Choose a stronger password.' };
+  assert.match((await auth.signUp(state, registration)).error, /stronger password/);
+  signupError = null;
   const callbacks = [];
   let current = owner;
   let fetched = 0;

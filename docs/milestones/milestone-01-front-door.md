@@ -1,7 +1,7 @@
 # Milestone 1 — The Front Door
 
 ## Status
-Original feature scope complete. CR-027 reopens the Front Door tracker while the mobile password-reset repair awaits hosted installation and live verification.
+Original feature scope complete. CR-027 reopens the Front Door tracker while mobile password recovery awaits hosted setup and live verification; CR-028 adds conditional guidance for returning members who submit Create Account with an email they may have used before.
 
 ## Purpose
 Provide the secure entry path into Lanternmere and establish a user's first Lodge.
