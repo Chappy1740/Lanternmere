@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Signal Fire status persistence repair — October 10, 2026
+
+- Will reported a detail page showing “Status saved.” while Review state still displayed New, and required saved status to survive saving, refreshing, and reopening. The uncontrolled selector used `defaultValue`, so a successful form action could reset it to its original value while refreshed server props did not control the selection. This explains the display failure; the screenshot alone does not prove that the database reverted.
+- The selector now uses controlled state, synchronizes with database-confirmed action results and refreshed report data, and preserves a pending choice if saving fails. The owner action returns success only when the updated row's returned status matches the requested status. Existing owner authorization, database status/closed-time trigger, and private read boundaries are unchanged; no migration is needed.
+- Current-session verification: focused action authorization and persisted-status response checks, a controlled-form regression for action completion before refreshed props and fresh mounts from saved data, status dashboard regression, focused ESLint, generated Next route types with TypeScript, and Workers bundle passed. The first lint pass rejected effect-based state synchronization; it was replaced with guarded render-time synchronization. Wrangler reported its existing nonfatal debug-log permission warning. These are local/mocked checks, not real-account persistence evidence.
+- Tracker revision 60 keeps A-18 open. Publication is authorized within the existing Signal Fire scope. After release, first ask Will to set the labeled test report to Reviewing and save; then check refresh and reopening one step at a time. Actual Send-button submission, private replies, owner/non-owner and cross-account denial, limits, and phone accessibility still require live checks.
+
 ## Milestone 15 published, live acceptance open — October 10, 2026
 
 - The Signal Fire now has published report and idea forms for signed-in members, member conversation pages, an owner-only inbox, private replies, and owner triage controls. It does not require a Lodge or Traveler. Migration `20261010155555_signal_fire_feedback.sql` is installed on the linked database with member-only reads, server-only writes, input/rate limits, closed-thread reply denial, and a daily job that deletes closed conversations after 180 days.

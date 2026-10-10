@@ -126,9 +126,17 @@ export function FeedbackReplyForm({ reportId }: { reportId: string }) {
 
 export function FeedbackStatusForm({ reportId, status }: { reportId: string; status: string }) {
   const [state, action, pending] = useActionState(setFeedbackStatus, initialState);
+  const [selectedStatus, setSelectedStatus] = useState(status);
+  const [source, setSource] = useState({ reportId, status, state });
+  if (source.reportId !== reportId || source.status !== status || source.state !== state) {
+    setSource({ reportId, status, state });
+    setSelectedStatus(source.state !== state ? (state.savedStatus ?? selectedStatus) : status);
+  }
   const router = useRouter();
   useEffect(() => {
-    if (state.success) router.refresh();
+    if (state.success && state.savedStatus) {
+      router.refresh();
+    }
   }, [state, router]);
   return (
     <form action={action} className="mt-5 flex flex-wrap items-end gap-3">
@@ -137,7 +145,9 @@ export function FeedbackStatusForm({ reportId, status }: { reportId: string; sta
         Review state
         <select
           name="status"
-          defaultValue={status}
+          value={selectedStatus}
+          onChange={(event) => setSelectedStatus(event.target.value)}
+          disabled={pending}
           className="lodge-field mt-2 block min-w-40 px-3 py-2"
         >
           <option value="new">New</option>
@@ -158,7 +168,7 @@ export function FeedbackStatusForm({ reportId, status }: { reportId: string; sta
           {state.error}
         </p>
       )}
-      {state.success && (
+      {state.success && state.savedStatus === selectedStatus && (
         <p role="status" className="w-full text-green-300">
           Status saved.
         </p>

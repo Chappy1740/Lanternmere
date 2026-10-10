@@ -11,6 +11,7 @@ const reportId = '44444444-4444-4444-8444-444444444444';
 let actor = sender;
 let report = { id: reportId, status: 'new', sender_id: sender };
 const writes = [];
+let updateResult;
 
 function query(table) {
   return {
@@ -35,9 +36,13 @@ function query(table) {
     },
     update(row) {
       writes.push({ table, operation: 'update', row });
+      report = { ...report, ...row };
       return {
         eq: () => ({
-          select: () => ({ maybeSingle: async () => ({ data: { id: reportId }, error: null }) }),
+          select: (columns) => {
+            assert.equal(columns, 'id,status');
+            return { maybeSingle: async () => updateResult ?? { data: report, error: null } };
+          },
         }),
       };
     },
@@ -107,12 +112,25 @@ statusForm.set('status', 'reviewing');
   actor = owner;
   assert.equal((await actionExports.replyToFeedback(state, replyForm)).error, null);
   assert.equal(writes[2].row.author_id, owner);
-  assert.equal((await actionExports.setFeedbackStatus(state, statusForm)).error, null);
+  const saved = await actionExports.setFeedbackStatus(state, statusForm);
+  assert.equal(saved.error, null);
+  assert.equal(saved.savedStatus, 'reviewing');
+  assert.equal((await query('app_feedback_reports').maybeSingle()).data.status, 'reviewing');
   assert.equal(writes[3].row.status, 'reviewing');
 
   report = { ...report, status: 'closed' };
   assert.match((await actionExports.replyToFeedback(state, replyForm)).error, /closed/);
   assert.equal(writes.length, 4);
+  for (const status of ['planned', 'closed', 'new']) {
+    statusForm.set('status', status);
+    assert.equal((await actionExports.setFeedbackStatus(state, statusForm)).savedStatus, status);
+    assert.equal((await query('app_feedback_reports').maybeSingle()).data.status, status);
+  }
+  updateResult = { data: { id: reportId, status: 'new' }, error: null };
+  statusForm.set('status', 'reviewing');
+  assert.ok((await actionExports.setFeedbackStatus(state, statusForm)).error);
+  updateResult = { data: null, error: null };
+  assert.ok((await actionExports.setFeedbackStatus(state, statusForm)).error);
   console.log('Signal Fire action authorization checks passed.');
 })().catch((error) => {
   console.error(error);

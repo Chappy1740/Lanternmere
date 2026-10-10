@@ -19,7 +19,11 @@ const statusSchema = z.object({
   status: z.enum(['new', 'reviewing', 'planned', 'closed']),
 });
 
-export type FeedbackFormState = { error: string | null; success?: boolean };
+export type FeedbackFormState = {
+  error: string | null;
+  success?: boolean;
+  savedStatus?: 'new' | 'reviewing' | 'planned' | 'closed';
+};
 
 export async function submitFeedback(
   _previous: FeedbackFormState,
@@ -112,10 +116,11 @@ export async function setFeedbackStatus(
     .from('app_feedback_reports')
     .update({ status: parsed.data.status })
     .eq('id', parsed.data.reportId)
-    .select('id')
+    .select('id,status')
     .maybeSingle();
-  if (error || !data) return { error: 'The report status could not be changed.' };
+  if (error || !data || data.status !== parsed.data.status)
+    return { error: 'The report status could not be changed.' };
   revalidatePath(`/signal-fire/${parsed.data.reportId}`);
   revalidatePath('/owner/signal-fire');
-  return { error: null, success: true };
+  return { error: null, success: true, savedStatus: data.status };
 }

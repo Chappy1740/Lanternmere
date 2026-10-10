@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 59,
+  "revision": 60,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "The feature is published and a two-account database isolation fixture passed. Signed-out member and owner routes redirected to sign-in. Will's October 10 phone screenshot shows one directly inserted test problem in the signed-in owner inbox with account label and New status. This does not test the Send button. Still verify actual signed-in submission and receipt, private replies, owner-only triage, real-account cross-account denial, input and abuse limits, and broader phone accessibility."
+      "note": "The feature is published and a two-account database isolation fixture passed. Signed-out member and owner routes redirected to sign-in. Will's October 10 phone screenshot shows one directly inserted test problem in the signed-in owner inbox; this does not test the Send button. His detail screenshot showed Status saved with New still selected. The persistence repair uses a controlled selector and database-confirmed saved status; local action and form regressions cover save, refresh, and reopening. Live status persistence remains unverified. Still verify actual signed-in submission and receipt, private replies, owner-only triage, real-account cross-account denial, input and abuse limits, and broader phone accessibility."
     }
   ]
 }
