@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 56,
+  "revision": 57,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -280,24 +280,24 @@
     {
       "number": 15,
       "name": "The Signal Fire",
-      "status": "planned",
+      "status": "in_progress",
       "work": [
         {
           "id": "M15-01",
           "title": "Let people send a problem report or idea to Lanternmere",
-          "status": "todo",
+          "status": "in_progress",
           "requestId": "CR-029"
         },
         {
           "id": "M15-02",
           "title": "Give the owner a private inbox, replies, and triage states",
-          "status": "todo",
+          "status": "in_progress",
           "requestId": "CR-029"
         },
         {
           "id": "M15-03",
           "title": "Protect submissions and verify the complete feedback flow",
-          "status": "todo",
+          "status": "in_progress",
           "requestId": "CR-029"
         }
       ],
@@ -535,8 +535,8 @@
       "title": "Let people report problems and send ideas to Lanternmere",
       "requestedAt": "2026-10-10",
       "milestone": 15,
-      "status": "accepted",
-      "note": "Will requested a new milestone for 'this is broken' reports, suggestions, and ideas. He chose signed-in submissions so the owner can reply to the member in a private thread. The Signal Fire is planned, not built or live."
+      "status": "in_progress",
+      "note": "Will requested signed-in problem and idea submissions with private owner replies. The linked migration and two-account rollback privacy fixture passed; the database tables and retention job are installed. App publication and live acceptance remain open."
     }
   ],
   "acceptance": [

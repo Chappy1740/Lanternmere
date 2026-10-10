@@ -15,6 +15,7 @@ import {
   Package,
   Settings,
   PlusCircle,
+  MessageSquareWarning,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -93,4 +94,10 @@ export const navItems: NavItem[] = [
   },
   { label: 'Membership', subtitle: 'Main identity sharing', href: '/membership', icon: Users },
   { label: 'Your account', subtitle: 'Nickname & Battle.net', href: '/account', icon: Users },
+  {
+    label: 'The Signal Fire',
+    subtitle: 'Problems & ideas',
+    href: '/signal-fire',
+    icon: MessageSquareWarning,
+  },
 ];

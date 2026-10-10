@@ -1,5 +1,11 @@
 # Project status and handoff
 
+## Milestone 15 local implementation — October 10, 2026
+
+- The Signal Fire now has signed-in report and idea forms, member conversation pages, an owner-only inbox, private replies, and owner triage controls prepared for publication. It does not require a Lodge or Traveler. Migration `20261010155555_signal_fire_feedback.sql` is installed on the linked database with member-only reads, server-only writes, input/rate limits, closed-thread reply denial, and a daily job that deletes closed conversations after 180 days.
+- The migration and two-account RLS fixture passed in a rollback-only linked rehearsal. A read-only check confirmed that rehearsal left no tables, job, or migration row. A dry run listed only this migration; installation succeeded. Post-install reads confirmed both tables, RLS, migration history, and the retention job. The two-account fixture passed again in a rollback-only transaction, with no synthetic rows left. The focused server-action authorization check, status regression, ESLint, generated route types with TypeScript, and the Cloudflare Workers bundle passed locally. No real member report, cross-account live check, or phone acceptance has occurred. The app is not yet published.
+- Tracker revision 57 marks M15/CR-029 in progress locally. A-18 remains open; do not count this milestone as implemented or tell members the feedback form is available until the app is published and checked.
+
 ## Milestone 15 — The Signal Fire: Problems and Ideas — October 10, 2026
 
 - Will requested a new way for someone to tell Lanternmere that something is broken or suggest an idea. Milestone 15 is accepted and planned as a private submission flow and owner triage inbox; it is not implemented or available on the hosted site. CR-029 tracks the request, and A-18 reserves live acceptance for submission, access isolation, abuse limits, and phone usability.

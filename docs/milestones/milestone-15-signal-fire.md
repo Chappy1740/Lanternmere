@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted and planned October 10, 2026. No submission form, inbox, reply thread, database table, or notification has been implemented or published. Live acceptance is tracked as A-18.
+Accepted October 10, 2026. The migration passed a linked rollback-only rehearsal and is installed. The app is prepared locally but not yet published. Live acceptance is tracked as A-18.
 
 ## Purpose
 
@@ -21,7 +21,8 @@ Give a signed-in member a simple way to tell Lanternmere that something is broke
 
 - Store submissions and replies with access rules enforced on the server and in database policies. The owner can read, reply, and triage; the signed-in sender can read and answer only their own thread. Other members and Lodge leaders cannot read or alter them through direct links or APIs.
 - Do not include passwords, login codes, private Battle.net lists, or sensitive account details in a report. Show this reminder beside the form and avoid collecting them in automatic diagnostics.
-- Validate and limit title/body length; render submitted text as text, never executable markup. Limit repeated submissions. Design retention and deletion before installation.
+- Validate and limit title/body length; render submitted text as text, never executable markup. The prepared database limits reports to one per minute and five per day per account, replies to 20 per day per author and 200 per thread, and disallows replies to closed reports.
+- Closing a report starts a 180-day retention period; a daily database job then removes it and its replies. Account deletion cascades to that account's reports and replies. Open conversations are retained so the owner can answer. Reopening a report clears its closure date.
 - No screenshots, file uploads, automatic device details, email delivery, external issue-tracker posting, or public voting in the first release. These require separate privacy and abuse review if later requested.
 
 ## Submission audience
