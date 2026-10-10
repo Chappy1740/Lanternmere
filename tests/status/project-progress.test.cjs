@@ -33,7 +33,8 @@ assert.ok(currentProgress.completed < currentProgress.required);
 assert.ok(currentProgress.openRequests.some((request) => request.id === 'CR-027'));
 assert.ok(currentProgress.openRequests.some((request) => request.id === 'CR-029'));
 assert.ok(currentProgress.openWork.some((item) => item.id === 'M1-password-recovery-link'));
-assert.ok(currentProgress.openWork.some((item) => item.id === 'M15-01'));
+assert.ok(currentProgress.openWork.some((item) => item.id === 'M15-03'));
+assert.ok(!currentProgress.openWork.some((item) => item.id === 'M15-01'));
 
 const ready = structuredClone(current);
 for (const item of ready.acceptance) item.status = 'verified';

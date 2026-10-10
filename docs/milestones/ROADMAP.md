@@ -2,7 +2,7 @@
 
 ## Current
 
-- Milestones 0–14 — feature scope implemented. Milestone 15 is in progress locally. Independent audits and live acceptance remain tracked in `docs/project-status.md`.
+- Milestones 0–14 — feature scope implemented. Milestone 15 is published and awaits real-account acceptance. Independent audits and live acceptance remain tracked in `docs/project-status.md`.
 
 ## Guild Operations era
 

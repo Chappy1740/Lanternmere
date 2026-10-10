@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted October 10, 2026. The migration passed a linked rollback-only rehearsal and is installed. The app is prepared locally but not yet published. Live acceptance is tracked as A-18.
+Accepted October 10, 2026. The migration passed a linked rollback-only rehearsal and is installed. App commit `bb11076` was pushed to `main`; its connected Workers build succeeded and a new deployment became active. Signed-out requests to the member and owner routes redirected to sign-in. Real-account acceptance is tracked as A-18.
 
 ## Purpose
 

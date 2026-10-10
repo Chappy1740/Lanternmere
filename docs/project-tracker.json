@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 57,
+  "revision": 58,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -285,13 +285,13 @@
         {
           "id": "M15-01",
           "title": "Let people send a problem report or idea to Lanternmere",
-          "status": "in_progress",
+          "status": "done",
           "requestId": "CR-029"
         },
         {
           "id": "M15-02",
           "title": "Give the owner a private inbox, replies, and triage states",
-          "status": "in_progress",
+          "status": "done",
           "requestId": "CR-029"
         },
         {
@@ -536,7 +536,7 @@
       "requestedAt": "2026-10-10",
       "milestone": 15,
       "status": "in_progress",
-      "note": "Will requested signed-in problem and idea submissions with private owner replies. The linked migration and two-account rollback privacy fixture passed; the database tables and retention job are installed. App publication and live acceptance remain open."
+      "note": "Will requested signed-in problem and idea submissions with private owner replies. The linked migration and two-account rollback privacy fixture passed; the tables and retention job are installed. Commit bb11076 passed its Workers build and is deployed. Real-account and phone acceptance remain open."
     }
   ],
   "acceptance": [
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "Milestone 15 is planned only. Verify signed-in submission, signed-out denial, receipts, two-way private replies, owner-only triage, cross-account denial, input and abuse limits, and phone accessibility after implementation."
+      "note": "The feature is published and a two-account database isolation fixture passed. Verify signed-in submission, receipt, two-way private replies, owner-only triage, cross-account denial through real accounts, input and abuse limits, and phone accessibility. Signed-out member and owner routes redirected to sign-in."
     }
   ]
 }
