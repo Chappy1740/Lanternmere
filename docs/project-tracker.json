@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 49,
+  "revision": 50,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -507,7 +507,7 @@
       "id": "A-06",
       "title": "Live non-owner account-list denial and verified Main acknowledgment boundary",
       "status": "open",
-      "note": "Will confirmed the former optional-alias revocation on October 5. CR-019 replaced that owner view with an acknowledged, Battle.net-verified Main identity or numbered reference. Real non-owner denial, acknowledgment before exposure, and Main-change behavior remain unverified."
+      "note": "Will confirmed the former optional-alias revocation on October 5. After CR-019 released, his phone screenshot showed numbered references and Main identity pending on visible owner cards, with no sign-in emails. Real non-owner denial, post-acknowledgment verified Main labels, Main-change behavior, and second-account privacy remain unverified."
     },
     {
       "id": "A-07",
@@ -517,7 +517,8 @@
     {
       "id": "A-08",
       "title": "Hosted owner account management, stale-session suspension, and restoration",
-      "status": "open"
+      "status": "open",
+      "note": "Will supplied a hosted phone screenshot of owner account cards showing member references and activity labels on October 10. This does not verify the owner-only gate, stale-session suspension, or restoration."
     },
     {
       "id": "A-09",
