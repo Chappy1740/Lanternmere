@@ -163,20 +163,36 @@ export async function requestPasswordReset(
 ): Promise<AuthActionState> {
   const emailValue = formData.get('email');
   const email = typeof emailValue === 'string' ? emailValue.trim() : '';
-  if (!email || !/^\S+@\S+\.\S+$/.test(email)) return { error: 'Enter a valid email address.' };
+  if (!email || email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) {
+    return { error: 'Enter a valid email address.' };
+  }
   try {
     const origin = (await headers()).get('origin');
     if (!origin) return { error: 'Password recovery is unavailable right now. Please try again.' };
     const supabase = await createClient();
-    await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${origin}/auth/callback?next=/reset-password`,
     });
+    if (error) {
+      if (
+        error.status === 429 ||
+        error.code === 'over_email_send_rate_limit' ||
+        error.code === 'over_request_rate_limit'
+      ) {
+        return { error: 'Please wait a few minutes before requesting another reset email.' };
+      }
+      if (!error.status || error.status >= 500 || error.code === 'request_timeout') {
+        return { error: 'A reset email could not be requested right now. Please try again later.' };
+      }
+      // Do not reveal whether an account exists for this email address.
+    }
   } catch {
     return { error: 'Password recovery is unavailable right now. Please try again.' };
   }
   return {
     error: null,
-    success: 'If that email belongs to an account, a password-reset link is on its way.',
+    success:
+      'If that email belongs to an account, a password-reset link is on its way. Check your inbox and spam folder, and open the newest email.',
   };
 }
 

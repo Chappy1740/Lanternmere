@@ -116,6 +116,8 @@ async function checkInvitation(path, action, rpcName, destination) {
   let resendError = null;
   let resendThrows = false;
   const resendCalls = [];
+  let resetError = null;
+  const resetCalls = [];
   const recovery = load('src/app/(auth)/actions.ts', {
     ...next,
     'next/headers': { headers: async () => ({ get: () => requestOrigin }) },
@@ -127,6 +129,10 @@ async function checkInvitation(path, action, rpcName, destination) {
             resendCalls.push(payload);
             if (resendThrows) throw new Error('private upstream detail');
             return { error: resendError };
+          },
+          resetPasswordForEmail: async (email, options) => {
+            resetCalls.push({ email, options });
+            return { error: resetError };
           },
         },
       }),
@@ -173,12 +179,46 @@ async function checkInvitation(path, action, rpcName, destination) {
   assert.match((await recovery.resendConfirmation(state, confirmationForm)).error, /unavailable/);
   assert.equal(resendCalls.length, requestCount);
 
+  requestOrigin = 'https://example.invalid';
+  assert.match(
+    (await recovery.requestPasswordReset(state, confirmationForm)).success,
+    /password-reset link/,
+  );
+  assert.equal(resetCalls.at(-1).email, 'fixture@example.invalid');
+  assert.equal(
+    resetCalls.at(-1).options.redirectTo,
+    'https://example.invalid/auth/callback?next=/reset-password',
+  );
+  resetError = { status: 429, code: 'over_email_send_rate_limit' };
+  assert.match(
+    (await recovery.requestPasswordReset(state, confirmationForm)).error,
+    /wait a few minutes/,
+  );
+  resetError = { status: 503 };
+  assert.match(
+    (await recovery.requestPasswordReset(state, confirmationForm)).error,
+    /could not be requested/,
+  );
+  resetError = { status: 400, code: 'user_not_found' };
+  assert.match(
+    (await recovery.requestPasswordReset(state, confirmationForm)).success,
+    /password-reset link/,
+  );
+
   let exchangeError = null;
   let exchanges = 0;
   let exchangeOptions;
+  let verifyError = null;
+  const verifications = [];
+  const callbackCookies = [];
   const callback = load('src/app/auth/callback/route.ts', {
     'next/server': {
-      NextResponse: { redirect: (url) => ({ url: url.href, cookies: { set() {} } }) },
+      NextResponse: {
+        redirect: (url) => ({
+          url: url.href,
+          cookies: { set: (...args) => callbackCookies.push(args) },
+        }),
+      },
     },
     '@/lib/env.client': {
       clientEnv: {
@@ -187,12 +227,19 @@ async function checkInvitation(path, action, rpcName, destination) {
       },
     },
     '@supabase/ssr': {
-      createServerClient: () => ({
+      createServerClient: (_url, _key, { cookies }) => ({
         auth: {
           exchangeCodeForSession: async (_code, options) => {
             exchanges += 1;
             exchangeOptions = options;
             return { error: exchangeError };
+          },
+          verifyOtp: async (payload) => {
+            verifications.push(payload);
+            if (!verifyError) {
+              cookies.setAll([{ name: 'fixture-session', value: 'fixture-value', options: {} }]);
+            }
+            return { error: verifyError };
           },
         },
       }),
@@ -215,6 +262,25 @@ async function checkInvitation(path, action, rpcName, destination) {
     (await openCallback('next=/account')).url,
     'https://example.invalid/sign-in?confirmationError=1',
   );
+  assert.equal(
+    (await openCallback('token_hash=fixture-hash&type=recovery&next=/reset-password')).url,
+    'https://example.invalid/reset-password',
+  );
+  assert.equal(verifications.at(-1).token_hash, 'fixture-hash');
+  assert.equal(verifications.at(-1).type, 'recovery');
+  assert.equal(callbackCookies.at(-1)[0], 'fixture-session');
+  const verifiedCount = verifications.length;
+  assert.equal(
+    (await openCallback('token_hash=fixture-hash&type=email&next=/reset-password')).url,
+    'https://example.invalid/forgot-password?expired=1',
+  );
+  assert.equal(verifications.length, verifiedCount);
+  verifyError = { code: 'otp_expired' };
+  assert.equal(
+    (await openCallback('token_hash=fixture-hash&type=recovery&next=/reset-password')).url,
+    'https://example.invalid/forgot-password?expired=1',
+  );
+  verifyError = null;
   assert.equal(
     (await openCallback('code=fixture&next=/account')).url,
     'https://example.invalid/account',

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 51,
+  "revision": 52,
   "updatedAt": "2026-10-10",
   "milestones": [
     {
@@ -14,7 +14,7 @@
     {
       "number": 1,
       "name": "Front Door",
-      "status": "implemented",
+      "status": "in_progress",
       "work": [
         {
           "id": "M1-email-confirmation-guidance",
@@ -27,6 +27,12 @@
           "title": "Resend confirmation emails and explain expired links",
           "status": "done",
           "requestId": "CR-023"
+        },
+        {
+          "id": "M1-password-recovery-link",
+          "title": "Make password-reset links work across browser sessions",
+          "status": "in_progress",
+          "requestId": "CR-027"
         }
       ],
       "description": "Account registration, email confirmation, sign-in, and secure Lodge invitations.",
@@ -474,6 +480,14 @@
       "milestone": 3,
       "status": "done",
       "note": "Default raid history now shows dated AOTC/CE achievements rather than repeated boss counts or latest kills. A trusted optional Blizzard achievements import matches character identity and isolates unavailable data. Duplicate cards were removed; charts, boss details, equipment, credits, and Lodge content are expandable. Achievement dates may be account-wide, not character first kills. Existing snapshots need a successful refresh; live data and visual review remain open."
+    },
+    {
+      "id": "CR-027",
+      "title": "Repair the password-reset email loop on mobile",
+      "requestedAt": "2026-10-10",
+      "milestone": 1,
+      "status": "in_progress",
+      "note": "Will's iPhone reset email returned to the request form. Local callback and email-template changes now prepare browser-independent recovery-token verification and explain failed links. The hosted Reset Password template and app patch are not installed; a fresh live reset is still required."
     }
   ],
   "acceptance": [
@@ -561,6 +575,12 @@
       "title": "Hosted private-schema setting, retention jobs, security headers, and Chronicle Storage cleanup after Lodge deletion",
       "status": "open",
       "note": "Will's October 5 screenshot verifies private is excluded from exposed schemas. Live disposable-Lodge deletion and Chronicle Storage cleanup passed: before/after read-only checks confirmed its entry, media record, and stored object were removed while the original Lodge remained. Security headers and scheduled-job execution are recorded. Actual expired-record deletion by retention remains open."
+    },
+    {
+      "id": "A-17",
+      "title": "Live password reset from an email opened in a different browser session",
+      "status": "open",
+      "note": "Will reported that the reset email returns to Forgot password on iPhone. The repaired flow requires hosted template installation, application release, and a fresh real-account reset before this can be verified."
     }
   ]
 }

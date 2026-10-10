@@ -5,6 +5,8 @@ import { clientEnv } from '@/lib/env.client';
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   const next = request.nextUrl.searchParams.get('next');
+  const tokenHash = request.nextUrl.searchParams.get('token_hash');
+  const type = request.nextUrl.searchParams.get('type');
   const providerError = request.nextUrl.searchParams.get('error');
   const providerErrorCode = request.nextUrl.searchParams.get('error_code');
   const failurePath =
@@ -24,7 +26,9 @@ export async function GET(request: NextRequest) {
   const destination =
     next === '/reset-password' || next === '/hearth' || next === '/account' ? next : '/sign-in';
   const response = NextResponse.redirect(new URL(destination, request.url));
-  if (!code) return NextResponse.redirect(new URL(failurePath, request.url));
+  if ((!code && !tokenHash) || (tokenHash && (next !== '/reset-password' || type !== 'recovery'))) {
+    return NextResponse.redirect(new URL(failurePath, request.url));
+  }
   const supabase = createServerClient(
     clientEnv.NEXT_PUBLIC_SUPABASE_URL,
     clientEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -37,7 +41,9 @@ export async function GET(request: NextRequest) {
     },
   );
   const flowId = request.nextUrl.searchParams.get('sb_flow_id');
-  const { error } = await supabase.auth.exchangeCodeForSession(code, flowId ? { flowId } : undefined);
+  const { error } = tokenHash
+    ? await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
+    : await supabase.auth.exchangeCodeForSession(code!, flowId ? { flowId } : undefined);
   if (error) {
     return NextResponse.redirect(new URL(failurePath, request.url));
   }

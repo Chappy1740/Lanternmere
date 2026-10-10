@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## CR-027 mobile password recovery — October 10, 2026
+
+- Will reported that a reset email opened on his iPhone returns to the Forgot password form. The screenshot confirms delivery, and Will confirmed the landing page; the exact provider error was not captured. A missing PKCE verifier in a different browser session is a likely cause, not a proven diagnosis.
+- Prepared a recovery-token callback using Supabase's documented `verifyOtp` flow, a matching Reset Password email template, a visible failed-link message, and bounded reset-request error handling. Existing signup confirmation code exchange remains in place. The local template is source only; the hosted Supabase Reset Password template still sends its default link until the matching hosted setting is changed. Old emails will not use this repair.
+- Mocked Front Door checks cover the browser-independent token path, rejected token types, expired tokens, recovery request errors, and callback session cookies. Focused ESLint, the Workers bundle, regenerated Next route types with TypeScript, and `git diff --check` passed. The first standalone TypeScript run overlapped the Workers build and encountered stale generated route types; it passed after route regeneration.
+- This is local preparation. No hosted Auth template was changed, app patch deployed, reset email sent, password changed, or live recovery verified. CR-027 and A-17 remain open, and Milestone 1 is shown in progress until the hosted flow succeeds.
+
 ## CR-019 verified Main identity and dormancy — October 10, 2026
 
 - Will supplied a phone screenshot of the hosted owner account list after release. The visible cards showed numbered member references and **Main identity pending**, with no sign-in emails. After he reported saving the acknowledgment, a second owner-card screenshot showed his verified Main's name, realm, and region as the account label, with no email visible on that card. This is live visual evidence for the before-and-after owner display on the shown cards. It does not establish non-owner denial, Main changes, or second-account privacy.
