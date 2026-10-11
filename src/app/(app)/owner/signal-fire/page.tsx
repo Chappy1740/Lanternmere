@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { z } from 'zod';
 import { getViewer } from '@/lib/hearth/context';
 import { serverEnv } from '@/lib/env.server';
@@ -21,7 +20,17 @@ export default async function SignalFireOwnerInbox({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { user } = await getViewer();
-  if (!serverEnv.APP_OWNER_PROFILE_ID || user.id !== serverEnv.APP_OWNER_PROFILE_ID) notFound();
+  if (!serverEnv.APP_OWNER_PROFILE_ID || user.id !== serverEnv.APP_OWNER_PROFILE_ID) {
+    return (
+      <section className="lodge-panel mx-auto max-w-3xl space-y-4 p-5 sm:p-8">
+        <h1 className="font-display text-2xl">Owner access required</h1>
+        <p>Sorry, this inbox is only available to the Lanternmere owner.</p>
+        <Link href="/signal-fire" className="lodge-button-secondary inline-flex px-4 py-2">
+          Back to The Signal Fire
+        </Link>
+      </section>
+    );
+  }
   const parsedPage = z.coerce
     .number()
     .int()

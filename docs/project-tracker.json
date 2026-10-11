@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 62,
-  "updatedAt": "2026-10-10",
+  "revision": 63,
+  "updatedAt": "2026-10-11",
   "milestones": [
     {
       "number": 0,
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "Will confirmed all four statuses persist after saving and refreshing, and Closed persists after reopening. His October 10 phone screenshot confirms an actual Send-button submission and receipt from the owner account. He confirmed a reply appears and survives refresh, and closing hides the reply box and shows the 180-day removal notice. On his second account, the owner dashboard is hidden and the copied report link returned 404. These checks do not establish a two-way conversation between separate sender and owner accounts, direct owner-route denial, abuse limits, broader accessibility, or actual scheduled deletion. A-18 remains open."
+      "note": "Will confirmed all four statuses persist after saving and refreshing, and Closed persists after reopening. His October 10 phone screenshot confirms an actual Send-button submission and receipt from the owner account. He confirmed a reply appears and survives refresh, and closing hides the reply box and shows the 180-day removal notice. On October 11 he supplied the tested URL: /owner/signal-fire. His second-account 404 confirms direct owner-inbox denial, not cross-account report-detail denial. The inbox now has a friendly owner-access message before any report query. Still verify that message live, a private report detail link from the other account, a two-way conversation between separate sender and owner accounts, abuse limits, broader accessibility, and actual scheduled deletion. A-18 remains open."
     }
   ]
 }

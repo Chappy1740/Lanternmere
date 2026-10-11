@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Signal Fire owner-inbox access message and evidence correction — October 11, 2026
+
+- Will supplied the tested URL: `/owner/signal-fire`. The generic 404 screenshots were from the owner inbox, not a private report detail link. They establish direct non-owner inbox denial, but do not establish cross-account report-detail denial or a broken detail not-found boundary. Earlier interpretations below are superseded by this exact-route evidence.
+- Non-owners now receive “Sorry, this inbox is only available to the Lanternmere owner,” with a link to their own Signal Fire page. The existing owner check still runs before any admin client or report query. A focused regression verifies this message and zero admin reads for non-owner and unconfigured-owner cases. This explanatory page replaces the intentional 404 for denied signed-in inbox visits; no report data is returned.
+- A-18 remains open. Next confirm the new inbox message on Will's second account, then test an actual `/signal-fire/<report-id>` link and a two-account sender/owner conversation. Input/abuse limits and broader accessibility remain open.
+- Current-session focused owner-denial regression, ESLint, status regression, Workers build, regenerated Next route types with TypeScript, and diff review passed. Tracker revision 63 records the corrected route evidence.
+
 ## Signal Fire unavailable-page rendering correction — October 10, 2026
 
 - Will's second-account screenshot after release `64daf83` still shows the generic 404. The connected build succeeded and deployment `82373c51-dcfe-4345-a008-7d19870b8fc8` activated the release, but the custom nested not-found boundary did not render in the shown hosted path. Its exact framework cause is not established.
