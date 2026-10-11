@@ -110,6 +110,9 @@ statusForm.set('status', 'reviewing');
   assert.equal(writes.length, 2);
 
   actor = owner;
+  assert.match((await actionExports.replyToFeedback(state, replyForm)).error, /save the status/);
+  assert.equal(writes.length, 2);
+  report = { ...report, status: 'reviewing' };
   assert.equal((await actionExports.replyToFeedback(state, replyForm)).error, null);
   assert.equal(writes[2].row.author_id, owner);
   const saved = await actionExports.setFeedbackStatus(state, statusForm);

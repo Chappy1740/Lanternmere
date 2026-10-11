@@ -83,6 +83,8 @@ export async function replyToFeedback(
   if (lookupError || !report || (!owner && report.sender_id !== user.id))
     return { error: 'This report is unavailable.' };
   if (report.status === 'closed') return { error: 'This report is closed.' };
+  if (owner && report.status === 'new')
+    return { error: 'Choose Reviewing or Planned and save the status before replying.' };
   const { error } = await createAdminClient().from('app_feedback_replies').insert({
     report_id: parsed.data.reportId,
     author_id: user.id,

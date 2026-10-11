@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 63,
+  "revision": 64,
   "updatedAt": "2026-10-11",
   "milestones": [
     {
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "Will confirmed all four statuses persist after saving and refreshing, and Closed persists after reopening. His October 10 phone screenshot confirms an actual Send-button submission and receipt from the owner account. He confirmed a reply appears and survives refresh, and closing hides the reply box and shows the 180-day removal notice. On October 11 he supplied the tested URL: /owner/signal-fire. His second-account 404 confirms direct owner-inbox denial, not cross-account report-detail denial. The inbox now has a friendly owner-access message before any report query. Still verify that message live, a private report detail link from the other account, a two-way conversation between separate sender and owner accounts, abuse limits, broader accessibility, and actual scheduled deletion. A-18 remains open."
+      "note": "Will confirmed status save/refresh/reopen, actual owner-account submission, reply persistence, and closed-thread UI. On October 11 his second account confirmed owner-inbox denial and the new access message, submitted a report with a receipt, and exchanged replies in both directions with the owner. He requested owners save Reviewing or Planned before replying; the form and action now enforce this for New reports. Still verify the reply gate live, denial of another member's report detail link, abuse limits, broader accessibility, and actual scheduled deletion. A-18 remains open."
     }
   ]
 }

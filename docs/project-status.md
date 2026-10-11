@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Signal Fire owner replies require saved triage — October 11, 2026
+
+- Will confirmed the owner-inbox access explanation on his second account. His screenshot confirms a second-account report and receipt; he then confirmed the owner reads that report, sends a reply that the member reads, and reads the member's return reply. This establishes the tested two-account conversation, not denial of another member's report detail URL. A-18 remains open for that privacy check, limits, and broader accessibility.
+- Will requested that owners choose and save a review state before replying. Owners now see guidance instead of a reply form on New reports, and the server action independently rejects owner replies while the stored status is New. Reviewing and Planned allow replies; Closed continues to reject replies. Members can still add context to their own New reports. No database trigger, permission, or migration changes are required.
+- The new reply gate needs live confirmation after publication. Existing status persistence and two-account conversation results remain recorded.
+- Current-session Signal Fire action, status-form, owner-denial, unavailable-detail and status-dashboard regressions, focused ESLint, Workers build, regenerated route types with TypeScript, and diff review passed. Tracker revision 64 records the additional live results and owner-reply requirement.
+
 ## Signal Fire owner-inbox access message and evidence correction — October 11, 2026
 
 - Will supplied the tested URL: `/owner/signal-fire`. The generic 404 screenshots were from the owner inbox, not a private report detail link. They establish direct non-owner inbox denial, but do not establish cross-account report-detail denial or a broken detail not-found boundary. Earlier interpretations below are superseded by this exact-route evidence.

@@ -128,7 +128,13 @@ export default async function SignalFireDetail({
             ))}
           </ol>
         )}
-        {report.data.status !== 'closed' && <FeedbackReplyForm reportId={id} />}
+        {owner && report.data.status === 'new' ? (
+          <p className="text-text-muted mt-5">
+            Choose Reviewing or Planned and save the status before replying.
+          </p>
+        ) : (
+          report.data.status !== 'closed' && <FeedbackReplyForm reportId={id} />
+        )}
       </section>
     </div>
   );
