@@ -4,6 +4,7 @@ import { getViewer } from '@/lib/hearth/context';
 import { serverEnv } from '@/lib/env.server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { ownerAccountReference, ownerMainIdentities } from '@/lib/owner-main-identities';
+import { formatSignalFireDate } from '@/lib/signal-fire-date';
 
 const reportSchema = z.object({
   id: z.uuid(),
@@ -25,7 +26,11 @@ export default async function SignalFireOwnerInbox({
       <section className="lodge-panel mx-auto max-w-3xl space-y-4 p-5 sm:p-8">
         <h1 className="font-display text-2xl">Owner access required</h1>
         <p>Sorry, this inbox is only available to the Lanternmere owner.</p>
-        <Link href="/signal-fire" className="lodge-button-secondary inline-flex px-4 py-2">
+        <Link
+          href="/signal-fire"
+          prefetch={false}
+          className="lodge-button-secondary inline-flex px-4 py-2"
+        >
           Back to The Signal Fire
         </Link>
       </section>
@@ -67,14 +72,14 @@ export default async function SignalFireOwnerInbox({
               <Link
                 className="lodge-button-secondary inline-flex max-w-full px-4 py-2 break-words"
                 href={`/signal-fire/${report.id}`}
+                prefetch={false}
               >
                 {report.title}
               </Link>
               <p className="text-text-muted mt-2 text-sm">
                 {mainLabels.get(report.sender_id) ?? ownerAccountReference(report.sender_id)} ·{' '}
                 {report.category === 'problem' ? 'Problem' : 'Idea'} · {report.status} · Updated{' '}
-                {new Date(report.last_activity_at).toLocaleDateString('en-US', { timeZone: 'UTC' })}{' '}
-                UTC
+                {formatSignalFireDate(report.last_activity_at)} UTC
               </p>
             </li>
           ))}
@@ -85,6 +90,7 @@ export default async function SignalFireOwnerInbox({
           <Link
             className="lodge-button-secondary px-4 py-2"
             href={`/owner/signal-fire?page=${page - 1}`}
+            prefetch={false}
           >
             Previous
           </Link>
@@ -93,6 +99,7 @@ export default async function SignalFireOwnerInbox({
           <Link
             className="lodge-button-secondary px-4 py-2"
             href={`/owner/signal-fire?page=${page + 1}`}
+            prefetch={false}
           >
             Next
           </Link>

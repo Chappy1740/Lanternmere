@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 64,
-  "updatedAt": "2026-10-11",
+  "revision": 67,
+  "updatedAt": "2026-10-13",
   "milestones": [
     {
       "number": 0,
@@ -352,7 +352,7 @@
       "requestedAt": "2026-10-01",
       "milestone": null,
       "status": "in_progress",
-      "note": "Investigate live Cloudflare Error 1102 on Membership, reduce avoidable CPU work, and verify the owner/non-owner privacy page after deployment."
+      "note": "Investigate live Cloudflare Error 1102 on Membership and, as requested October 13, sign-in/navigation. A sign-in request failed with exceededCpu at 10 ms; successful sign-in/account requests used 19–72 ms. Will confirmed Workers Free and declined a paid upgrade. The paid-only cap was removed. A Free-plan mitigation reduces speculative page loads, repeated date formatting, and cookie-free refresh setup. Focused regressions, lint, TypeScript, and Workers build passed locally. Will approved commit, push, and publication; deployment confirmation and hosted CPU/navigation retests remain pending. No live fix is claimed. Earlier Membership-specific acceptance remains open."
     },
     {
       "id": "CR-007",
@@ -553,8 +553,8 @@
     {
       "id": "A-03",
       "title": "Authenticated Worker sign-in, sign-out, and session persistence",
-      "status": "verified",
-      "note": "After the October 5 native form repair was deployed, Will confirmed fresh sign-in reaches his Hearth, refresh retains his session, and sign-out works. This is user-reported live evidence; the agent did not observe the authenticated browser."
+      "status": "open",
+      "note": "After the October 5 native form repair was deployed, Will confirmed fresh sign-in reaches his Hearth, refresh retains his session, and sign-out works. That user-reported evidence is preserved. Reopened October 13 after Will reported Error 1102 during sign-in to the Hearth and an agent-run signed-out GET /sign-in reproduced a CPU-limit failure. A subsequent sign-in POST returned 303 and the account page loaded successfully during his retry. No repair, account identity, or complete Hearth/refresh/sign-out retest is confirmed."
     },
     {
       "id": "A-04",
@@ -635,7 +635,7 @@
       "id": "A-18",
       "title": "Live feedback submission, private replies and triage, access denial, and phone usability",
       "status": "open",
-      "note": "Will confirmed status save/refresh/reopen, actual owner-account submission, reply persistence, and closed-thread UI. On October 11 his second account confirmed owner-inbox denial and the new access message, submitted a report with a receipt, and exchanged replies in both directions with the owner. He requested owners save Reviewing or Planned before replying; the form and action now enforce this for New reports. Still verify the reply gate live, denial of another member's report detail link, abuse limits, broader accessibility, and actual scheduled deletion. A-18 remains open."
+      "note": "Will confirmed status save/refresh/reopen, actual owner-account submission, reply persistence, and closed-thread UI. On October 11 his second account confirmed owner-inbox denial and the new access message, submitted a report with a receipt, and exchanged replies in both directions with the owner. He requested owners save Reviewing or Planned before replying; the form and action now enforce this for New reports. On October 13 the displayed report appeared to be the second account's own report; denial of another account's report remains inconclusive, and a new sign-in Error 1102 interrupted the retest. Still verify the reply gate live, denial of another member's report detail link, abuse limits, broader accessibility, and actual scheduled deletion. A-18 remains open."
     }
   ]
 }

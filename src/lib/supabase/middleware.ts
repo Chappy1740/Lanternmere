@@ -3,6 +3,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { clientEnv } from '@/lib/env.client';
 
 export async function updateSession(request: NextRequest) {
+  // There is no session to refresh without cookies. Protected pages and actions
+  // still verify the viewer on the server before reading or writing private data.
+  if (request.cookies.getAll().length === 0) return NextResponse.next();
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

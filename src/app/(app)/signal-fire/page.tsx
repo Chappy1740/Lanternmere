@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getViewer } from '@/lib/hearth/context';
 import { serverEnv } from '@/lib/env.server';
 import { NewFeedbackForm } from '@/components/signal-fire-forms';
+import { formatSignalFireDate } from '@/lib/signal-fire-date';
 
 const reportSchema = z.object({
   id: z.uuid(),
@@ -49,6 +50,7 @@ export default async function SignalFirePage({
         {owner && (
           <Link
             href="/owner/signal-fire"
+            prefetch={false}
             className="lodge-button-secondary mt-4 inline-flex px-4 py-2"
           >
             Open owner inbox
@@ -69,15 +71,13 @@ export default async function SignalFirePage({
                 <Link
                   className="lodge-button-secondary inline-flex max-w-full px-4 py-2 break-words"
                   href={`/signal-fire/${report.id}`}
+                  prefetch={false}
                 >
                   {report.title}
                 </Link>
                 <p className="text-text-muted mt-2 text-sm">
                   {report.category === 'problem' ? 'Problem' : 'Idea'} · {report.status} · Updated{' '}
-                  {new Date(report.last_activity_at).toLocaleDateString('en-US', {
-                    timeZone: 'UTC',
-                  })}{' '}
-                  UTC
+                  {formatSignalFireDate(report.last_activity_at)} UTC
                 </p>
               </li>
             ))}
@@ -88,6 +88,7 @@ export default async function SignalFirePage({
             <Link
               className="lodge-button-secondary px-4 py-2"
               href={`/signal-fire?page=${page - 1}`}
+              prefetch={false}
             >
               Previous
             </Link>
@@ -96,6 +97,7 @@ export default async function SignalFirePage({
             <Link
               className="lodge-button-secondary px-4 py-2"
               href={`/signal-fire?page=${page + 1}`}
+              prefetch={false}
             >
               Next
             </Link>

@@ -67,6 +67,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch={false}
                   aria-current={isActive ? 'page' : undefined}
                   onClick={onClose}
                   className={`focus-visible:outline-accent flex items-center gap-3 rounded-lg border px-2.5 py-2.5 text-sm transition-colors focus-visible:outline-2 ${

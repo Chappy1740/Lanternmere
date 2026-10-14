@@ -6,6 +6,7 @@ import { serverEnv } from '@/lib/env.server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { FeedbackReplyForm, FeedbackStatusForm } from '@/components/signal-fire-forms';
 import { ownerAccountReference, ownerMainIdentities } from '@/lib/owner-main-identities';
+import { formatSignalFireDateTime } from '@/lib/signal-fire-date';
 
 const reportSchema = z.object({
   id: z.uuid(),
@@ -61,16 +62,11 @@ export default async function SignalFireDetail({
       ownerAccountReference(report.data.sender_id))
     : 'You';
   const sent = (await searchParams).sent === '1';
-  const formatDate = (value: string) =>
-    new Date(value).toLocaleString('en-US', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      timeZone: 'UTC',
-    });
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <Link
         href={owner ? '/owner/signal-fire' : '/signal-fire'}
+        prefetch={false}
         className="lodge-button-secondary inline-flex px-4 py-2"
       >
         Back to {owner ? 'owner inbox' : 'The Signal Fire'}
@@ -87,7 +83,7 @@ export default async function SignalFireDetail({
         </p>
         <h1 className="font-display mt-2 text-3xl break-words">{report.data.title}</h1>
         <p className="text-text-muted mt-2 text-sm">
-          From {senderLabel} · {formatDate(report.data.created_at)} UTC
+          From {senderLabel} · {formatSignalFireDateTime(report.data.created_at)} UTC
         </p>
         {report.data.page_context && (
           <p className="text-text-muted mt-4 text-sm">
@@ -121,7 +117,7 @@ export default async function SignalFireDetail({
                     : owner
                       ? 'You'
                       : 'Lanternmere'}{' '}
-                  · {formatDate(reply.created_at)} UTC
+                  · {formatSignalFireDateTime(reply.created_at)} UTC
                 </p>
                 <p className="mt-2 break-words whitespace-pre-wrap">{reply.body}</p>
               </li>

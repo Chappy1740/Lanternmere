@@ -23,7 +23,7 @@ const currentProgress = projectProgress(current);
 assert.equal(currentProgress.implemented, 14);
 assert.equal(currentProgress.total, 16);
 assert.equal(currentProgress.acceptanceTotal, 18);
-assert.equal(currentProgress.verified, 3);
+assert.equal(currentProgress.verified, 2);
 assert.ok(currentProgress.percent < 100);
 assert.equal(
   currentProgress.percent,

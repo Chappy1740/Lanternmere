@@ -23,6 +23,7 @@ export function MobileNavigation({ onMoreClick }: { onMoreClick: () => void }) {
             <li key={item.href}>
               <Link
                 href={item.href}
+                prefetch={false}
                 aria-current={isActive ? 'page' : undefined}
                 className={`focus-visible:outline-accent flex min-h-12 flex-col items-center justify-center gap-1 rounded-md px-1 py-1 text-[0.65rem] font-medium focus-visible:outline-2 focus-visible:outline-offset-2 ${
                   isActive ? 'bg-accent/12 text-accent' : 'text-text-muted hover:text-text-primary'

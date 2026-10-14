@@ -13,6 +13,16 @@ Lanternmere has a non-production vinext configuration for evaluating Cloudflare 
 
 The generated Workers configuration is in `wrangler.jsonc`; the vinext/Vite integration is in `vite.config.ts`. `keep_vars` preserves runtime variables configured through the Cloudflare dashboard when Wrangler deploys a new version. Generated output and local Wrangler state are ignored by Git. A local build may create `dist/server/.dev.vars` from `.env.local`; it stays ignored and must never be committed.
 
+## Workers Free CPU allowance and mitigation
+
+On October 13, 2026, Will confirmed the account uses Workers Free. A hosted `GET /sign-in` failed with `exceededCpu` at 10 ms; successful sign-in and account requests recorded 19–72 ms. Will subsequently reported Error 1102 across navigation/button clicks. Cloudflare's [Free CPU limit is 10 ms per request](https://developers.cloudflare.com/workers/platform/limits/); occasional over-limit requests can succeed, but repeated overruns are terminated. This identifies a CPU-allowance mismatch for the current hosted workload, not a report-authorization result or proof that every error has the same cause.
+
+Will declined Workers Paid because the recurring cost is outside the current budget. The proposed paid-only CPU cap was removed. Keep the existing Free plan and do not add a paid-only limit, subscription, or hosting migration without a new explicit request.
+
+The local mitigation disables speculative page loads on shared navigation and Signal Fire links, reuses UTC date formatters, and avoids session-refresh setup for requests with no cookies. Requests with cookies still use the existing verified refresh path; protected pages/actions still verify the viewer and current application access. The mitigation reduces avoidable work; it does not establish that every authenticated request fits the 10 ms allowance. Network/database waiting is not CPU time.
+
+**Publication gate:** obtain Will's explicit approval for the focused commit, push, and publication. Verify the generated deployment contains no paid-only CPU override, confirm the active deployment, and record hosted sign-in/navigation results before resuming A-18. CR-006, A-03, and A-18 remain open until their required hosted evidence is recorded. A local profile or successful build does not establish hosted CPU-limit acceptance.
+
 ## Required environment configuration
 
 ### Git-connected Workers Builds
