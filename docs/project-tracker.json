@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 67,
+  "revision": 68,
   "updatedAt": "2026-10-13",
   "milestones": [
     {
@@ -352,7 +352,7 @@
       "requestedAt": "2026-10-01",
       "milestone": null,
       "status": "in_progress",
-      "note": "Investigate live Cloudflare Error 1102 on Membership and, as requested October 13, sign-in/navigation. A sign-in request failed with exceededCpu at 10 ms; successful sign-in/account requests used 19–72 ms. Will confirmed Workers Free and declined a paid upgrade. The paid-only cap was removed. A Free-plan mitigation reduces speculative page loads, repeated date formatting, and cookie-free refresh setup. Focused regressions, lint, TypeScript, and Workers build passed locally. Will approved commit, push, and publication; deployment confirmation and hosted CPU/navigation retests remain pending. No live fix is claimed. Earlier Membership-specific acceptance remains open."
+      "note": "Investigate live Cloudflare Error 1102 on Membership and, as requested October 13, sign-in/navigation. Will confirmed Workers Free and declined a paid upgrade. The paid-only cap was removed. Approved mitigation commit 38758b6 reduces speculative page loads, repeated date formatting, and cookie-free refresh setup; focused regressions, lint, TypeScript, and Workers build passed. Its connected build succeeded and a new version activated at 100% traffic. A signed-out sign-in probe returned 200, but authenticated CPU/navigation retests remain pending. No resolved live failure is claimed. Earlier Membership-specific acceptance remains open."
     },
     {
       "id": "CR-007",
