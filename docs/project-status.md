@@ -1,5 +1,27 @@
 # Project status and handoff
 
+## Security release approval and rollback checkpoint — October 24, 2026
+
+- Will explicitly requested merging PR #17 after the remaining findings and pending Claude review were disclosed. This authorizes the connected main-branch production build; it does not establish independent review, a clean audit or completed live acceptance.
+- Pre-merge checks confirmed main `094b71a`, candidate `67594c6`, no conflicts and a successful connected preview build. A documentation-only checkpoint records this approval before merge; final merge/build state is available on [PR #17](https://github.com/Chappy1740/Lanternmere/pull/17).
+- Fresh Cloudflare inspection recorded active production Worker version `ad43ea37-f030-4769-995e-b0db387cfdf0` at 100%, corresponding to main `094b71a`. Keep that version as the pre-release rollback target. Production is connected to this repository's `main`, with `npm run build:vinext` and `npm run deploy:vinext`; builds are enabled. No provider settings or secret values were changed.
+- Signed-out sign-in checks returned 200 for the exact candidate preview and existing production, with DENY/nosniff/same-origin response headers. Generated configuration retains the compatibility date, nodejs_compat and keep_vars, with no paid-only CPU override. These checks do not establish authenticated navigation, cross-account privacy or resolution of Error 1102.
+- The 10-node runtime/11-node full dependency findings and live acceptance remain open. If the release regresses, stop further changes and restore the recorded Worker version using the approved incident procedure; a source revert is a separate follow-up and must preserve unrelated work. See the [release checkpoint](security/dependency-patch-2026-10-24.md#merge-approval-and-pre-release-checkpoint).
+
+## Approved Zod/Vite security follow-up — October 24, 2026
+
+- The owner approved the emailed follow-up scope after the morning status report. Zod 4.6.6 and Vite 8.3.3 are pinned exactly; the lockfile also refreshes fast-uri 3.1.9 and source-map-js 1.2.2 within existing parent ranges. No other package versions, application code, SQL, authorization or provider configuration changed.
+- Fresh verification passed: all 42 mocked scripts, full ESLint, both local production builds, route-type generation, TypeScript and dependency-peer validation. The Next build initially failed to start a Turbopack CSS subprocess; clearing only generated `.next` output and rebuilding resolved it. Synthetic configuration and disabled installation lifecycle scripts were retained.
+- Fresh runtime audit: 10 affected package nodes (five high, five moderate), down from 14. The full audit includes an additional existing development-only brace-expansion finding (11 nodes: six high, five moderate). Counts include transitive propagation and do not establish hosted exploitability or security clearance.
+- The Cloudflare/Miniflare and fflate chains, live acceptance and production rollback verification remain open. Keep PR #17 draft and unmerged pending independent review and separate release approval. See the [follow-up evidence and rollback](security/dependency-patch-2026-10-24.md#approved-morning-follow-up).
+
+## Dependency security candidate — October 24, 2026
+
+- Prepared in an isolated checkout from GitHub main `094b71a`: Next/eslint-config-next 16.4.1 and React/React DOM/RSC 19.2.9. These are review-branch changes, not a production release.
+- Local ESLint, both production build paths, generated route types and TypeScript passed using synthetic configuration. The initial mocked suite passed 39/42 scripts; three stale harnesses also failed on the original baseline. Test-only repairs preserved existing denial assertions and added the personal Hearth/no-Lodge case; the final 42/42 scripts passed.
+- Next now resolves its own sharp 0.35.5; Miniflare retains a separate exact-pinned sharp 0.35.4. Runtime dependency audit still reports 14 affected package nodes (eight high, six moderate). No forced fix, additional toolchain upgrade or security-clearance claim is made.
+- See the [security patch evidence, residual findings and rollback gates](security/dependency-patch-2026-10-24.md). Production merge/deployment, live acceptance and further dependency scope remain separate approvals. Existing A-03/A-18 and other live acceptance states remain open; no tracker completion is inferred.
+
 ## Workers Free CPU mitigation published; live retest pending — October 13, 2026
 
 - Will approved commit, push, and publication of the reviewed Free-plan mitigation. Code commit `38758b6` is on GitHub `main`; its connected Workers Build completed successfully. Deployment `29ee36dc-f272-4134-904d-658132d1692f` activated Worker version `2a3f0ad6-a746-43ee-813f-7fd70330ee21` at 100% on October 13 at 9:26 PM Central (October 14 at 02:26 UTC). The published version has no custom CPU-limit override. A signed-out sign-in probe returned 200 without the resource-limit error; the public status API reported `published main`, revision 67, with A-03 and A-18 open. This verifies publication and one public response, not authenticated navigation reliability or a resolved 1102 failure.

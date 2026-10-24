@@ -53,6 +53,7 @@ const client = {
       return key === 'id' ? Promise.resolve({ data: rows, error: dbError }) : this;
     },
     maybeSingle: async () => ({ data: profile, error: profileError }),
+    limit: async () => ({ data: [], error: null }),
   }),
 };
 const context = load('src/lib/hearth/context.ts', {
@@ -63,12 +64,13 @@ const context = load('src/lib/hearth/context.ts', {
   '@/lib/supabase/server': { createClient: async () => client },
 });
 const jsx = (type, props) => ({ type: typeof type === 'function' ? type.name : type, props });
-const page = load('src/app/(app)/(lodge)/hearth/page.tsx', {
+const page = load('src/app/(app)/hearth/page.tsx', {
   'react/jsx-runtime': { jsx, jsxs: jsx },
   'next/link': { default: 'a' },
   'next/image': { default: 'img' },
   'next/navigation': navigation,
   'lucide-react': { Flame: 'flame' },
+  zod,
   '@/lib/hearth/context': context,
   '@/components/lodge-activity': { LodgeActivity: 'activity' },
   '@/components/lodge-roster': { LodgeRoster: 'roster' },
@@ -104,6 +106,10 @@ const render = async (lodge) =>
   await check('no membership redirects to onboarding', async () => {
     rows = [];
     await assert.rejects(context.getLodgeMemberships(), /lodges\/new/);
+  });
+  await check('personal Hearth remains available without a Lodge', async () => {
+    rows = [];
+    assert.match(await render(), /Your Lodge can come later/);
   });
   await check('membership query errors fail closed', async () => {
     dbError = true;
