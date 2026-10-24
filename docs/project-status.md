@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Security release approval and rollback checkpoint — October 24, 2026
+
+- Will explicitly requested merging PR #17 after the remaining findings and pending Claude review were disclosed. This authorizes the connected main-branch production build; it does not establish independent review, a clean audit or completed live acceptance.
+- Pre-merge checks confirmed main `094b71a`, candidate `67594c6`, no conflicts and a successful connected preview build. A documentation-only checkpoint records this approval before merge; final merge/build state is available on [PR #17](https://github.com/Chappy1740/Lanternmere/pull/17).
+- Fresh Cloudflare inspection recorded active production Worker version `ad43ea37-f030-4769-995e-b0db387cfdf0` at 100%, corresponding to main `094b71a`. Keep that version as the pre-release rollback target. Production is connected to this repository's `main`, with `npm run build:vinext` and `npm run deploy:vinext`; builds are enabled. No provider settings or secret values were changed.
+- Signed-out sign-in checks returned 200 for the exact candidate preview and existing production, with DENY/nosniff/same-origin response headers. Generated configuration retains the compatibility date, nodejs_compat and keep_vars, with no paid-only CPU override. These checks do not establish authenticated navigation, cross-account privacy or resolution of Error 1102.
+- The 10-node runtime/11-node full dependency findings and live acceptance remain open. If the release regresses, stop further changes and restore the recorded Worker version using the approved incident procedure; a source revert is a separate follow-up and must preserve unrelated work. See the [release checkpoint](security/dependency-patch-2026-10-24.md#merge-approval-and-pre-release-checkpoint).
+
 ## Approved Zod/Vite security follow-up — October 24, 2026
 
 - The owner approved the emailed follow-up scope after the morning status report. Zod 4.6.6 and Vite 8.3.3 are pinned exactly; the lockfile also refreshes fast-uri 3.1.9 and source-map-js 1.2.2 within existing parent ranges. No other package versions, application code, SQL, authorization or provider configuration changed.
