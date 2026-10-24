@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Approved Zod/Vite security follow-up — October 24, 2026
+
+- The owner approved the emailed follow-up scope after the morning status report. Zod 4.6.6 and Vite 8.3.3 are pinned exactly; the lockfile also refreshes fast-uri 3.1.9 and source-map-js 1.2.2 within existing parent ranges. No other package versions, application code, SQL, authorization or provider configuration changed.
+- Fresh verification passed: all 42 mocked scripts, full ESLint, both local production builds, route-type generation, TypeScript and dependency-peer validation. The Next build initially failed to start a Turbopack CSS subprocess; clearing only generated `.next` output and rebuilding resolved it. Synthetic configuration and disabled installation lifecycle scripts were retained.
+- Fresh runtime audit: 10 affected package nodes (five high, five moderate), down from 14. The full audit includes an additional existing development-only brace-expansion finding (11 nodes: six high, five moderate). Counts include transitive propagation and do not establish hosted exploitability or security clearance.
+- The Cloudflare/Miniflare and fflate chains, live acceptance and production rollback verification remain open. Keep PR #17 draft and unmerged pending independent review and separate release approval. See the [follow-up evidence and rollback](security/dependency-patch-2026-10-24.md#approved-morning-follow-up).
+
 ## Dependency security candidate — October 24, 2026
 
 - Prepared in an isolated checkout from GitHub main `094b71a`: Next/eslint-config-next 16.4.1 and React/React DOM/RSC 19.2.9. These are review-branch changes, not a production release.
