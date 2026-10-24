@@ -81,6 +81,11 @@ const adminClient = {
 };
 const actions = load('src/app/(app)/travelers/[id]/actions.ts', {
   'next/cache': { revalidatePath() {} },
+  'next/navigation': {
+    redirect(url) {
+      throw new Error('Unexpected redirect: ' + url);
+    },
+  },
   zod: require('zod'),
   '@/lib/raiderio': {
     fetchRaiderIoProgress: async () => {
