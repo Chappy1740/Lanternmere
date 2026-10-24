@@ -1,5 +1,12 @@
 # Project status and handoff
 
+## Dependency security candidate — October 24, 2026
+
+- Prepared in an isolated checkout from GitHub main `094b71a`: Next/eslint-config-next 16.4.1 and React/React DOM/RSC 19.2.9. These are review-branch changes, not a production release.
+- Local ESLint, both production build paths, generated route types and TypeScript passed using synthetic configuration. The initial mocked suite passed 39/42 scripts; three stale harnesses also failed on the original baseline. Test-only repairs preserved existing denial assertions and added the personal Hearth/no-Lodge case; the final 42/42 scripts passed.
+- Next now resolves its own sharp 0.35.5; Miniflare retains a separate exact-pinned sharp 0.35.4. Runtime dependency audit still reports 14 affected package nodes (eight high, six moderate). No forced fix, additional toolchain upgrade or security-clearance claim is made.
+- See the [security patch evidence, residual findings and rollback gates](security/dependency-patch-2026-10-24.md). Production merge/deployment, live acceptance and further dependency scope remain separate approvals. Existing A-03/A-18 and other live acceptance states remain open; no tracker completion is inferred.
+
 ## Workers Free CPU mitigation published; live retest pending — October 13, 2026
 
 - Will approved commit, push, and publication of the reviewed Free-plan mitigation. Code commit `38758b6` is on GitHub `main`; its connected Workers Build completed successfully. Deployment `29ee36dc-f272-4134-904d-658132d1692f` activated Worker version `2a3f0ad6-a746-43ee-813f-7fd70330ee21` at 100% on October 13 at 9:26 PM Central (October 14 at 02:26 UTC). The published version has no custom CPU-limit override. A signed-out sign-in probe returned 200 without the resource-limit error; the public status API reported `published main`, revision 67, with A-03 and A-18 open. This verifies publication and one public response, not authenticated navigation reliability or a resolved 1102 failure.
