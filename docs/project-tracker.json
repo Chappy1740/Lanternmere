@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "revision": 68,
-  "updatedAt": "2026-10-13",
+  "revision": 72,
+  "updatedAt": "2026-10-26",
   "milestones": [
     {
       "number": 0,
@@ -100,8 +100,15 @@
     {
       "number": 7,
       "name": "The Guild Hall",
-      "status": "implemented",
-      "work": [],
+      "status": "in_progress",
+      "work": [
+        {
+          "id": "M7-weekly-raider-progress",
+          "title": "Reconcile and deliver the original Guild/raid-team weekly progress comparison",
+          "status": "in_progress",
+          "requestId": "CR-030"
+        }
+      ],
       "description": "Guild membership, verified leadership, consented readiness, and Guild operations.",
       "specification": "milestone-07-guild-operations.md"
     },
@@ -352,7 +359,7 @@
       "requestedAt": "2026-10-01",
       "milestone": null,
       "status": "in_progress",
-      "note": "Investigate live Cloudflare Error 1102 on Membership and, as requested October 13, sign-in/navigation. Will confirmed Workers Free and declined a paid upgrade. The paid-only cap was removed. Approved mitigation commit 38758b6 reduces speculative page loads, repeated date formatting, and cookie-free refresh setup; focused regressions, lint, TypeScript, and Workers build passed. Its connected build succeeded and a new version activated at 100% traffic. A signed-out sign-in probe returned 200, but authenticated CPU/navigation retests remain pending. No resolved live failure is claimed. Earlier Membership-specific acceptance remains open."
+      "note": "Investigate live Cloudflare Error 1102 on Membership and, as requested October 13, sign-in/navigation. Will confirmed Workers Free and declined a paid upgrade. The paid-only cap was removed. Approved mitigation commit 38758b6 reduces speculative page loads, repeated date formatting, and cookie-free refresh setup; focused regressions, lint, TypeScript, and Workers build passed. Its connected build succeeded and a new version activated at 100% traffic. A signed-out sign-in probe returned 200. After the October 24 dependency-security release, Will reported no errors in the requested phone sign-in and single Hearth-load check. This is one successful user-reported attempt, not measured CPU usage or repeated-navigation acceptance. No resolved intermittent failure is claimed. Earlier Membership-specific acceptance remains open."
     },
     {
       "id": "CR-007",
@@ -537,9 +544,23 @@
       "milestone": 15,
       "status": "in_progress",
       "note": "Will requested signed-in problem and idea submissions with private owner replies. The linked migration and two-account rollback privacy fixture passed; the tables and retention job are installed. The feature is published. Will also requested a friendly explanation when a private conversation cannot be opened; the detail route now uses the same neutral unavailable message for denied and missing reports. Remaining real-account and phone acceptance stays open."
+    },
+    {
+      "id": "CR-030",
+      "title": "Reconcile original leadership weekly raider-progress dashboard requirement",
+      "requestedAt": "2026-10-26",
+      "milestone": 7,
+      "status": "in_progress",
+      "note": "Original-requirement clarification recorded October 26; the original request date is not established. Will authorized the website Guild/raid-team progress implementation and separately approved local migration preparation and isolated database testing. The local patch reuses verified Guild roles, canonical raid rosters, consented Blizzard snapshots and per-week sharing. It adds targets, qualifying reported runs/remaining work, reported weekly raid kills/Vault slots, freshness, filters, phone cards and gear/partial observed-activity details. The minimal in-memory PostgreSQL rehearsal passed and rolled back. Complete weekly totals and Vault slots are player-reported, not automatically verified. The original weekly spreadsheet was not recovered; four owner screenshots supply the detail reference. No hosted database application, provider change or deployment is approved or completed. Full-schema/API integration, multi-account/data-source and physical phone acceptance remain open; see the weekly-progress reconciliation document."
     }
   ],
   "acceptance": [
+    {
+      "id": "A-19",
+      "title": "Guild weekly progress: permissions, selected roster, resets, source accuracy and physical iPhone acceptance",
+      "status": "open",
+      "note": "CR-030 is locally implemented for review. The approved minimal in-memory PostgreSQL rehearsal passed October 26 for ownership, leadership, targets, constraints, consent/revocation, membership departure and reset boundaries; synthetic records rolled back. Full current-schema/PostgREST behavior, hosted multi-account consent, actual source coverage, concurrency and physical phone saves/refresh remain open. Local synthetic tests do not establish deployed acceptance or complete automatic Vault tracking."
+    },
     {
       "id": "A-01",
       "title": "Live Battle.net rank-zero claim and rank-nonzero denial",
@@ -554,7 +575,7 @@
       "id": "A-03",
       "title": "Authenticated Worker sign-in, sign-out, and session persistence",
       "status": "open",
-      "note": "After the October 5 native form repair was deployed, Will confirmed fresh sign-in reaches his Hearth, refresh retains his session, and sign-out works. That user-reported evidence is preserved. Reopened October 13 after Will reported Error 1102 during sign-in to the Hearth and an agent-run signed-out GET /sign-in reproduced a CPU-limit failure. A subsequent sign-in POST returned 303 and the account page loaded successfully during his retry. No repair, account identity, or complete Hearth/refresh/sign-out retest is confirmed."
+      "note": "After the October 5 native form repair was deployed, Will confirmed fresh sign-in reaches his Hearth, refresh retains his session, and sign-out works. That user-reported evidence is preserved. Reopened October 13 after Will reported Error 1102 during sign-in to the Hearth and an agent-run signed-out GET /sign-in reproduced a CPU-limit failure. A subsequent sign-in POST returned 303 and the account page loaded successfully during his retry. Following the October 24 dependency-security release, Will reported no errors in the requested phone sign-in and single Hearth-load check. The agent did not observe that session. Account identity, a fresh refresh/sign-out retest and repeated-navigation CPU reliability remain unverified, so this acceptance check stays open."
     },
     {
       "id": "A-04",

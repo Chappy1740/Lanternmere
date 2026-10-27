@@ -205,6 +205,13 @@ export default async function WarTablePage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-7">
+      {leadershipGuilds.length > 0 && <section className="lodge-panel p-5">
+        <h2 className="font-display text-text-primary text-xl font-bold">Team weekly progress</h2>
+        <p className="text-text-muted mt-2 text-sm">Compare weekly runs, boss kills and Vault progress against your roster’s targets.</p>
+        <div className="mt-3 flex flex-wrap gap-3">{leadershipGuilds.map((membership) =>
+          <Link key={membership.guild_id} href={`/guild-hall/progress?guild=${membership.guild_id}`} className="lodge-button-secondary min-h-11 px-4 py-2 text-sm">{membership.guilds.name} · open roster</Link>
+        )}</div>
+      </section>}
       <header className="lodge-panel p-6 sm:p-8">
         <p className="text-accent flex items-center gap-2 text-sm font-medium tracking-[0.16em] uppercase">
           <Compass size={18} aria-hidden="true" /> Weekly Command Center

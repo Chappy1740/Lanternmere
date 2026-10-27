@@ -30,12 +30,14 @@ const portrait = load('src/lib/wow/portrait.ts', {});
 const input = load('src/lib/wow/character-input.ts', { zod });
 const display = load('src/lib/wow/character-display.ts', { zod, './portrait': portrait });
 const details = load('src/lib/wow/character-details.ts', { zod });
+const weekly = load('src/lib/wow/weekly-mythic-runs.ts', { zod });
 const { fetchCharacterProfile } = load('src/lib/wow/character-profile.ts', {
   'server-only': {},
   zod,
   './character-input': input,
   './portrait': portrait,
   './character-details': details,
+  './weekly-mythic-runs': weekly,
   './blizzard-token': { getBlizzardToken: async () => 'FAKE_TOKEN' },
 });
 const profile = {

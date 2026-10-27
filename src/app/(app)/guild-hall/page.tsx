@@ -148,6 +148,9 @@ export default async function GuildHallPage({
 
       {selected.verified && (
         <div className="flex flex-wrap gap-3">
+          <Link href={`/guild-hall/progress?guild=${selected.guild_id}`} className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium">
+            Open weekly raider progress
+          </Link>
           <Link
             href={`/muster?guild=${selected.guild_id}`}
             className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
