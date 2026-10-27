@@ -27,7 +27,13 @@ function parseServerEnv() {
   if (!parsed.success) {
     console.error('❌ Invalid server environment variables:');
     console.error(parsed.error.flatten().fieldErrors);
-    throw new Error('Invalid server environment variables — see errors above.');
+    // Name the failing variables in the thrown message itself: hosted deploy validation
+    // (for example Cloudflare error 10021) shows only this message, not the console output.
+    // Variable names only; values are never included.
+    const names = [...new Set(parsed.error.issues.map((issue) => String(issue.path[0])))].sort();
+    throw new Error(
+      `Invalid server environment variables: ${names.join(', ')}. Values are not logged.`,
+    );
   }
   return parsed.data;
 }
