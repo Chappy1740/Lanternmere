@@ -51,7 +51,12 @@ export async function loadSharedWeeklyProgress(guildId: string, region: string, 
       .eq('character_guild_sharing.guild_id', guildId)
       .eq('games.slug', 'wow')
       .eq('region', region)
+      .eq('character_snapshots.source', 'blizzard')
       .order('character_name')
+      // Only the newest snapshot is used; up to 10 are retained per character.
+      .order('last_refreshed_at', { referencedTable: 'character_snapshots', ascending: false })
+      .order('created_at', { referencedTable: 'character_snapshots', ascending: false })
+      .limit(1, { referencedTable: 'character_snapshots' })
       .limit(1001),
     supabase
       .from('guild_vault_sharing')
@@ -102,30 +107,33 @@ export async function loadOwnWeeklyProgress(guildId: string, region: string, res
       sharedIds: [] as string[],
       sharedElsewhereIds: [] as string[],
     };
-  const [reports, sharing] = await Promise.all([
-    supabase
-      .from('weekly_vault_progress')
-      .select(reportColumns)
-      .eq('profile_id', user.id)
-      .eq('reset_on', resetOn)
-      .in(
-        'character_id',
-        parsed.data.map((row) => row.id),
-      )
-      .limit(101),
-    supabase
-      .from('guild_vault_sharing')
-      .select('vault_progress_id, guild_id')
-      .eq('profile_id', user.id)
-      .limit(1001),
-  ]);
+  const reports = await supabase
+    .from('weekly_vault_progress')
+    .select(reportColumns)
+    .eq('profile_id', user.id)
+    .eq('reset_on', resetOn)
+    .in(
+      'character_id',
+      parsed.data.map((row) => row.id),
+    )
+    .limit(101);
   const parsedReports = z.array(weeklyReportSchema).max(100).safeParse(reports.data);
+  if (reports.error || !parsedReports.success) return null;
+  const reportIds = parsedReports.data.map((row) => row.id);
+  // Only this week's records: all-time sharing history would eventually hit the row cap.
+  const sharing = reportIds.length
+    ? await supabase
+        .from('guild_vault_sharing')
+        .select('vault_progress_id, guild_id')
+        .eq('profile_id', user.id)
+        .in('vault_progress_id', reportIds)
+        .limit(1001)
+    : { data: [], error: null };
   const parsedSharing = z
     .array(z.object({ vault_progress_id: z.uuid(), guild_id: z.uuid() }))
     .max(1000)
     .safeParse(sharing.data);
-  if (reports.error || sharing.error || !parsedReports.success || !parsedSharing.success)
-    return null;
+  if (sharing.error || !parsedSharing.success) return null;
   return {
     characters: parsed.data,
     reports: parsedReports.data,

@@ -64,6 +64,17 @@ export async function saveWeeklyRequirement(
   return { error: false, message: 'Target saved for this roster and reset week.' };
 }
 
+// Database error codes raised by save_weekly_raider_report; anything else stays generic.
+function reportErrorMessage(code: string | undefined, sharing: boolean) {
+  if (code === '22023') return 'The week changed. Reload the page and try again.';
+  if (code === '23514') return 'Check your weekly counts and Vault slots.';
+  if (code === '42501')
+    return sharing
+      ? 'Progress could not be saved. To share, first share this Traveler with this Guild in the Guild Hall.'
+      : 'Progress could not be saved. Check that you still own this Traveler and belong to this Guild.';
+  return 'Progress could not be saved. Try again.';
+}
+
 const reportInput = z.object({
   guildId: z.uuid(),
   characterId: z.uuid(),
@@ -119,11 +130,7 @@ export async function saveWeeklyReport(
     p_shared: input.shared === 'true',
   });
   if (error)
-    return {
-      error: true,
-      message:
-        'Progress could not be saved. To share, first share this Traveler with this Guild in the Guild Hall.',
-    };
+    return { error: true, message: reportErrorMessage(error.code, input.shared === 'true') };
   revalidatePath('/guild-hall/progress');
   revalidatePath('/war-table');
   return {

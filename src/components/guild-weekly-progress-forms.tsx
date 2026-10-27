@@ -118,7 +118,7 @@ export function WeeklyReportForm({
   const [state, action, pending] = useActionState(saveWeeklyReport, initial);
   return (
     <details className="lodge-panel p-5">
-      <summary className="text-text-primary cursor-pointer font-semibold">
+      <summary className="text-text-primary min-h-11 cursor-pointer py-2.5 font-semibold">
         Update {characterName}’s weekly progress
       </summary>
       <form action={action} className="mt-4">
@@ -132,8 +132,9 @@ export function WeeklyReportForm({
         <input type="hidden" name="characterId" value={characterId} />
         <input type="hidden" name="resetOn" value={resetOn} />
         <p className="text-text-muted text-sm">
-          Report the full current week. Blank means unknown; enter 0 for a known zero count. These
-          entries are labeled player-reported, separate from Blizzard observations.
+          Report the full current week. Blank means unknown. Enter 0 for a known zero count, or none
+          for zero runs. These entries are labeled player-reported, separate from Blizzard
+          observations.
         </p>
         <label className="mt-4 block text-sm">
           Completed Mythic+ run levels
@@ -203,15 +204,18 @@ export function WeeklyReportForm({
         </div>
         <label className="mt-4 flex items-start gap-3 text-sm">
           <input
-            className="mt-1 size-5 shrink-0"
+            className="mt-1 size-5 shrink-0 disabled:opacity-50"
             type="checkbox"
             name="shared"
             defaultChecked={shared}
+            // Stay enabled while shared so the owner can always turn sharing off.
+            disabled={!characterShared && !shared}
+            aria-describedby={!characterShared ? `share-help-${characterId}` : undefined}
           />
           Share this week’s report and Vault notes with {guildName} leadership.
         </label>
         {!characterShared && (
-          <p className="text-text-muted mt-2 text-sm">
+          <p id={`share-help-${characterId}`} className="text-text-muted mt-2 text-sm">
             To enable sharing, first share this Traveler with this Guild in the Guild Hall. You can
             save privately now.
           </p>

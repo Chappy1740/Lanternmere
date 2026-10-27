@@ -88,6 +88,17 @@ try {
   await db.exec(weekly.slice(0, split));
   await db.exec(await sql('20261001013411_guild_vault_sharing.sql'));
   await db.exec(await sql('20261004173132_enforce_account_suspension_on_later_tables.sql'));
+  // Mirror the real Traveler-sharing grant, RLS and select policy used by the leadership report policy.
+  await db.exec(await realFunction('0002_policy_and_index_tuning.sql', 'private.owns_character'));
+  const sharingPolicy = (await sql(foundation)).match(
+    /create policy "character_guild_sharing_select_owner_or_scope"[\s\S]*?\n\);/,
+  );
+  assert.ok(sharingPolicy, 'Real Traveler-sharing select policy');
+  await db.exec(`
+    grant select on public.character_guild_sharing to authenticated;
+    alter table public.character_guild_sharing enable row level security;
+    ${sharingPolicy[0]}
+  `);
   await db.exec(await sql('20261026184612_guild_weekly_raider_progress.sql'));
   console.log('Exact pending migration applied to disposable in-memory fixture.');
   const result = await db.exec(

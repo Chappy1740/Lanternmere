@@ -18,7 +18,7 @@ function timestamp(at: string | null) {
 function RaiderDetails({ row }: { row: ProgressRow }) {
   return (
     <details className="mt-2 text-left text-sm">
-      <summary className="text-accent min-h-8 cursor-pointer">
+      <summary className="text-accent min-h-11 cursor-pointer py-2.5">
         View gear and observed activity
       </summary>
       <div className="mt-3 space-y-4 whitespace-normal">
@@ -126,7 +126,8 @@ export function GuildWeeklyProgressBoard({
           .includes(query.toLowerCase()) &&
         (filter === 'all' ||
           (filter === 'help'
-            ? row.status === 'remaining'
+            ? // Runs only go up within a week, so an older report's remaining work is still real.
+              row.status === 'remaining' || (row.status === 'stale' && (row.remaining ?? 0) > 0)
             : filter === 'unknown'
               ? ['unknown', 'stale'].includes(row.status)
               : row.status === 'met')),

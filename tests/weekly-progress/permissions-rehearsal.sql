@@ -294,6 +294,38 @@ do $$ begin
     then raise exception 'Other explicit Guild choice lost on save'; end if;
 end $$;
 reset role;
+-- A private save with nothing shared must not add Guild audit events.
+select set_config('audit.weekly_audit_count', (select count(*) from public.guild_audit_events
+  where guild_id = current_setting('audit.weekly_guild')::uuid)::text, true);
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.weekly_member'), true);
+select public.save_weekly_raider_report(current_setting('audit.weekly_character')::uuid, current_setting('audit.weekly_guild')::uuid,
+  current_setting('audit.weekly_reset')::date, array[10,10,10,10,10,10,10], 6, 2, 2, null, false);
+reset role;
+do $$ begin
+  if (select count(*) from public.guild_audit_events where guild_id = current_setting('audit.weekly_guild')::uuid)
+    <> current_setting('audit.weekly_audit_count')::bigint
+    then raise exception 'Private save wrote a Guild audit event'; end if;
+end $$;
+-- Turning Traveler sharing off hides that Guild's weekly reports, even with week consent left in place.
+delete from public.character_guild_sharing where character_id = current_setting('audit.weekly_character')::uuid
+  and guild_id = current_setting('audit.weekly_other_guild')::uuid;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.weekly_other'), true);
+do $$ begin
+  if exists (select 1 from public.weekly_vault_progress where id = current_setting('audit.weekly_report')::uuid)
+    then raise exception 'Report visible after Traveler sharing was turned off'; end if;
+end $$;
+reset role;
+insert into public.character_guild_sharing(character_id, guild_id, visibility)
+values (current_setting('audit.weekly_character')::uuid, current_setting('audit.weekly_other_guild')::uuid, 'leadership');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', current_setting('audit.weekly_other'), true);
+do $$ begin
+  if not exists (select 1 from public.weekly_vault_progress where id = current_setting('audit.weekly_report')::uuid)
+    then raise exception 'Re-sharing the Traveler did not restore the consented week'; end if;
+end $$;
+reset role;
 delete from public.guild_members where guild_id = current_setting('audit.weekly_other_guild')::uuid
   and profile_id = current_setting('audit.weekly_member')::uuid;
 set local role authenticated;

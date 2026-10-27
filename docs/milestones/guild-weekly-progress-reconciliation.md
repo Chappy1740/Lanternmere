@@ -82,3 +82,19 @@ Only then request the exact hosted migration and application-release approval, r
 - Before release, keep all existing local changes and use the focused branch to review or revert only this feature's files. Generated `.next` output is disposable; source and earlier security notes are preserved.
 - After an approved release, revert the application feature to the reviewed pre-feature source while preserving the current secure runtime bindings. The migration is additive and the prior notes workflow remains compatible; leaving unused new columns/table preserves reports for recovery.
 - Do not drop new report fields or target rows by default. A destructive SQL reversal would lose new data and needs its own reviewed backup and approval. Do not restore an older vulnerable dependency release or a potentially exposed credential binding as a shortcut.
+
+## Independent review fixes — October 27, 2026
+
+An independent review (Claude, cloud workspace, fictional data only) found and fixed these issues before any hosted approval:
+
+1. **Traveler-sharing revocation:** the leadership read policy on `weekly_vault_progress` now also requires the Traveler to be shared with that Guild. Turning Traveler sharing off hides that Guild's weekly reports. The owner's per-week consent rows are kept, not deleted, so re-sharing the Traveler restores exactly what was consented.
+2. **Own-sharing row cap:** `loadOwnWeeklyProgress` looks up sharing only for this week's report ids. Before, all-time history would eventually pass the 1,000-row fail-closed cap and make the page unavailable. Regression: `tests/weekly-progress/check-own-sharing.cjs`.
+3. **Snapshot volume:** the leadership query loads only the newest Blizzard snapshot per character, matching `src/lib/hearth/roster.ts`.
+4. **Audit noise:** a private save no longer writes `guild.vault_context_unshared` unless a sharing row existed.
+5. **Leader workflow:** "Work remaining" includes older reports that still show remaining runs.
+6. **Forms:** the share box is disabled when it can't succeed (but stays enabled to turn sharing off), error messages follow the database error code, and zero-entry copy is clearer.
+7. **Tap targets:** both disclosure toggles are now 44px tall.
+
+The weekly reset time (8:00 AM Pacific year-round) was confirmed by Will. New rehearsal assertions cover findings 1 and 4. The fixture now mirrors the real Traveler-sharing grant, RLS and select policy.
+
+Verified in the review session: 47/47 test scripts, TypeScript, ESLint, the exact-migration PGlite rehearsal, Next.js and Workers builds (placeholder values, offline fonts), and a 390px/1280px synthetic preview. Hosted gates above remain open.

@@ -18,6 +18,25 @@ revoke insert on public.weekly_vault_progress from authenticated;
 grant insert (id, profile_id, character_id, reset_on, raid_progress, dungeon_progress, world_progress, notes)
   on public.weekly_vault_progress to authenticated;
 
+-- Leadership may read a shared week only while the Traveler itself is still shared
+-- with that Guild. Turning Traveler sharing off (by any path) hides its weekly
+-- reports without deleting the owner's separate per-week consent rows.
+drop policy "weekly_vault_progress_select_consented_leadership" on public.weekly_vault_progress;
+create policy "weekly_vault_progress_select_consented_leadership"
+  on public.weekly_vault_progress for select to authenticated
+  using (exists (
+    select 1 from public.guild_vault_sharing s
+    where s.vault_progress_id = weekly_vault_progress.id and private.can_lead_guild(s.guild_id)
+      and exists (
+        select 1 from public.guild_members gm
+        where gm.guild_id = s.guild_id and gm.profile_id = s.profile_id
+      )
+      and exists (
+        select 1 from public.character_guild_sharing cgs
+        where cgs.character_id = weekly_vault_progress.character_id and cgs.guild_id = s.guild_id
+      )
+  ));
+
 create table public.guild_weekly_requirements (
   id uuid primary key default gen_random_uuid(),
   guild_id uuid not null references public.guilds(id) on delete cascade,
@@ -132,7 +151,12 @@ begin
     where weekly_vault_progress.profile_id = v_actor
   returning id into v_id;
   if v_id is null then raise exception 'Character owner required' using errcode = '42501'; end if;
-  perform public.set_guild_vault_sharing(v_id, p_guild_id, p_shared);
+  -- Only record an unshare when something was shared, so private saves leave no Guild audit trail.
+  if p_shared or exists (
+    select 1 from public.guild_vault_sharing where vault_progress_id = v_id and guild_id = p_guild_id
+  ) then
+    perform public.set_guild_vault_sharing(v_id, p_guild_id, p_shared);
+  end if;
   return v_id;
 end $$;
 revoke all on function public.save_weekly_raider_report(uuid, uuid, date, integer[], integer, integer, integer, integer, boolean) from public, anon;
