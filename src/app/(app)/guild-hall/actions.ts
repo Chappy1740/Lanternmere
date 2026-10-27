@@ -130,7 +130,8 @@ export async function saveGuildRaidOperationMemberCharacter(
     memberId: formData.get('memberId'),
     characterId: formData.get('characterId'),
   });
-  if (!parsed.success) return { error: 'Choose a consented Traveler or clear the selection.', success: null };
+  if (!parsed.success)
+    return { error: 'Choose a consented Traveler or clear the selection.', success: null };
   const { error } = await (
     await createClient()
   ).rpc('set_guild_raid_operation_member_character', {
@@ -142,7 +143,10 @@ export async function saveGuildRaidOperationMemberCharacter(
     return { error: 'That Traveler is not available for this Guild member.', success: null };
   revalidatePath('/guild-hall');
   revalidatePath('/guild-hall/raid-room');
-  return { error: null, success: parsed.data.characterId ? 'Raid context selected.' : 'Raid context cleared.' };
+  return {
+    error: null,
+    success: parsed.data.characterId ? 'Raid context selected.' : 'Raid context cleared.',
+  };
 }
 
 const guildRaidAssignmentInput = z.object({
@@ -722,7 +726,11 @@ export async function updateGuildMemberPortal(
       .eq('profile_id', user.id)
       .maybeSingle();
     const roles = z
-      .array(z.object({ role: z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council', 'recruiter']) }))
+      .array(
+        z.object({
+          role: z.enum(['guild_master', 'officer', 'raid_leader', 'loot_council', 'recruiter']),
+        }),
+      )
       .safeParse(membership?.guild_member_roles);
     if (
       membershipError ||

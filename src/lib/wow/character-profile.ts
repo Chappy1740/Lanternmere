@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { characterInputSchema } from './character-input';
 import { getBlizzardToken } from './blizzard-token';
 import { isBlizzardPortrait } from './portrait';
+import { parseWeeklyMythicRuns } from './weekly-mythic-runs';
 import {
   parseCharacterEquipment,
   parseCharacterRaidEncounters,
@@ -52,6 +53,7 @@ export type CharacterProfile = z.infer<typeof profileSchema> & {
   equipment?: EquipmentItem[];
   raid_encounters?: RaidEncounter[];
   raid_milestones?: RaidMilestone[];
+  weekly_mythic_runs?: NonNullable<ReturnType<typeof parseWeeklyMythicRuns>>;
 };
 
 const mediaSchema = z.object({
@@ -203,14 +205,16 @@ export async function fetchCharacterProfile(input: unknown): Promise<ProfileResu
       return null;
     }
   }
-  const [equipmentBody, raidsBody, achievementsBody] = await Promise.all([
+  const [equipmentBody, raidsBody, achievementsBody, mythicBody] = await Promise.all([
     optionalDetails('/equipment'),
     optionalDetails('/encounters/raids'),
     optionalDetails('/achievements'),
+    optionalDetails('/mythic-keystone-profile'),
   ]);
   const equipment = parseCharacterEquipment(equipmentBody, profile.data.id);
   const raidEncounters = parseCharacterRaidEncounters(raidsBody, profile.data.id);
   const raidMilestones = parseCharacterRaidMilestones(achievementsBody, profile.data.id);
+  const weeklyMythicRuns = parseWeeklyMythicRuns(mythicBody);
 
   return {
     ok: true,
@@ -220,6 +224,7 @@ export async function fetchCharacterProfile(input: unknown): Promise<ProfileResu
       ...(equipment ? { equipment } : {}),
       ...(raidEncounters ? { raid_encounters: raidEncounters } : {}),
       ...(raidMilestones ? { raid_milestones: raidMilestones } : {}),
+      ...(weeklyMythicRuns ? { weekly_mythic_runs: weeklyMythicRuns } : {}),
     },
     region,
     source: 'blizzard',
