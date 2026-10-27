@@ -31,7 +31,11 @@ import { getLodgeMemberships, getViewer } from '@/lib/hearth/context';
 export default async function GuildHallPage({
   searchParams,
 }: {
-  searchParams: Promise<{ guild?: string | string[]; sort?: string | string[]; page?: string | string[] }>;
+  searchParams: Promise<{
+    guild?: string | string[];
+    sort?: string | string[];
+    page?: string | string[];
+  }>;
 }) {
   const [memberships, params] = await Promise.all([getGuildMemberships(), searchParams]);
   if (!memberships.length) {
@@ -68,7 +72,8 @@ export default async function GuildHallPage({
     !selected.verified && selected.guilds.created_by === (await getViewer()).user.id;
   const sort = params.sort === 'name' || params.sort === 'class' ? params.sort : 'rank';
   const parsedPage = typeof params.page === 'string' ? Number(params.page) : 1;
-  const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000 ? parsedPage : 1;
+  const page =
+    Number.isSafeInteger(parsedPage) && parsedPage > 0 && parsedPage <= 1000 ? parsedPage : 1;
   const [
     roster,
     rankLabels,
@@ -148,7 +153,10 @@ export default async function GuildHallPage({
 
       {selected.verified && (
         <div className="flex flex-wrap gap-3">
-          <Link href={`/guild-hall/progress?guild=${selected.guild_id}`} className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium">
+          <Link
+            href={`/guild-hall/progress?guild=${selected.guild_id}`}
+            className="lodge-button-secondary inline-flex px-4 py-2 text-sm font-medium"
+          >
             Open weekly raider progress
           </Link>
           <Link
@@ -407,10 +415,7 @@ export default async function GuildHallPage({
           </nav>
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {roster.entries.map((entry) => (
-              <li
-                key={entry.blizzard_character_id}
-                className="lodge-list-row p-4"
-              >
+              <li key={entry.blizzard_character_id} className="lodge-list-row p-4">
                 <p className="text-text-primary font-medium">{entry.character_name}</p>
                 <p className="text-text-muted mt-1 text-sm">
                   {entry.class_name ?? 'Class unavailable'} ·{' '}
@@ -423,13 +428,21 @@ export default async function GuildHallPage({
           {roster.total > 50 && (
             <nav aria-label="Roster pages" className="mt-5 flex items-center gap-3 text-sm">
               {page > 1 && (
-                <a className="lodge-button-secondary px-3 py-1.5" href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page - 1}`}>
+                <a
+                  className="lodge-button-secondary px-3 py-1.5"
+                  href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page - 1}`}
+                >
                   Previous
                 </a>
               )}
-              <span>Page {page} of {Math.ceil(roster.total / 50)}</span>
+              <span>
+                Page {page} of {Math.ceil(roster.total / 50)}
+              </span>
               {page * 50 < roster.total && (
-                <a className="lodge-button-secondary px-3 py-1.5" href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page + 1}`}>
+                <a
+                  className="lodge-button-secondary px-3 py-1.5"
+                  href={`/guild-hall?guild=${selected.guild_id}&sort=${sort}&page=${page + 1}`}
+                >
                   Next
                 </a>
               )}
@@ -472,18 +485,20 @@ export default async function GuildHallPage({
                   </div>
                   {!isMemberMaster && (
                     <div className="flex flex-wrap gap-2">
-                      {(['officer', 'raid_leader', 'loot_council', 'recruiter'] as const).map((role) => (
-                        <GuildMemberRoleControl
-                          key={role}
-                          membershipId={member.id}
-                          role={role}
-                          enabled={memberRoles.includes(role)}
-                          editable={
-                            roles.includes('guild_master') ||
-                            (roles.includes('officer') && role !== 'officer')
-                          }
-                        />
-                      ))}
+                      {(['officer', 'raid_leader', 'loot_council', 'recruiter'] as const).map(
+                        (role) => (
+                          <GuildMemberRoleControl
+                            key={role}
+                            membershipId={member.id}
+                            role={role}
+                            enabled={memberRoles.includes(role)}
+                            editable={
+                              roles.includes('guild_master') ||
+                              (roles.includes('officer') && role !== 'officer')
+                            }
+                          />
+                        ),
+                      )}
                       {roles.includes('guild_master') && (
                         <GuildMemberRemovalControl membershipId={member.id} />
                       )}

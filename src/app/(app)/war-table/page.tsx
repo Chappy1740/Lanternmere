@@ -2,7 +2,10 @@ import Link from 'next/link';
 import { CalendarDays, Compass, ShieldAlert, Swords } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
-import { AvailabilityForm, AvailabilityRemoveButton } from '@/components/war-table-availability-form';
+import {
+  AvailabilityForm,
+  AvailabilityRemoveButton,
+} from '@/components/war-table-availability-form';
 import { WarTableVaultForm } from '@/components/war-table-vault-form';
 import { GuildCalendarForm } from '@/components/guild-calendar-form';
 import { GuildVaultSharingControls } from '@/components/guild-vault-sharing-controls';
@@ -20,16 +23,18 @@ import { eventDateTime, loadQuestBoard } from '@/lib/quest-board/events';
 import { weekEndDate, weeklyResetForRegion } from '@/lib/war-table';
 import { deleteGuildCalendarEntry } from './actions';
 
-const leadershipAvailabilitySchema = z.array(z.object({
-  id: z.uuid(),
-  guild_id: z.uuid(),
-  profile_id: z.uuid(),
-  starts_on: z.string(),
-  ends_on: z.string(),
-  availability_status: z.enum(['available', 'tentative', 'unavailable']),
-  note: z.string().nullable(),
-  profiles: z.object({ display_name: z.string() }).nullable(),
-}));
+const leadershipAvailabilitySchema = z.array(
+  z.object({
+    id: z.uuid(),
+    guild_id: z.uuid(),
+    profile_id: z.uuid(),
+    starts_on: z.string(),
+    ends_on: z.string(),
+    availability_status: z.enum(['available', 'tentative', 'unavailable']),
+    note: z.string().nullable(),
+    profiles: z.object({ display_name: z.string() }).nullable(),
+  }),
+);
 
 export default async function WarTablePage({
   searchParams,
@@ -108,10 +113,13 @@ export default async function WarTablePage({
       })),
   );
   const availability = availabilityResult.error ? null : availabilityResult.data;
-  const parsedLeadershipAvailability = leadershipAvailabilitySchema.safeParse(leadershipAvailabilityResult.data);
-  const leadershipAvailability = leadershipAvailabilityResult.error || !parsedLeadershipAvailability.success
-    ? null
-    : parsedLeadershipAvailability.data;
+  const parsedLeadershipAvailability = leadershipAvailabilitySchema.safeParse(
+    leadershipAvailabilityResult.data,
+  );
+  const leadershipAvailability =
+    leadershipAvailabilityResult.error || !parsedLeadershipAvailability.success
+      ? null
+      : parsedLeadershipAvailability.data;
   const [rsvpResult, vaultResult, guildCalendarResult] = await Promise.all([
     upcoming.length
       ? supabase
@@ -169,7 +177,9 @@ export default async function WarTablePage({
   const leadershipVaultResult = leadershipShares?.length
     ? await supabase
         .from('weekly_vault_progress')
-        .select('id, profile_id, reset_on, raid_progress, dungeon_progress, world_progress, notes, updated_at')
+        .select(
+          'id, profile_id, reset_on, raid_progress, dungeon_progress, world_progress, notes, updated_at',
+        )
         .in(
           'id',
           leadershipShares.map((share) => share.vault_progress_id),
@@ -193,8 +203,16 @@ export default async function WarTablePage({
             (membership) => membership.guild_id === share.guild_id,
           );
           return progress && guild
-            ? [{ ...progress, guildId: guild.guild_id, guildName: guild.guilds.name,
-              memberName: leadershipProfiles.find((profile) => profile.id === share.profile_id)?.display_name ?? 'Guild member' }]
+            ? [
+                {
+                  ...progress,
+                  guildId: guild.guild_id,
+                  guildName: guild.guilds.name,
+                  memberName:
+                    leadershipProfiles.find((profile) => profile.id === share.profile_id)
+                      ?.display_name ?? 'Guild member',
+                },
+              ]
             : [];
         })
       : null;
@@ -205,13 +223,25 @@ export default async function WarTablePage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-7">
-      {leadershipGuilds.length > 0 && <section className="lodge-panel p-5">
-        <h2 className="font-display text-text-primary text-xl font-bold">Team weekly progress</h2>
-        <p className="text-text-muted mt-2 text-sm">Compare weekly runs, boss kills and Vault progress against your roster’s targets.</p>
-        <div className="mt-3 flex flex-wrap gap-3">{leadershipGuilds.map((membership) =>
-          <Link key={membership.guild_id} href={`/guild-hall/progress?guild=${membership.guild_id}`} className="lodge-button-secondary min-h-11 px-4 py-2 text-sm">{membership.guilds.name} · open roster</Link>
-        )}</div>
-      </section>}
+      {leadershipGuilds.length > 0 && (
+        <section className="lodge-panel p-5">
+          <h2 className="font-display text-text-primary text-xl font-bold">Team weekly progress</h2>
+          <p className="text-text-muted mt-2 text-sm">
+            Compare weekly runs, boss kills and Vault progress against your roster’s targets.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {leadershipGuilds.map((membership) => (
+              <Link
+                key={membership.guild_id}
+                href={`/guild-hall/progress?guild=${membership.guild_id}`}
+                className="lodge-button-secondary min-h-11 px-4 py-2 text-sm"
+              >
+                {membership.guilds.name} · open roster
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       <header className="lodge-panel p-6 sm:p-8">
         <p className="text-accent flex items-center gap-2 text-sm font-medium tracking-[0.16em] uppercase">
           <Compass size={18} aria-hidden="true" /> Weekly Command Center
@@ -247,7 +277,9 @@ export default async function WarTablePage({
             <>
               <p className="text-text-primary mt-3 font-medium">{reset.label}</p>
               <p className="text-text-muted mt-1 text-sm">Next reset: {reset.date}.</p>
-              <p className="text-text-muted mt-2 text-xs">Maintenance can change the actual in-game reset time.</p>
+              <p className="text-text-muted mt-2 text-xs">
+                Maintenance can change the actual in-game reset time.
+              </p>
             </>
           ) : (
             <p className="text-text-muted mt-3 text-sm">
@@ -376,7 +408,12 @@ export default async function WarTablePage({
             Share a dated availability period with Guild leadership. This does not change any Quest
             Board RSVP.
           </p>
-          <AvailabilityForm guilds={guildMemberships.map((membership) => ({ id: membership.guild_id, name: membership.guilds.name }))} />
+          <AvailabilityForm
+            guilds={guildMemberships.map((membership) => ({
+              id: membership.guild_id,
+              name: membership.guilds.name,
+            }))}
+          />
           {availability === null ? (
             <p role="alert" className="text-text-muted mt-5 text-sm">
               Your recorded availability could not be loaded.
@@ -658,7 +695,11 @@ export default async function WarTablePage({
                   </Link>
                   <span className="text-text-muted" role={readiness === null ? 'alert' : undefined}>
                     {' '}
-                    · {readiness === null ? 'Consented character profiles unavailable' : `${readiness.length} consented character profiles · ${stale} without a fresh 24-hour snapshot`} · official roster{' '}
+                    ·{' '}
+                    {readiness === null
+                      ? 'Consented character profiles unavailable'
+                      : `${readiness.length} consented character profiles · ${stale} without a fresh 24-hour snapshot`}{' '}
+                    · official roster{' '}
                     {roster
                       ? isGuildRosterSnapshotFresh(roster.snapshot.refreshed_at)
                         ? 'fresh'
