@@ -52,3 +52,14 @@ Before implementing a new feature or adding a significant dependency:
 6. Do not install, upgrade, replace, or bulk-audit dependencies without task scope and appropriate authorization. Do not let research become a blocker for small straightforward changes; timebox the investigation proportionately.
 
 Apply this check during feature planning, not as an excuse to refactor unrelated or already-accepted functionality. Preserve all existing project security, verification, approval, and Git rules.
+
+## Codex and Claude Code tandem
+
+Codex and Claude Code both follow this file (Claude Code loads it through `CLAUDE.md`, which imports `@AGENTS.md`). These rules bind both agents and add to, never relax, the rules above.
+
+- **One writer per task.** A branch belongs to the agent that created it: `codex/<task>` or `claude/<task>`. Never commit to, rebase, or force-push the other agent's branch. To continue another agent's work, branch from its head under your own prefix and say so in the handoff.
+- **Default roles.** Codex implements approved scope. Claude Code reviews and advises: read-only PR review, audits, architecture and risk analysis, and teaching. The owner may swap roles for a specific task; record that in the handoff.
+- **Review handshake.** Implementation ends as a draft PR with its handoff or receipt. Review findings go in PR comments with severity, file:line, evidence and a suggested fix. The implementing agent applies fixes; a reviewer does not push fixes unless the owner assigns that task.
+- **Check before starting.** Fetch, then check open PRs, `codex/*` and `claude/*` branches touching the same files, and any active run recorded in the handoff. Never duplicate another agent's active run, resources, migrations, deployments or hosted tests; coordinate through the owner.
+- **One shared memory.** `docs/project-status.md` with `docs/project-tracker.json` is the only cross-agent record. Chat history and agent-local memory are not shared. Record approvals there or in the PR with their exact scope, so either agent can carry them forward without asking again and without widening them.
+- **Same evidence rules.** State which agent ran which checks in the current session, keep stage labels distinct, and never present another agent's recorded results as freshly verified.
