@@ -12,7 +12,8 @@
     "dev:vinext": "vite dev --port 3001",
     "build:vinext": "node scripts/build.mjs --workers",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
-    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "test:mocked": "node scripts/test-mocked.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",
