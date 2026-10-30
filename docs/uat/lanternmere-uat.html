@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Lanternmere UAT</title>
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&display=swap"
+    />
+    <style>
+      /* Layout: one reading column; sticky filter bar; checks grouped by test phase, each check a row with an expandable "this run" log. Palette reused from Lanternmere Terminal. */
+      :root {
+        --ground: #f2f5f3;
+        --surface: #fff;
+        --sunk: #e7ece9;
+        --ink: #16211f;
+        --soft: #4a5a57;
+        --faint: #6b7b77;
+        --rule: #dae1de;
+        --rule2: #bfcac6;
+        --accent: #b0651a;
+        --accent-ink: #8d5013;
+        --accent-soft: #f6e9d7;
+        --ok: #2f6b4f;
+        --ok-soft: #dfeee6;
+        --bad: #a13324;
+        --bad-soft: #f8e4e0;
+        --warn: #8a6a10;
+        --warn-soft: #f6eccb;
+        --display: 'Newsreader', Georgia, serif;
+        --body: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --ground: #0b1312;
+          --surface: #131e1d;
+          --sunk: #0f1a19;
+          --ink: #e3ebe8;
+          --soft: #9fb1ac;
+          --faint: #83958f;
+          --rule: #24322f;
+          --rule2: #354643;
+          --accent: #dfa25c;
+          --accent-ink: #f0c78f;
+          --accent-soft: #2a2115;
+          --ok: #6fc79c;
+          --ok-soft: #15291f;
+          --bad: #ec8a7b;
+          --bad-soft: #33201d;
+          --warn: #e0c25e;
+          --warn-soft: #2b2512;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme='dark'] {
+        --ground: #0b1312;
+        --surface: #131e1d;
+        --sunk: #0f1a19;
+        --ink: #e3ebe8;
+        --soft: #9fb1ac;
+        --faint: #83958f;
+        --rule: #24322f;
+        --rule2: #354643;
+        --accent: #dfa25c;
+        --accent-ink: #f0c78f;
+        --accent-soft: #2a2115;
+        --ok: #6fc79c;
+        --ok-soft: #15291f;
+        --bad: #ec8a7b;
+        --bad-soft: #33201d;
+        --warn: #e0c25e;
+        --warn-soft: #2b2512;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--ground);
+        color: var(--ink);
+        font: 15px/1.55 var(--body);
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0 0 auto;
+        height: env(safe-area-inset-top, 0px);
+        z-index: 10;
+        background: var(--ground);
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        padding-block: 36px 64px;
+      }
+      .eyebrow {
+        font: 500 11.5px var(--mono);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      h1 {
+        font: 500 clamp(32px, 6vw, 46px)/1.05 var(--display);
+        margin: 6px 0 10px;
+        letter-spacing: -0.01em;
+        text-wrap: balance;
+      }
+      .lede {
+        color: var(--soft);
+        max-width: 64ch;
+        margin: 0;
+      }
+      .src {
+        margin-top: 14px;
+        font: 12.5px var(--mono);
+        color: var(--faint);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+      }
+      .src b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .tally {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+      }
+      .pill {
+        font: 500 12px var(--mono);
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--sunk);
+        color: var(--soft);
+        font-variant-numeric: tabular-nums;
+      }
+      .pill.ok {
+        background: var(--ok-soft);
+        color: var(--ok);
+      }
+      .pill.bad {
+        background: var(--bad-soft);
+        color: var(--bad);
+      }
+      .pill.warn {
+        background: var(--warn-soft);
+        color: var(--warn);
+      }
+      .blocker {
+        margin-top: 24px;
+        background: var(--bad-soft);
+        border: 1px solid var(--bad);
+        border-radius: 6px;
+        padding: 14px 16px;
+        display: grid;
+        gap: 4px;
+      }
+      .blocker h2 {
+        margin: 0;
+        font: 600 14.5px var(--body);
+        color: var(--bad);
+      }
+      .blocker p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--ink);
+      }
+      details.rules {
+        margin-top: 16px;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 12px 16px;
+      }
+      details.rules summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14.5px;
+      }
+      details.rules ul {
+        margin: 10px 0 2px;
+        padding-left: 20px;
+        color: var(--soft);
+        font-size: 14px;
+        display: grid;
+        gap: 4px;
+      }
+      .bar {
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        z-index: 5;
+        background: var(--ground);
+        border-bottom: 1px solid var(--rule);
+        margin-top: 28px;
+        padding-block: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .chip {
+        font: 500 13px var(--body);
+        color: var(--soft);
+        background: transparent;
+        border: 1px solid var(--rule2);
+        border-radius: 999px;
+        padding: 7px 13px;
+        cursor: pointer;
+      }
+      .chip:hover {
+        border-color: var(--accent);
+        color: var(--accent-ink);
+      }
+      .chip[aria-pressed='true'] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--surface);
+      }
+      .spacer {
+        flex: 1;
+      }
+      .btn {
+        font: 500 13px var(--body);
+        border: 1px solid var(--rule2);
+        background: var(--surface);
+        color: var(--ink);
+        border-radius: 5px;
+        padding: 7px 12px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+      }
+      .btn.primary {
+        background: var(--ink);
+        color: var(--ground);
+        border-color: var(--ink);
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .phase {
+        margin-top: 34px;
+      }
+      .phase-head {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 8px;
+      }
+      .phase-head .n {
+        font: 500 12px var(--mono);
+        color: var(--accent);
+      }
+      .phase-head h2 {
+        margin: 0;
+        font: 500 21px var(--display);
+      }
+      .phase-head p {
+        margin: 0 0 0 auto;
+        font-size: 13px;
+        color: var(--faint);
+        text-align: right;
+      }
+      .check {
+        border-bottom: 1px solid var(--rule);
+        padding: 16px 0;
+        display: grid;
+        gap: 8px;
+      }
+      .check-top {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+      .id {
+        font: 500 13px var(--mono);
+        color: var(--accent-ink);
+        min-width: 3.4em;
+      }
+      .check h3 {
+        margin: 0;
+        font: 600 15px var(--body);
+        flex: 1;
+        min-width: 0;
+      }
+      .tag {
+        font: 500 10.5px var(--mono);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 2px 7px;
+        border-radius: 3px;
+      }
+      .tag.open {
+        background: var(--sunk);
+        color: var(--faint);
+      }
+      .tag.verified {
+        background: var(--ok-soft);
+        color: var(--ok);
+      }
+      .tag.r-pass {
+        background: var(--ok-soft);
+        color: var(--ok);
+      }
+      .tag.r-fail {
+        background: var(--bad-soft);
+        color: var(--bad);
+      }
+      .tag.r-blocked {
+        background: var(--warn-soft);
+        color: var(--warn);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 7.5em minmax(0, 1fr);
+        gap: 4px 14px;
+        font-size: 14px;
+      }
+      .grid dt {
+        color: var(--faint);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding-top: 2px;
+      }
+      .grid dd {
+        margin: 0;
+        color: var(--soft);
+        min-width: 0;
+      }
+      .grid dd.pass {
+        color: var(--ink);
+      }
+      details.run summary {
+        cursor: pointer;
+        font: 500 13px var(--body);
+        color: var(--accent-ink);
+        width: fit-content;
+      }
+      .form {
+        margin-top: 10px;
+        background: var(--surface);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .fields {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+      label {
+        display: grid;
+        gap: 3px;
+        font-size: 12px;
+        color: var(--faint);
+      }
+      input,
+      select,
+      textarea {
+        font: 14px var(--body);
+        color: var(--ink);
+        background: var(--ground);
+        border: 1px solid var(--rule2);
+        border-radius: 4px;
+        padding: 7px 9px;
+        width: 100%;
+      }
+      textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+      .row-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--faint);
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        background: var(--ink);
+        color: var(--ground);
+        padding: 8px 14px;
+        border-radius: 5px;
+        font-size: 13px;
+      }
+      #fallback {
+        width: 100%;
+        min-height: 120px;
+        font: 12px var(--mono);
+      }
+      footer {
+        margin-top: 48px;
+        padding-top: 14px;
+        border-top: 1px solid var(--rule);
+        font-size: 12.5px;
+        color: var(--faint);
+      }
+      @media (max-width: 600px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .grid dt {
+          padding-top: 6px;
+        }
+        .phase-head p {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="eyebrow">Pre-alpha acceptance · hosted app</div>
+        <h1>Lanternmere UAT</h1>
+        <p class="lede">
+          The 18 live acceptance checks from the project tracker, in the runbook's suggested order.
+          Work one check at a time, log what you saw, then copy the evidence into Codex so the
+          tracker and status doc get updated.
+        </p>
+        <div class="src">
+          <span>Source <b>main @ 9f3645e</b></span
+          ><span>Tracker <b>rev 68</b> (Oct 13)</span
+          ><span>Runbook <b>docs/pre-alpha-acceptance-runbook.md</b></span>
+        </div>
+        <div class="tally" id="tally"></div>
+      </header>
+
+      <div class="blocker" role="note">
+        <h2>Blocker first: intermittent Error 1102 on sign-in</h2>
+        <p>
+          On Oct 13 a sign-in hit Cloudflare's 10 ms Workers Free CPU limit (tracked under CR-006).
+          Almost every check below needs a signed-in session, so start with A-03. If sign-in fails
+          again, mark it Blocked and stop the signed-in checks.
+        </p>
+      </div>
+
+      <details class="rules">
+        <summary>Ground rules (from the runbook)</summary>
+        <ul>
+          <li>
+            Use test accounts and test-only Lodges and Guilds. Agree on cleanup before creating or
+            deleting hosted records.
+          </li>
+          <li>Log date, Worker build, role, what you did, expected and actual result.</li>
+          <li>Use role labels like "Owner" or "Second account", not names or account IDs.</li>
+          <li>
+            Never type passwords, email links, OAuth codes, tokens or API keys into this page or
+            chat.
+          </li>
+          <li>
+            A failure stops that check. Keep enough safe detail to reproduce it, then move on to
+            independent checks.
+          </li>
+          <li>
+            A local build or a page that loads is supporting evidence only. A check passes on the
+            real hosted flow.
+          </li>
+          <li>
+            This page does not change the tracker. GitHub stays the source of truth; your notes live
+            only in this browser.
+          </li>
+        </ul>
+      </details>
+
+      <div class="bar" role="toolbar" aria-label="Filter checks">
+        <button class="chip" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" data-f="open" aria-pressed="false">Open</button>
+        <button class="chip" data-f="verified" aria-pressed="false">Verified</button>
+        <button class="chip" data-f="logged" aria-pressed="false">Logged this run</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="copyAll">Copy run log</button>
+      </div>
+
+      <div id="list"></div>
+      <textarea id="fallback" hidden aria-label="Text to copy"></textarea>
+
+      <footer>
+        Built from tracker revision 68 and the pre-alpha acceptance runbook at main 9f3645e. If the
+        tracker moves, this page needs a refresh to match.
+      </footer>
+    </div>
+    <div class="toast" id="toast" hidden role="status"></div>
+
+    <script>
+      const PHASES = [
+        {
+          n: '0',
+          name: 'Sign-in blocker',
+          why: 'Gate for every signed-in check',
+          ids: ['A-03', 'A-17'],
+        },
+        { n: '1', name: 'Hosted settings', why: 'Supabase and Cloudflare config', ids: ['A-16'] },
+        { n: '2', name: 'Fresh signup', why: 'New test account', ids: ['A-10', 'A-04'] },
+        {
+          n: '3',
+          name: 'Owner and second account',
+          why: 'Two Lanternmere logins',
+          ids: ['A-06', 'A-08', 'A-18', 'A-07'],
+        },
+        { n: '4', name: 'Battle.net', why: 'OAuth and in-game rank', ids: ['A-09', 'A-01'] },
+        {
+          n: '5',
+          name: 'Guild workflows',
+          why: 'Verified test Guild, several roles',
+          ids: ['A-02', 'A-05', 'A-11', 'A-12', 'A-13', 'A-14', 'A-15'],
+        },
+      ];
+      const CHECKS = {
+        'A-01': {
+          t: 'Battle.net rank-0 Guild claim and lower-rank denial',
+          s: 'open',
+          pass: 'A rank-0 character on the connecting Battle.net account claims the matching Guild. A lower-rank character cannot claim and gets no leadership role.',
+          pre: "Two Battle.net identities with those ranks, official roster imported, exact callback set. If the rank-0 account isn't available, leave open and move on.",
+        },
+        'A-02': {
+          t: 'Multi-account Guild and Raid Room permissions',
+          s: 'open',
+          pass: 'Guild Master, Officer, member and outsider each see only their allowed Guild and Raid Room data. Roster, attendance, encounter and Loot Council actions follow role rules.',
+          pre: 'Real Guild claim, separate Lanternmere logins, test-only raid records.',
+        },
+        'A-03': {
+          t: 'Sign-in, sign-out and session persistence',
+          s: 'open',
+          pass: 'Fresh sign-in reaches the Hearth with no Error 1102, a refresh keeps you signed in, and sign-out works.',
+          pre: 'Your owner account on the phone.',
+          have: 'Oct 5: sign-in, refresh and sign-out all worked. Oct 13: Error 1102 during sign-in; a retry got in.',
+          left: 'A clean full pass after the CPU mitigation, with the account role noted.',
+        },
+        'A-04': {
+          t: 'Confirmation email and hosted callback',
+          s: 'verified',
+          pass: 'A fresh confirmation email opened in the signup browser lands on the hosted callback and the right signed-in page.',
+          pre: 'Recheck only if a later change touches signup or callbacks.',
+        },
+        'A-05': {
+          t: 'War Table, calendar import and Vault consent',
+          s: 'open',
+          pass: 'A member saves War Table availability, a calendar snapshot imports, and a Vault note stays hidden until Guild consent is granted and hides again after revoking.',
+          pre: 'Member and leader logins, a test Guild, a calendar client.',
+        },
+        'A-06': {
+          t: 'Non-owner directory denial and Main acknowledgment',
+          s: 'open',
+          pass: 'A non-owner cannot open the owner directory. Main identity shows only after acknowledgment, with no email visible.',
+          pre: 'Owner and non-owner logins.',
+          have: "Your own owner card shows the verified Main's name, realm and region, no email.",
+          left: 'Real non-owner denial, Main-change behavior, second-account privacy.',
+        },
+        'A-07': {
+          t: 'Signed-out pages, private calendar and claim entry denied',
+          s: 'verified',
+          pass: "Signed-out visitors can't reach protected pages, private calendars or Guild claim entry.",
+          pre: 'Recheck only if a later change touches these routes.',
+        },
+        'A-08': {
+          t: 'Owner account controls, suspension and restore',
+          s: 'open',
+          pass: 'Owner-only controls work. A suspended account loses access on its next request; restoring it brings access back.',
+          pre: 'Owner plus a disposable second account. Restore it before you finish.',
+          have: 'Owner account cards and labels show correctly on the phone.',
+          left: 'Owner-only gate, live suspension, restoration.',
+        },
+        'A-09': {
+          t: 'Personal Battle.net connection and private character list',
+          s: 'open',
+          pass: "Connecting Battle.net returns only that account's characters. Another Lanternmere account can't read them.",
+          pre: 'Battle.net OAuth access and a second Lanternmere login.',
+          have: 'Add-to-Hearth, phone layout, Main verification, Traveler removal and re-add all worked Oct 5.',
+          left: 'Second-account privacy, duplicate-claim denial, cross-account removal denial.',
+        },
+        'A-10': {
+          t: 'Signup nickname and Main acknowledgment',
+          s: 'open',
+          pass: 'Fresh signup saves the chosen game nickname. Directory sharing is off by default and only turns on after an explicit opt-in.',
+          pre: 'New test Lanternmere account. Pairs well with A-04.',
+        },
+        'A-11': {
+          t: 'Muster applicants, recruiters and retention',
+          s: 'open',
+          pass: 'Applicant, recruiter and Officer each see and change only allowed Muster data. Deleting an applicant removes private content. Retention runs on an eligible test record.',
+          pre: 'Verified claim, separate roles, a safe retention test plan.',
+        },
+        'A-12': {
+          t: 'Artisan Hall ownership and supply goals',
+          s: 'open',
+          pass: 'Offerings and requests stay inside their Guild. Requester and volunteer steps and Officer/Master supply-goal permissions work. Public-import ownership is labeled unverified.',
+          pre: 'Verified Guild with member, leader and outsider logins.',
+        },
+        'A-13': {
+          t: 'Expedition Board, Raider.IO consent and weekly goals',
+          s: 'open',
+          pass: 'Interest and weekly goals respect Guild boundaries. Raider.IO score is shared only with per-post consent, can be revoked after closing, and shows source and freshness.',
+          pre: 'Verified Guild, two members, an outsider, a saved score snapshot.',
+          note: 'Weekly goal rule: a goal met this reset week stays Met; a new week starts Unknown.',
+        },
+        'A-14': {
+          t: 'Chronicle Lens history, Warcraft Logs and accessibility',
+          s: 'open',
+          pass: 'Raider.IO history is owner-only. Public Warcraft Logs lookup works. Guild review shows only allowed context. Keyboard and screen-reader checks pass.',
+          pre: 'Two logins; optional Warcraft Logs client credentials (set in the platform, never typed here).',
+        },
+        'A-15': {
+          t: 'Lanternkeeper leader access and AI limits',
+          s: 'open',
+          pass: 'A verified leader sees the factual briefing and a member is denied. Optional AI uses aggregate-only inputs, returns a valid response, and enforces user and Guild budgets. Accessibility passes.',
+          pre: "Verified Guild with several roles. AI path needs a configured provider key; don't log payloads.",
+        },
+        'A-16': {
+          t: 'Private schema, retention jobs, headers, Storage cleanup',
+          s: 'open',
+          pass: 'The Data API excludes private, security headers appear, scheduled retention removes an eligible test record, and deleting a Lodge removes its Chronicle image.',
+          pre: 'Supabase dashboard access and a disposable record.',
+          have: 'Private schema excluded; disposable-Lodge deletion and Storage cleanup passed; headers and job runs recorded.',
+          left: 'Actual deletion of an expired record by the retention job.',
+        },
+        'A-17': {
+          t: 'Password reset from a different browser',
+          s: 'open',
+          pass: 'A reset email opened in a different browser session lets you set a new password and sign in, instead of bouncing to Forgot password.',
+          pre: 'Repaired email template installed on the hosted project and the app release live first.',
+          have: 'On iPhone the reset email returned to Forgot password.',
+          left: 'Template install, release, then a fresh real-account reset.',
+        },
+        'A-18': {
+          t: 'Feedback, private replies, triage and phone use',
+          s: 'open',
+          pass: "Feedback submits with a receipt, replies stay private between owner and member, a member can't open another member's report link, and it works well on the phone.",
+          pre: 'Owner and second account.',
+          have: 'Status save and reopen, owner submission, reply persistence, closed-thread view, owner-inbox denial and two-way replies.',
+          left: "Live reply gate (save Reviewing or Planned before replying), denial of another member's report link, abuse limits, broader accessibility, scheduled deletion.",
+        },
+      };
+      const KEY = 'lanternmere-uat-v1';
+      let log = {};
+      try {
+        log = JSON.parse(localStorage.getItem(KEY) || '{}') || {};
+      } catch (e) {
+        log = {};
+      }
+      function save() {
+        try {
+          localStorage.setItem(KEY, JSON.stringify(log));
+        } catch (e) {}
+      }
+      let filter = 'all';
+      const esc = (s) =>
+        String(s ?? '').replace(
+          /[&<>"]/g,
+          (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+        );
+      const today = () => {
+        const d = new Date();
+        return (
+          d.getFullYear() +
+          '-' +
+          String(d.getMonth() + 1).padStart(2, '0') +
+          '-' +
+          String(d.getDate()).padStart(2, '0')
+        );
+      };
+      function resTag(id) {
+        const r = log[id]?.result;
+        if (!r || r === 'Not run') return '';
+        return `<span class="tag r-${r.toLowerCase()}">This run: ${esc(r)}</span>`;
+      }
+      function render() {
+        const list = document.getElementById('list');
+        let html = '';
+        PHASES.forEach((p) => {
+          const ids = p.ids.filter((id) => {
+            const c = CHECKS[id];
+            const l = log[id]?.result && log[id].result !== 'Not run';
+            return filter === 'all' || (filter === 'logged' ? l : c.s === filter);
+          });
+          if (!ids.length) return;
+          html += `<section class="phase"><div class="phase-head"><span class="n">Phase ${p.n}</span><h2>${esc(p.name)}</h2><p>${esc(p.why)}</p></div>`;
+          ids.forEach((id) => {
+            const c = CHECKS[id],
+              l = log[id] || {};
+            const open = !!l.open;
+            html += `<article class="check" id="${id}"><div class="check-top"><span class="id">${id}</span><h3>${esc(c.t)}</h3><span class="tag ${c.s}">${c.s === 'verified' ? 'Verified' : 'Open'}</span>${resTag(id)}</div>
+      <dl class="grid"><dt>Pass when</dt><dd class="pass">${esc(c.pass)}</dd><dt>Needs</dt><dd>${esc(c.pre)}</dd>
+      ${c.have ? `<dt>Already seen</dt><dd>${esc(c.have)}</dd>` : ''}${c.left ? `<dt>Still to prove</dt><dd>${esc(c.left)}</dd>` : ''}${c.note ? `<dt>Rule</dt><dd>${esc(c.note)}</dd>` : ''}</dl>
+      <details class="run" data-id="${id}" ${open ? 'open' : ''}><summary>Log this run</summary><div class="form">
+        <div class="fields">
+          <label for="${id}-result">Result<select id="${id}-result" data-k="result">${['Not run', 'Pass', 'Fail', 'Blocked'].map((o) => `<option ${l.result === o ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
+          <label for="${id}-date">Date<input id="${id}-date" type="date" data-k="date" value="${esc(l.date || '')}"></label>
+          <label for="${id}-build">Worker build or commit<input id="${id}-build" data-k="build" value="${esc(l.build || '')}" placeholder="e.g. 9f3645e"></label>
+          <label for="${id}-role">Role used<input id="${id}-role" data-k="role" value="${esc(l.role || '')}" placeholder="Owner, Second account"></label>
+        </div>
+        <label for="${id}-did">What you did<textarea id="${id}-did" data-k="did" placeholder="Steps, device and browser">${esc(l.did || '')}</textarea></label>
+        <label for="${id}-saw">What actually happened<textarea id="${id}-saw" data-k="saw" placeholder="Exact message or screen. No passwords, links or tokens.">${esc(l.saw || '')}</textarea></label>
+        <div class="row-actions"><button class="btn primary" data-copy="${id}">Copy evidence</button><button class="btn" data-clear="${id}">Clear</button><span class="hint">Saved in this browser only.</span></div>
+      </div></details></article>`;
+          });
+          html += `</section>`;
+        });
+        list.innerHTML =
+          html ||
+          `<p class="hint" style="margin-top:28px">Nothing logged yet. Open a check and use "Log this run".</p>`;
+        tally();
+      }
+      function tally() {
+        const all = Object.values(CHECKS),
+          v = all.filter((c) => c.s === 'verified').length;
+        const r = (k) => Object.values(log).filter((x) => x.result === k).length;
+        document.getElementById('tally').innerHTML =
+          `<span class="pill ok">${v} verified</span><span class="pill">${all.length - v} open</span>` +
+          (r('Pass') ? `<span class="pill ok">${r('Pass')} passed this run</span>` : '') +
+          (r('Fail') ? `<span class="pill bad">${r('Fail')} failed this run</span>` : '') +
+          (r('Blocked') ? `<span class="pill warn">${r('Blocked')} blocked</span>` : '');
+      }
+      function evidence(id) {
+        const c = CHECKS[id],
+          l = log[id] || {};
+        return `${id} ${c.t}\nResult: ${l.result || 'Not run'}\nDate: ${l.date || '-'}\nBuild: ${l.build || '-'}\nRole: ${l.role || '-'}\nExpected: ${c.pass}\nDid: ${l.did || '-'}\nActual: ${l.saw || '-'}`;
+      }
+      function toast(m) {
+        const t = document.getElementById('toast');
+        t.textContent = m;
+        t.hidden = false;
+        clearTimeout(toast.h);
+        toast.h = setTimeout(() => (t.hidden = true), 1800);
+      }
+      function copy(text) {
+        const fb = document.getElementById('fallback');
+        const show = () => {
+          fb.hidden = false;
+          fb.value = text;
+          fb.focus();
+          fb.select();
+          toast('Select all and copy from the box below');
+        };
+        try {
+          navigator.clipboard.writeText(text).then(() => {
+            fb.hidden = true;
+            toast('Copied');
+          }, show);
+        } catch (e) {
+          show();
+        }
+      }
+      document.addEventListener('input', (e) => {
+        const k = e.target.dataset.k;
+        if (!k) return;
+        const id = e.target.closest('details').dataset.id;
+        log[id] = log[id] || {};
+        log[id][k] = e.target.value;
+        if (k === 'result' && e.target.value !== 'Not run' && !log[id].date) {
+          log[id].date = today();
+          document.getElementById(id + '-date').value = log[id].date;
+        }
+        save();
+        if (k === 'result') {
+          const top = document.querySelector(`#${id} .check-top`);
+          top.querySelector("[class*='r-']")?.remove();
+          top.insertAdjacentHTML('beforeend', resTag(id));
+          tally();
+        }
+      });
+      document.addEventListener(
+        'toggle',
+        (e) => {
+          const d = e.target;
+          if (d.matches?.('details.run')) {
+            const id = d.dataset.id;
+            log[id] = log[id] || {};
+            log[id].open = d.open;
+            save();
+          }
+        },
+        true,
+      );
+      document.addEventListener('click', (e) => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.f) {
+          filter = b.dataset.f;
+          document
+            .querySelectorAll('.chip')
+            .forEach((c) => c.setAttribute('aria-pressed', c === b));
+          render();
+        } else if (b.dataset.copy) copy(evidence(b.dataset.copy));
+        else if (b.dataset.clear) {
+          if (b.dataset.armed) {
+            delete log[b.dataset.clear];
+            save();
+            render();
+            toast('Cleared');
+          } else {
+            b.dataset.armed = '1';
+            b.textContent = 'Tap again to clear';
+            setTimeout(() => {
+              if (b.isConnected) {
+                delete b.dataset.armed;
+                b.textContent = 'Clear';
+              }
+            }, 3000);
+          }
+        } else if (b.id === 'copyAll') {
+          const ids = Object.keys(CHECKS).filter(
+            (id) => log[id]?.result && log[id].result !== 'Not run',
+          );
+          if (!ids.length) {
+            toast('Nothing logged yet');
+            return;
+          }
+          copy(
+            'Lanternmere UAT run log (source main 9f3645e, tracker rev 68)\n\n' +
+              ids.map(evidence).join('\n\n'),
+          );
+        }
+      });
+      render();
+    </script>
+  </body>
+</html>
