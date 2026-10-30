@@ -2,6 +2,8 @@
 
 Use this after the Milestone 0–14 and final integrated code audits. Work through **one check at a time** with Will. Keep the corresponding `A-..` tracker item open until its full pass evidence is observed on the hosted app. A local build, synthetic SQL fixture, or successful page load is supporting evidence, not a substitute for the real flow.
 
+For a browsable checklist with browser-local run notes, open [Lanternmere UAT](uat/lanternmere-uat.html); the project tracker remains the source of truth.
+
 ## Ground rules
 
 - Use test accounts and test-only Lodge/Guild records. Agree on cleanup before creating or deleting hosted records. Do not use an important Lodge or Guild for destructive tests.

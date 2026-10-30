@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## Browsable UAT checklist — October 30, 2026
+
+- Prepared on `docs/uat-checklist` from verified GitHub main `9f3645e1c14e1b9fdf2c66a5b06f0bb721c4e9d0`. The handoff's patch was unavailable locally; the downloaded `lanternmere-uat.html` supplied the checklist, with a standalone HTML wrapper, mobile viewport metadata and repository formatting.
+- [Lanternmere UAT](uat/lanternmere-uat.html) preserves all 18 checks and their tracker revision 68 states. Notes stay in browser-local storage; copying evidence does not update the tracker. The runbook links to the page and keeps the tracker authoritative.
+- Fresh local checks passed: targeted Prettier with the installed Tailwind plugin, JavaScript syntax, all 18 tracker-state comparisons, unique phase coverage, source checklist-content comparison and `git diff --check`. Browser policy blocked opening the local file URL, so visual and interaction verification remain unperformed. The draft PR's `validate` job must supply CI evidence separately.
+- Authorization covers the documentation branch and draft PR only. Merge and hosted acceptance remain separate; no product code, tracker state, database, provider settings or production deployment changed. The earlier private-artifact publication is reported by the handoff and was not independently verified here.
+- Next: obtain a successful `validate` check and review the draft PR; then run A-03 on the phone and record its actual result before changing acceptance state.
+
 ## Current source checkpoint — October 30, 2026
 
 - Verified main before this branch: `d7d9ebe7ab4b2a6de8130cd9123a0406a557ad55`, merged dependency-security PR #17. Its connected Workers Build succeeded. That confirms a build check, not the currently active production Worker or hosted acceptance.
