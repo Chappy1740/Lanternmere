@@ -52,3 +52,14 @@ Before implementing a new feature or adding a significant dependency:
 6. Do not install, upgrade, replace, or bulk-audit dependencies without task scope and appropriate authorization. Do not let research become a blocker for small straightforward changes; timebox the investigation proportionately.
 
 Apply this check during feature planning, not as an excuse to refactor unrelated or already-accepted functionality. Preserve all existing project security, verification, approval, and Git rules.
+
+## EYD-PM-001 — Conversation continuity and recovery
+
+Master: [EYD-PM-001 v3.0](https://github.com/Chappy1740/Eydren/blob/main/00_Governance/EYD-PM-001-AI-Conversation-Continuity.md), with its handoff template, recovery checklist and acceptance tests in `00_Governance/EYD-PM-001/`. The master repository is private; the rules below apply here on their own.
+
+- Chat history and agent memory are temporary. Authoritative state is current evidence (branch, HEAD, remote head, PRs, checks, deployment or version IDs), then `docs/project-status.md` and `docs/project-tracker.json`, then dated handoffs. Chat ranks last.
+- Assess continuity at milestones, phase changes, significant decisions and before approval requests. **GREEN:** continue. **AMBER:** record chat-only decisions, approvals or results in `docs/project-status.md` and `docs/project-tracker.json` before continuing. **RED:** stop new implementation and prepare a verified handoff. **RECOVERY:** read-only verification for the affected scope until records and evidence agree. Never use chat length or an invented context percentage as the measure.
+- A handoff states project and repository, objective and phase, verified branch and full SHA, each item at one rung (Implemented, Tested, Merged, Deployed, Owner-accepted), decisions and requirements with where they are recorded, blockers, approvals with exact remaining scope, evidence, unknowns and discrepancies, and one next action with acceptance criteria. Store it in or link it from `docs/project-status.md` and `docs/project-tracker.json`; never start a competing record.
+- Before resuming dependent work from a handoff or new chat, verify repository, branch, HEAD, remote head, working tree, decisions and approvals against these sources. Report Recovered, Partially recovered or Not recovered with evidence; never claim Recovered without it.
+
+This section grants no new permission and relaxes no rule in this file.
