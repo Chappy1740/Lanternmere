@@ -42,7 +42,7 @@ npm run format:check
 node tests/milestone-2/check-profile-errors.cjs
 ```
 
-The last command uses mocked I/O and requires no credentials or live Blizzard requests. There is no general `npm test` script in the inspected package manifest. `npm run format` writes across the repository; avoid using it for narrowly scoped changes without reviewing everything it changes.
+The last command uses mocked I/O and requires no credentials or live Blizzard requests. The shared mocked suite is `npm run test:mocked`; see [CI and main safeguards](CI.md). There is no general `npm test` script. `npm run format` writes across the repository; avoid using it for narrowly scoped changes without reviewing everything it changes.
 
 Choose checks appropriate to the change. For documentation-only edits, verify links, factual claims, the preserved generated instructions, and `git diff --check`. Do not report historical lint, build, audit, or browser results as newly run tests.
 

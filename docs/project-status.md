@@ -1,5 +1,19 @@
 # Project status and handoff
 
+## Current source checkpoint — October 30, 2026
+
+- Verified main before this branch: `d7d9ebe7ab4b2a6de8130cd9123a0406a557ad55`, merged dependency-security PR #17. Its connected Workers Build succeeded. That confirms a build check, not the currently active production Worker or hosted acceptance.
+- Open drafts #18 (weekly progress), #19 (environment error names) and #20 (tandem guidance) are separate work. In particular #18 needs its own database/release gates; none is merged by this task.
+- This Codex branch continues Claude's continuity PR #21 at `c736bb7d75324f0a96f52837bcc26483d3113af8`, preserving its source branch. It adds shared-policy references and a `validate` workflow reusing all 42 existing mocked CJS/MJS entry points, lint, Next/Workers builds and TypeScript. Synthetic build values do not identify or connect to a hosted project.
+- Branch protection and a passing workflow are separate requirements. Before this task, main was unprotected and had no Actions workflow. Check this branch's PR and the actual GitHub ruleset for the applied state; configuration source alone is not enforcement.
+- Applied/read back: active main-only [ruleset 26202441](https://github.com/Chappy1740/Lanternmere/rules/26202441), with required up-to-date Actions `validate`, PR/resolved-thread requirement, no deletion/force pushes and no bypass actors. The [first consistency PR run](https://github.com/Chappy1740/Lanternmere/actions/runs/41047970760) passed all steps on `2e3a0e88c619ccc2568215ea1ad8e386017c2846`; each later head requires its own checks. Fresh local Codex results: 42/42 mocked entries, lint, targeted formatting, both builds, regenerated route types and TypeScript passed. See [CI receipt and limitations](CI.md).
+- Historical dependency findings, Workers Free CPU reliability, rank-0 claim/multi-account privacy and physical-iPhone/live acceptance remain open. No product tracker acceptance state is advanced by this consistency pass. Current production identity and provider configuration are UNKNOWN here.
+- Next: validate and review the consistency branch, then require its successful `validate` check and PR rule before further product merges. Preserve existing deployment, database/auth and spending boundaries.
+
+## Historical project record
+
+The following entries preserve dated approvals, implementation and observations. Recheck source, provider state and remaining authorization before acting; earlier "current" and "fresh" wording applies to the entry's date.
+
 ## Security release approval and rollback checkpoint — October 24, 2026
 
 - Will explicitly requested merging PR #17 after the remaining findings and pending Claude review were disclosed. This authorizes the connected main-branch production build; it does not establish independent review, a clean audit or completed live acceptance.
