@@ -55,6 +55,8 @@ Before implementing a new feature or adding a significant dependency:
 
 Apply this check during feature planning, not as an excuse to refactor unrelated or already-accepted functionality. Preserve all existing project security, verification, approval, and Git rules.
 
+Third-party AI content (skills, plugins, MCP servers, custom GPTs, prompt packs, agent templates) counts as a dependency under this check: review it read-only first, install nothing from unreviewed sources, and use permission-bypass modes only in isolated sandboxes. Purchased or shared content is for learning; do not republish or resell it through Eydren.
+
 ## EYD-PM-001 — Conversation continuity and recovery
 
 Master: [EYD-PM-001](https://github.com/Chappy1740/eydren-governance/blob/main/governance/EYD-PM-001.md), with its handoff template, recovery checklist and acceptance tests in the central `templates/` directory and `governance/EYD-PM-001-ACCEPTANCE.md`. The master repository is private; the rules below apply here on their own.
