@@ -6,7 +6,9 @@
       "Read(./.env.*.local)",
       "Read(./.env.production)",
       "Read(./.env.development)",
-      "Read(./.env.keys)"
+      "Read(./.env.keys)",
+      "Read(./.dev.vars)",
+      "Read(./dist/server/.dev.vars)"
     ]
   }
 }
