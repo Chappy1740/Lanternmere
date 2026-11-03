@@ -44,3 +44,5 @@ next-env.d.ts
 .vinext/
 .wrangler/
 /supabase/.temp/
+CLAUDE.local.md
+.claude/settings.local.json
