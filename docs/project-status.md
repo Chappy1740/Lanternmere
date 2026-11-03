@@ -1,5 +1,9 @@
 # Project status and handoff
 
+## November 3 owner decision — UAT sharing is repo-only
+
+Owner decision, recorded by Claude Code from chat; not yet committed or accepted in a PR. UAT sharing between Claude Code and Codex is **repo-only**: results, URLs, commit IDs and acceptance states go in this repository's shared records, and screenshots or notes go in the PR. Neither agent gets a login, Access seat, service token or other credential for hosted UAT or live sites, and no preview URLs, new UAT sites or access changes are implied. UAT and pilot data must be synthetic or explicitly marked pilot data; no real customer data or PII. Changing any of this needs a new owner decision. Record: this file and `docs/project-tracker.json` (tracker not yet updated for this decision). The browsable UAT checklist stays as is; notes you copy into it do not update the tracker.
+
 ## Browsable UAT checklist — October 30, 2026
 
 - Prepared on `docs/uat-checklist` from verified GitHub main `9f3645e1c14e1b9fdf2c66a5b06f0bb721c4e9d0`. The handoff's patch was unavailable locally; the downloaded `lanternmere-uat.html` supplied the checklist, with a standalone HTML wrapper, mobile viewport metadata and repository formatting.
