@@ -45,12 +45,14 @@ function load(file, dependencies) {
 const input = load('src/lib/wow/character-input.ts', { zod: localRequire('zod') });
 const portrait = load('src/lib/wow/portrait.ts', {});
 const details = load('src/lib/wow/character-details.ts', { zod: localRequire('zod') });
+const weekly = load('src/lib/wow/weekly-mythic-runs.ts', { zod: localRequire('zod') });
 const { fetchCharacterProfile } = load('src/lib/wow/character-profile.ts', {
   'server-only': {},
   zod: localRequire('zod'),
   './character-input': input,
   './portrait': portrait,
   './character-details': details,
+  './weekly-mythic-runs': weekly,
   './blizzard-token': {
     getBlizzardToken: async () => {
       tokenCalls++;

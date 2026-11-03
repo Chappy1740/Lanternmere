@@ -16,7 +16,10 @@ const input = z.object({
 
 export type AvailabilityState = { message: string; error: boolean };
 
-export async function createAvailability(_previous: AvailabilityState, formData: FormData): Promise<AvailabilityState> {
+export async function createAvailability(
+  _previous: AvailabilityState,
+  formData: FormData,
+): Promise<AvailabilityState> {
   const parsed = input.safeParse({
     guildId: formData.get('guildId'),
     startsOn: formData.get('startsOn'),
@@ -39,7 +42,10 @@ export async function createAvailability(_previous: AvailabilityState, formData:
   return { message: 'Availability saved.', error: false };
 }
 
-export async function deleteAvailability(_previous: AvailabilityState, formData: FormData): Promise<AvailabilityState> {
+export async function deleteAvailability(
+  _previous: AvailabilityState,
+  formData: FormData,
+): Promise<AvailabilityState> {
   const id = z.uuid().safeParse(formData.get('id'));
   if (!id.success) return { message: 'Invalid availability period.', error: true };
   const supabase = await createClient();

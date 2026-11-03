@@ -1,0 +1,15 @@
+# Keep line endings consistent (LF) no matter which OS edits the files.
+* text=auto eol=lf
+
+# Binary files: never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Preserved Milestone 2 security evidence (see AGENTS.md): keep byte-for-byte as committed.
+tests/milestone-2/lanternmere-security-rehearsal.sql -text
