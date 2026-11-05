@@ -6,9 +6,9 @@
 - [Lanternmere UAT](uat/lanternmere-uat.html) preserves all 18 checks and their tracker revision 68 states. Notes stay in browser-local storage; copying evidence does not update the tracker. The runbook links to the page and keeps the tracker authoritative.
 - Fresh local checks passed: targeted Prettier with the installed Tailwind plugin, JavaScript syntax, all 18 tracker-state comparisons, unique phase coverage, source checklist-content comparison and `git diff --check`. Browser policy blocked opening the local file URL, so visual and interaction verification remain unperformed. The draft PR's `validate` job must supply CI evidence separately.
 - Authorization covers the documentation branch and draft PR only. Merge and hosted acceptance remain separate; no product code, tracker state, database, provider settings or production deployment changed. The earlier private-artifact publication is reported by the handoff and was not independently verified here.
-- Next: obtain a successful `validate` check and review the draft PR; then run A-03 on the phone and record its actual result before changing acceptance state.
+- Subsequent GitHub readback: [PR #23](https://github.com/Chappy1740/Lanternmere/pull/23) merged at `650875df76359fc8972dc67f4c46744e47268cce` after a successful Actions `validate` on its PR head. The PR separately records a failed Cloudflare build check. Neither result establishes hosted acceptance. Run A-03 on the phone and record the result before changing its acceptance state.
 
-## Current source checkpoint — October 30, 2026
+## Source checkpoint — October 30, 2026 (historical)
 
 - Verified main before this branch: `d7d9ebe7ab4b2a6de8130cd9123a0406a557ad55`, merged dependency-security PR #17. Its connected Workers Build succeeded. That confirms a build check, not the currently active production Worker or hosted acceptance.
 - Open drafts #18 (weekly progress), #19 (environment error names) and #20 (tandem guidance) are separate work. In particular #18 needs its own database/release gates; none is merged by this task.
@@ -16,7 +16,7 @@
 - Branch protection and a passing workflow are separate requirements. Before this task, main was unprotected and had no Actions workflow. Check this branch's PR and the actual GitHub ruleset for the applied state; configuration source alone is not enforcement.
 - Applied/read back: active main-only [ruleset 26202441](https://github.com/Chappy1740/Lanternmere/rules/26202441), with required up-to-date Actions `validate`, PR/resolved-thread requirement, no deletion/force pushes and no bypass actors. The [first consistency PR run](https://github.com/Chappy1740/Lanternmere/actions/runs/41047970760) passed all steps on `2e3a0e88c619ccc2568215ea1ad8e386017c2846`; each later head requires its own checks. Fresh local Codex results: 42/42 mocked entries, lint, targeted formatting, both builds, regenerated route types and TypeScript passed. See [CI receipt and limitations](CI.md).
 - Historical dependency findings, Workers Free CPU reliability, rank-0 claim/multi-account privacy and physical-iPhone/live acceptance remain open. No product tracker acceptance state is advanced by this consistency pass. Current production identity and provider configuration are UNKNOWN here.
-- Next: validate and review the consistency branch, then require its successful `validate` check and PR rule before further product merges. Preserve existing deployment, database/auth and spending boundaries.
+- Subsequent GitHub readback: [consistency PR #22](https://github.com/Chappy1740/Lanternmere/pull/22) merged at `9f3645e1c14e1b9fdf2c66a5b06f0bb721c4e9d0`. [PR #25](https://github.com/Chappy1740/Lanternmere/pull/25) added Claude Code Read-tool deny rules and local ignores and merged at `a0123e0dd46e9a1d6950f6ee951a961db9afb5c9` on November 3. The rules do not establish coverage for shell access or every starting directory. Preserve existing deployment, database/auth and spending boundaries.
 
 ## Historical project record
 
