@@ -47,9 +47,9 @@ These rules are permanent project guidance for Codex sessions working on Lantern
 - Distinguish checks run in the current session from previously recorded results.
 - Update docs/project-status.md when scope, implementation status, or verification results change.
 
-## Current Lanternmere Workflow
+## Milestone checkpoint scope
 
-For the pre-Milestone-5 consolidation and UI/design-alignment checkpoint:
+Use [the project status](project-status.md) and [tracker guidance](project-tracker.md) to identify current work. The following constraints describe the historical pre-Milestone-5 consolidation and UI/design-alignment checkpoint:
 
 - Work from current `main` or a focused documentation/design branch.
 - Read `docs/design/README.md`, `docs/archive/claude-migration/original-mvp-roadmap.md`, and `docs/adr/ADR-001-rls-policy-boundaries.md` when relevant.
