@@ -1,0 +1,9 @@
+#!/bin/sh
+# Early warning only. The real lock is GitHub ruleset 26202441 on main.
+while read local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "Blocked: never push directly to main. Open a PR; the main ruleset requires it." >&2
+    exit 1
+  fi
+done
+exit 0

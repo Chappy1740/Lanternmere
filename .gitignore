@@ -46,3 +46,6 @@ next-env.d.ts
 /supabase/.temp/
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Claude Code local check reports
+/.claude/reports/
