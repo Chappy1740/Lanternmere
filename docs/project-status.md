@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## November 10, 2026 — Guard-bash parser library evaluation (Claude)
+
+**AMBER.** Read-only evaluation, requested by the owner, of replacing the hook's hand-written shell parsing with a library. Owner approved committing and pushing only the recommendation doc ("commit and push the doc"). No hook code, dependency, PR or other repository changed.
+
+- **Record:** [docs/security/guard-bash-parser-evaluation.md](security/guard-bash-parser-evaluation.md). It recommends keeping the dependency-free parser (option a): make internal errors and malformed input block (they currently allow), close the ANSI-C `$'…'` gap, and extend `guard-bash.check.mjs`. Sandbox `denyRead` is tabled as a separate decision.
+- **Verified this session:** the 86/86 hook tests pass. The hook is byte-identical on Lanternmere `main` 57ff0b8 and eydren-studio `main` 966177f. DiamondAlibi has it only on `claude/setup-audit-reference-suxt0i` @ 689be07; its `main` 2c9bf02 lacks the wildcard rule. DiamondAlibi #92 state: UNKNOWN.
+- **Next:** the owner chooses an option, then gives separate approvals to implement it in each repository, open PRs and merge.
+
 ## November 10, 2026 — Claude Code Bash safety hook (Claude)
 
 **AMBER.** Owner approved adding this from a setup review ("Ok a c", then "Ok commit and push", then "Ok both" for a draft PR and this record). The owner assigned this tooling task to Claude Code directly. It changes no product code, provider settings, database or deployment.
