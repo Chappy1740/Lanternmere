@@ -23,3 +23,11 @@ Date: 2026-11-10. Repository: `Chappy1740/Lanternmere`. Baseline main: `cebf0828
 - This file is a proposed reconciliation plan only. No project agent instructions, runtime code, provider configuration, rulesets or existing PRs are modified by this branch.
 - Next: owner-directed handoff to the current `AGENTS.md` PR writer, independent review of the resulting updated head, and separate owner approval before integration.
 - Evidence stages: Implemented (plan only); Tested (GitHub readback pending); Merged (no); Deployed (no); Owner-accepted (pending).
+
+## PR #20 retention assessment — 2026-11-10
+
+Compared draft PR #20's entire `AGENTS.md` patch against governance `EYD-PM-001` v3.3 on main and Lanternmere main instructions. Its one-writer-per-task, separate task branches, branch-from-source-head transfer, existing canonical project records, preflight checks, agent-attributed evidence and owner-scoped authorization are already substantially covered. Do not merge duplicate or stricter branch-prefix-as-ownership language: PM v3.3 explicitly says prefixes alone do not establish task ownership.
+
+**Retain as a proposed implementation refinement, subject to normal review:** make the review handshake concrete: submit findings in PR review comments with severity, file/line, evidence and a proposed fix; the assigned implementer owns remediation unless the owner explicitly transfers the task. Before beginning overlapping work, check active PRs/branches and active runs to avoid duplicating migrations, hosted tests or deployments. These clarify existing governance rather than creating new permissions. Add them through the existing `AGENTS.md` reconciliation task after assignment; do not silently claim they are already adopted.
+
+**Disposition:** PR #20 is redundant as an integration vehicle, contains an outdated assumption that branch prefix defines ownership, and has a merge conflict. Preserve its GitHub history and this assessment, then close it **without merging**. No deletion of `AGENTS.md` or source branches is needed.
