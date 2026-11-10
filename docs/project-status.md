@@ -7,6 +7,7 @@
 - **Record:** [docs/security/guard-bash-parser-evaluation.md](security/guard-bash-parser-evaluation.md). It recommends keeping the dependency-free parser (option a): make internal errors and malformed input block (they currently allow), close the ANSI-C `$'…'` gap, and extend `guard-bash.check.mjs`. Sandbox `denyRead` is tabled as a separate decision.
 - **Verified this session:** the 86/86 hook tests pass. The hook is byte-identical on Lanternmere `main` 57ff0b8 and eydren-studio `main` 966177f. DiamondAlibi has it only on `claude/setup-audit-reference-suxt0i` @ 689be07; its `main` 2c9bf02 lacks the wildcard rule. DiamondAlibi #92 state: UNKNOWN.
 - **Next:** the owner chooses an option, then gives separate approvals to implement it in each repository, open PRs and merge.
+- **Update (same day):** The owner chose a "secured and complete" hook. Option (a) is implemented in Lanternmere on this branch. It fails closed (including `onFailure: block`), decodes `$'…'` quoting, checks tool-applied patterns, and checks recursive `grep`/`rg`/`find` reads against the disk. `.dev.vars*` was added to `.gitignore`. Tested, Claude, this session: `node --test .claude/hooks/guard-bash.check.mjs` gives 150 pass, 0 fail, 3 todo (documented gaps). Not yet ported to DiamondAlibi or eydren-studio. The Bash sandbox `denyRead` layer is pending the owner's platform check. Details: [evaluation doc](security/guard-bash-parser-evaluation.md#decision-and-implementation-2026-11-10-lanternmere).
 
 ## November 10, 2026 — Claude Code Bash safety hook (Claude)
 

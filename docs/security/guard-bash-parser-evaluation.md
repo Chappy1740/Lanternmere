@@ -2,6 +2,21 @@
 
 **Date:** 2026-11-10 · **Author:** Claude (Claude Code cloud session) · **Status:** Draft recommendation for owner review. Nothing installed, committed or pushed.
 
+## Decision and implementation (2026-11-10, Lanternmere)
+
+The owner asked for the hook to be "secured and complete". Implemented option (a), choosing security over convenience:
+
+- **Fails closed:** malformed input, a non-string command, a stdin error, an internal exception or a failed check all exit 2. `.claude/settings.json` sets `"onFailure": "block"`, so a hook that cannot start also blocks.
+- **Decodes quoting:** `$'…'` (hex, octal, Unicode and control escapes) and `$"…"`.
+- **Checks tool-applied patterns, even when quoted:** `find -name/-iname/-path/-wholename/-lname`, `rg -g/--glob/--iglob` and `grep --include`. These match leading dots and are case-insensitive. Negations (`!`, `-not`, rg `!pattern`) are skipped.
+- **Checks recursive readers against the disk:** `grep -r/-R/--recursive/-d recurse`, `rgrep`, `rg`/`ag` with hidden-file flags, and `find` with `-exec`/`-ok`, `| xargs`, `| while`, `$( )` or `<( )`. These are blocked when a target is, or contains, a secret file. Targets that can't be resolved count as reaching a secret: variables, `~user`, missing paths, a `cd` in the command, or a walk over 50,000 entries. Exclusions that cover every secret name are allowed.
+- **Over-blocks kept on purpose:** nested shells and heredocs are still checked strictly. Narrowing them would add bypass risk.
+- **`.gitignore`:** added `.dev.vars*` and `!.dev.vars.example`. A root `.dev.vars` was not ignored.
+- **Tests:** the 86 original cases are unchanged. 64 new cases and 3 `todo` known gaps run against a temporary fixture with dummy secret files. Result: 150 pass, 0 fail, 3 todo.
+- **Still uncovered:** variables (`${f}nv`), generated names (`$(printf '\056env')`) and listing pipelines (`ls -A | xargs cat`). Only the Bash sandbox can close these. Proposed below, pending the owner's platform check.
+
+The analysis below is the original evaluation.
+
 ## Question
 
 Should `.claude/hooks/guard-bash.mjs` replace its hand-written shell parsing with a maintained parser library, to remove the over-blocking and coverage limits accepted in Lanternmere #30, DiamondAlibi #92 and eydren-studio #35?
