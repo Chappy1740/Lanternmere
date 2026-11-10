@@ -34,6 +34,18 @@ const blocked = [
   "cat .e[[:alpha:]]v",
   "cat .e[[:lower:]]v",
   "cat {.e[[:lower:]]v,x}",
+  "printf '%s\\n' \"$(cat .env*)\"",
+  'echo "$(cat .e?v)"',
+  "printf '%s\\n' \"$(cat .e*)\"",
+  'echo "`cat .env*`"',
+  'echo "x$(cat "$(echo y)" .env*)z"',
+  "echo $(cat .env*)",
+  "cat .{env,x}",
+  "cat {.env,x}",
+  "cat .env{,.local}",
+  "bash -c 'cat .env*'",
+  "sh -c \"head .e?v\"",
+  "eval 'cat .dev.vars.*'",
   "git push --force",
   "rm -rf src",
 ];
@@ -65,6 +77,13 @@ const allowed = [
   "ls .dev.vars.example*",
   "cat .eslint*",
   "ls .dockerignore*",
+  "ls .{github,claude}",
+  "cat .{gitignore,gitattributes}",
+  "cat .env{.example,.example.bak}",
+  "cat .env[",
+  "echo '$(cat .env*)'",
+  'echo "$(git status)"',
+  'git commit -m "Fix `cat` docs"',
 ];
 
 for (const command of blocked) {
