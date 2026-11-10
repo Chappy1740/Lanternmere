@@ -53,6 +53,21 @@ process.stdin.on("end", () => {
         /(^|[\s/'"=<>])\.(env|dev\.vars)(\.(?!example\b)[A-Za-z0-9_-]+)*(?=$|[\s'";&|)>])/.test(c),
       why: "Shell access to a local secret file (.env or .dev.vars).",
     },
+    {
+      // Wildcards the shell expands into a secret file: .env*, .e?v, .{env,x}, .*
+      test: (c) => {
+        const secretNames = [".env", ".env.local", ".env.production", ".env.keys", ".dev.vars"];
+        for (const token of c.replace(/['"\\]/g, "").split(/[\s;&|()<>=`]+/)) {
+          const name = token.slice(token.lastIndexOf("/") + 1);
+          // Bash globs never match a leading dot unless the dot is typed literally.
+          if (!/^[.{]/.test(name) || !/[*?[{]/.test(name)) continue;
+          const pattern = globToRegExp(name);
+          if (!pattern || secretNames.some((s) => pattern.test(s))) return true;
+        }
+        return false;
+      },
+      why: "A wildcard that can expand to a local secret file (.env or .dev.vars).",
+    },
   ];
 
   const hit = rules.find((r) => r.test(command));
@@ -65,3 +80,30 @@ process.stdin.on("end", () => {
   }
   process.exit(0);
 });
+
+// Convert a shell glob (*, ?, [...], {a,b}) to a RegExp. Returns null if unparseable,
+// which the caller treats as a match so odd patterns are blocked, not allowed.
+function globToRegExp(glob) {
+  let out = "";
+  let braces = 0;
+  for (let i = 0; i < glob.length; i++) {
+    const ch = glob[i];
+    if (ch === "*") out += "[^/]*";
+    else if (ch === "?") out += "[^/]";
+    else if (ch === "[") {
+      const end = glob.indexOf("]", i + 2);
+      if (end === -1) return null;
+      out += "[" + glob.slice(i + 1, end).replace(/^!/, "^").replace(/\\/g, "\\\\") + "]";
+      i = end;
+    } else if (ch === "{") (braces++, (out += "(?:"));
+    else if (ch === "}" && braces > 0) (braces--, (out += ")"));
+    else if (ch === "," && braces > 0) out += "|";
+    else out += ch.replace(/[.+^$()|\\\]{}]/g, "\\$&");
+  }
+  if (braces !== 0) return null;
+  try {
+    return new RegExp(`^${out}$`);
+  } catch {
+    return null;
+  }
+}
