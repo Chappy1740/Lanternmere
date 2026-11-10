@@ -6,7 +6,7 @@
 
 - **What:** `.claude/hooks/guard-bash.mjs`, a PreToolUse hook registered in `.claude/settings.json`. It blocks force-push (including `--force-with-lease` and `+branch`), `git reset --hard`, `git clean -f`, recursive force deletes outside build folders, and shell commands naming a real `.env` or `.dev.vars` file (`.example` files are allowed). A blocked command tells the agent to ask Will for that exact command.
 - **Limits:** Applies to Claude Code only; Codex does not read `.claude/`. It catches honest mistakes and is not a security boundary. Creating a local env file from its example is now the owner's step.
-- **Status ladder:** Implemented — Claude, `claude/adoring-bohr-b1knbs` @ `af7fc0abf9215ed291fe0df5b844aa697eb5fc20`. Tested — Claude, this session: 15 should-block and 11 should-allow commands behaved as expected, plus one end-to-end run through the configured hook command. No repo test suite was run (configuration-only change). Merged — No; draft PR pending owner review. It takes effect for sessions that start from a branch containing it.
+- **Status ladder:** Implemented — Claude, `claude/adoring-bohr-b1knbs` @ `af7fc0abf9215ed291fe0df5b844aa697eb5fc20`. Tested — Claude, this session: 15 should-block and 11 should-allow commands behaved as expected, plus one end-to-end run through the configured hook command. No repo test suite was run (configuration-only change). Merged — Yes, owner-approved ("Merge all three and push") on 2026-11-10: [PR #28](https://github.com/Chappy1740/Lanternmere/pull/28) → main `dae2c372666a9e47232cb949735794ee2ba18309`. Applies to new Claude Code sessions started from main. Deployed — not applicable to the app; any build triggered by the merge was not read back.
 
 ## Browsable UAT checklist — October 30, 2026
 
