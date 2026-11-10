@@ -81,26 +81,32 @@ process.stdin.on("end", () => {
   process.exit(0);
 });
 
-// Convert a shell glob (*, ?, [...], {a,b}) to a RegExp. Returns null if unparseable,
-// which the caller treats as a match so odd patterns are blocked, not allowed.
+// Convert a shell glob (*, ?, [...], {a,b}) to a RegExp. Like Bash, an unclosed [ or
+// unbalanced braces are literal characters (so awk '{print $1}' is not a glob).
+// Returns null only if the RegExp cannot be built; the caller then blocks.
 function globToRegExp(glob) {
+  let depth = 0;
+  let balanced = true;
+  for (const ch of glob) {
+    if (ch === "{") depth++;
+    else if (ch === "}" && --depth < 0) balanced = false;
+  }
+  const expandBraces = balanced && depth === 0;
   let out = "";
   let braces = 0;
   for (let i = 0; i < glob.length; i++) {
     const ch = glob[i];
+    const end = ch === "[" ? glob.indexOf("]", i + 2) : -1;
     if (ch === "*") out += "[^/]*";
     else if (ch === "?") out += "[^/]";
-    else if (ch === "[") {
-      const end = glob.indexOf("]", i + 2);
-      if (end === -1) return null;
+    else if (end !== -1) {
       out += "[" + glob.slice(i + 1, end).replace(/^!/, "^").replace(/\\/g, "\\\\") + "]";
       i = end;
-    } else if (ch === "{") (braces++, (out += "(?:"));
-    else if (ch === "}" && braces > 0) (braces--, (out += ")"));
-    else if (ch === "," && braces > 0) out += "|";
-    else out += ch.replace(/[.+^$()|\\\]{}]/g, "\\$&");
+    } else if (expandBraces && ch === "{") (braces++, (out += "(?:"));
+    else if (expandBraces && ch === "}") (braces--, (out += ")"));
+    else if (expandBraces && ch === "," && braces > 0) out += "|";
+    else out += ch.replace(/[.+^$()|\\[\]{}]/g, "\\$&");
   }
-  if (braces !== 0) return null;
   try {
     return new RegExp(`^${out}$`);
   } catch {

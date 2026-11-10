@@ -22,7 +22,7 @@ const blocked = [
   "cat .*",
   'cat ".e"*',
   "cat .e[n]v",
-  "cat .env.local[",
+  "cat .{env,{a,b}}",
   "git push --force",
   "rm -rf src",
 ];
@@ -37,6 +37,11 @@ const allowed = [
   "cat *",
   "ls src/*.ts",
   "git log --oneline -5",
+  "awk '{print $1}' file.txt",
+  'node -e "if (x) { console.log(1) }"',
+  "jq '{a: .b}' data.json",
+  "find . -name '*.ts' -exec wc -l {} +",
+  "cat .prettier{rc,ignore}",
 ];
 
 for (const command of blocked) {
