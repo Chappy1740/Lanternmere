@@ -56,12 +56,18 @@ process.stdin.on("end", () => {
     {
       // Wildcards (or brace choices) the shell can expand into a secret file:
       // .env*, .env.d*, .env.*.local, .dev.vars.*, .e?v, .{env,x}, .*, "$(cat .env*)"
-      // A nested shell (bash -c '...', eval '...') runs its quoted text, so that
-      // text is also checked with quotes removed.
-      test: (c) =>
-        [c, ...(nestedShell.test(c) ? [c.replace(/['"\\]/g, "")] : [])].some((cmd) =>
-          shellWords(cmd).some((word) => expandBraces(word).some(couldExpandToSecret))
-        ),
+      // A nested shell (bash -c '...', eval '...') runs its quoted text, and a
+      // command the parser cannot fully follow (unclosed quote or substitution)
+      // may hide one, so in those cases the command is also checked strictly,
+      // with quotes removed.
+      test: (c) => {
+        const state = { anomaly: false };
+        const check = (words) =>
+          words.some((word) => expandBraces(word).some(couldExpandToSecret));
+        if (check(shellWords(c, state))) return true;
+        if (!state.anomaly && !nestedShell.test(c)) return false;
+        return check(shellWords(c.replace(/['"\\]/g, "")));
+      },
       why: "A wildcard that can expand to a local secret file (.env or .dev.vars).",
     },
   ];
@@ -78,7 +84,7 @@ process.stdin.on("end", () => {
 });
 
 const secretFamilies = [".env", ".dev.vars"];
-const nestedShell = /(^|[\s;&|(`])(eval|(ba|z|da|k)?sh)\b/;
+const nestedShell = /(^|[\s;&|(`/])(eval|(ba|z|da|k)?sh)\b/;
 const secretName = /^\.(env|dev\.vars)(\.(?!example\b)[A-Za-z0-9_-]+)*$/;
 const sampleSecretNames = [
   ".env", ".env.local", ".env.development", ".env.production", ".env.test", ".env.keys",
@@ -119,7 +125,7 @@ function couldNameSecret(literal) {
 // backslash-escaped characters are never wildcards in Bash, but a $( ) or ` `
 // command substitution inside double quotes runs normally, so its contents are
 // split again as separate words.
-function shellWords(cmd) {
+function shellWords(cmd, state = { anomaly: false }) {
   const words = [];
   let word = null;
   let quote = null;
@@ -133,18 +139,23 @@ function shellWords(cmd) {
       if (ch === '"') quote = null;
       else if (ch === "\\" && i + 1 < cmd.length) add(cmd[++i], true);
       else if (ch === "$" && cmd[i + 1] === "(") {
-        let depth = 1;
-        let j = i + 2;
-        for (; j < cmd.length && depth > 0; j++) {
-          if (cmd[j] === "(") depth++;
-          else if (cmd[j] === ")") depth--;
-        }
-        words.push(...shellWords(cmd.slice(i + 2, depth === 0 ? j - 1 : j)));
-        i = j - 1;
-      } else if (ch === "`") {
-        const close = cmd.indexOf("`", i + 1);
+        const close = substitutionEnd(cmd, i + 2);
+        if (close === -1) state.anomaly = true;
         const end = close === -1 ? cmd.length : close;
-        words.push(...shellWords(cmd.slice(i + 1, end)));
+        words.push(...shellWords(cmd.slice(i + 2, end), state));
+        i = end;
+      } else if (ch === "`") {
+        let close = -1;
+        for (let j = i + 1; j < cmd.length; j++) {
+          if (cmd[j] === "\\") j++;
+          else if (cmd[j] === "`") {
+            close = j;
+            break;
+          }
+        }
+        if (close === -1) state.anomaly = true;
+        const end = close === -1 ? cmd.length : close;
+        words.push(...shellWords(cmd.slice(i + 1, end), state));
         i = end;
       } else add(ch, true);
     } else if (ch === "'" || ch === '"') {
@@ -159,8 +170,33 @@ function shellWords(cmd) {
       add(ch, false);
     }
   }
+  if (quote) state.anomaly = true;
   if (word) words.push(word);
   return words;
+}
+
+// Index of the ) closing a $( whose body starts at `start`, honoring quotes and
+// escapes inside the body; -1 if it never closes.
+function substitutionEnd(cmd, start) {
+  let depth = 1;
+  let quote = null;
+  for (let j = start; j < cmd.length; j++) {
+    const ch = cmd[j];
+    if (quote === "'") {
+      if (ch === "'") quote = null;
+    } else if (ch === "\\") {
+      j++;
+    } else if (quote === '"') {
+      if (ch === '"') quote = null;
+    } else if (ch === "'" || ch === '"') {
+      quote = ch;
+    } else if (ch === "(") {
+      depth++;
+    } else if (ch === ")" && --depth === 0) {
+      return j;
+    }
+  }
+  return -1;
 }
 
 // Bash brace expansion on unquoted, balanced {a,b} groups: .{env,x} -> .env, .x
@@ -184,6 +220,13 @@ function expandBraces(word, budget = { left: 256 }) {
   const head = word.slice(0, open + 1);
   if (close === -1) return [word];
   if (commas.length === 0) {
+    // A sequence like {u..w} or {1..9} expands to a range; treat it as a
+    // wildcard (*) to stay conservative.
+    const inner = word.slice(open + 1, close).map((x) => x.ch).join("");
+    if (/^[^{}]*\.\.[^{}]*$/.test(inner)) {
+      const star = [...word.slice(0, open), { ch: "*", quoted: false }, ...word.slice(close + 1)];
+      return expandBraces(star, budget);
+    }
     // Literal group; keep looking for expandable groups after it.
     return expandBraces(word.slice(open + 1), budget).map((rest) => [...head, ...rest]);
   }

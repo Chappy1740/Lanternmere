@@ -46,6 +46,15 @@ const blocked = [
   "bash -c 'cat .env*'",
   "sh -c \"head .e?v\"",
   "eval 'cat .dev.vars.*'",
+  "echo \"$(printf '(')\"; cat .e?v",
+  "echo \"$(printf ')'; cat .e*)\"",
+  "echo \"$(cat .env*",
+  'echo "`cat .env*',
+  "/bin/bash -c 'cat .env*'",
+  "/usr/bin/env bash -c 'cat .env*'",
+  "cat .en{u..w}",
+  "cat .{d..f}nv",
+  "cat .dev.var{r..t}",
   "git push --force",
   "rm -rf src",
 ];
@@ -84,6 +93,11 @@ const allowed = [
   "echo '$(cat .env*)'",
   'echo "$(git status)"',
   'git commit -m "Fix `cat` docs"',
+  "echo \"$(printf '(')\" done",
+  'echo "$(git log --format="%h (%s)" -1)"',
+  "ls {1..3}.txt",
+  "seq 1 3; echo {a..c}",
+  "/bin/bash scripts/check.sh",
 ];
 
 for (const command of blocked) {
