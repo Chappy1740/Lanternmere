@@ -1,5 +1,13 @@
 # Project status and handoff
 
+## November 10, 2026 — Claude Code Bash safety hook (Claude)
+
+**AMBER.** Owner approved adding this from a setup review ("Ok a c", then "Ok commit and push", then "Ok both" for a draft PR and this record). The owner assigned this tooling task to Claude Code directly. It changes no product code, provider settings, database or deployment.
+
+- **What:** `.claude/hooks/guard-bash.mjs`, a PreToolUse hook registered in `.claude/settings.json`. It blocks force-push (including `--force-with-lease` and `+branch`), `git reset --hard`, `git clean -f`, recursive force deletes outside build folders, and shell commands naming a real `.env` or `.dev.vars` file (`.example` files are allowed). A blocked command tells the agent to ask Will for that exact command.
+- **Limits:** Applies to Claude Code only; Codex does not read `.claude/`. It catches honest mistakes and is not a security boundary. Creating a local env file from its example is now the owner's step.
+- **Status ladder:** Implemented — Claude, `claude/adoring-bohr-b1knbs` @ `af7fc0abf9215ed291fe0df5b844aa697eb5fc20`. Tested — Claude, this session: 15 should-block and 11 should-allow commands behaved as expected, plus one end-to-end run through the configured hook command. No repo test suite was run (configuration-only change). Merged — No; draft PR pending owner review. It takes effect for sessions that start from a branch containing it.
+
 ## Browsable UAT checklist — October 30, 2026
 
 - Prepared on `docs/uat-checklist` from verified GitHub main `9f3645e1c14e1b9fdf2c66a5b06f0bb721c4e9d0`. The handoff's patch was unavailable locally; the downloaded `lanternmere-uat.html` supplied the checklist, with a standalone HTML wrapper, mobile viewport metadata and repository formatting.
