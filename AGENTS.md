@@ -57,7 +57,7 @@ Apply this check during feature planning, not as an excuse to refactor unrelated
 
 Third-party AI content (skills, plugins, MCP servers, custom GPTs, prompt packs, agent templates) counts as a dependency under this check: review it read-only first, install nothing from unreviewed sources, and use permission-bypass modes only in isolated sandboxes. Purchased or shared content is for learning; do not republish or resell it through Eydren.
 
-## EYD-PM-001 — Conversation continuity and recovery
+## EYD-PM-001 v3.3 — Conversation continuity and recovery
 
 Master: [EYD-PM-001](https://github.com/Chappy1740/eydren-governance/blob/main/governance/EYD-PM-001.md), with its handoff template, recovery checklist and acceptance tests in the central `templates/` directory and `governance/EYD-PM-001-ACCEPTANCE.md`. The master repository is private; the rules below apply here on their own.
 
@@ -68,3 +68,11 @@ Master: [EYD-PM-001](https://github.com/Chappy1740/eydren-governance/blob/main/g
 - Before resuming dependent work from a handoff or new chat, verify repository, branch, HEAD, remote head, working tree, decisions and approvals against these sources. Report Recovered, Partially recovered or Not recovered with evidence; never claim Recovered without it.
 
 This section grants no new permission and relaxes no rule in this file.
+
+### Task coordination
+
+- **Check before starting.** Verify the repository, target branch and full task head, local working tree where accessible, open PRs, overlapping branches and active runs. Record unavailable evidence as UNKNOWN in the existing project handoff. Coordinate overlapping tasks before editing. Avoid duplicating migrations, hosted tests and deployments.
+- **One writer per task.** Record the assigned implementer, approved scope and affected files in the existing handoff or PR. Codex and Claude may work on separate, nonoverlapping tasks. Branch prefixes identify provenance. A transfer requires owner approval, preservation of existing work, the source branch and full SHA, and a verified handoff. Continue from the verified source head on a separate branch.
+- **Review handshake.** Record review findings in the PR with severity, file and line, evidence and a suggested fix. The assigned implementer handles fixes unless the owner approves a transfer. Before recommending merge, verify the intended base, full PR head, changed files, dependencies and conflicts, required CI on that head, independent review, resolved threads and explicit owner merge approval. Recheck after the head or base changes. Attribute each check to the agent and session that ran it.
+- **Formal handoffs.** Use the central templates. From the governance repository, validate a new handoff with `python3 -I tests/handoff_check.py <handoff.md> --require-coordination`. Verify recovery and authorization separately.
+- **Scoped owner delegation.** The owner sets priorities, scope, acceptance and final approvals. Delegation covers only the named actions. Obtain explicit authorization for merges, deployments, provider or live database and authentication changes, sharing and spending. Preserve the Codex session rules, existing execution locks, server-verified ownership, RLS and Lodge sharing restrictions.
