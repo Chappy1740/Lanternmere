@@ -196,7 +196,9 @@ test("blocks: an internal error while checking", () => {
   assert.equal(runRaw(input, ["--import", breakRegExp]), 2);
 });
 
-// Known gaps no command-text check can close; the Bash sandbox (denyRead) is the layer for these.
+// Known gaps no command-text check can close. The Bash sandbox (denyRead) covers them on
+// macOS, Linux and WSL2, but not on native Windows. Node lists these as todo, not failures.
 for (const command of ["f=.e; cat ${f}nv", "ls -A | xargs cat", "cat $(printf '\\056env')"]) {
-  test(`known gap (sandbox covers): ${command}`, { todo: true }, () => assert.equal(run(command), 2));
+  test(`known gap (not detectable from command text): ${command}`, { todo: true }, () =>
+    assert.equal(run(command), 2));
 }
