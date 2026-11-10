@@ -6,7 +6,7 @@ Date: 2026-11-10. Repository: `Chappy1740/Lanternmere`. Baseline main: `cebf0828
 ## Ownership and overlap
 
 - Repository owner and final approver: `Chappy1740`. Agent ownership is temporary responsibility for a task/branch, not repository authority.
-- Existing draft PR #20 changes `AGENTS.md`. Do not alter that branch, overwrite its author, or open a competing `AGENTS.md` change. Have the implementing agent reconcile PM v3.3 into its existing draft after the owner assigns that task, then request independent review.
+- Former draft PR #20 changed `AGENTS.md` but was closed unmerged on 2026-11-10 after the retention assessment below. Its branch is historical evidence, not an active implementer assignment. Any future `AGENTS.md` adoption requires a new scoped task, overlap check and review; do not overwrite historical branches.
 - An agent switch requires a recorded task, scope, current branch and exact head SHA, affected files, verified evidence, outstanding checks and one next action. A transfer never expands permission to merge, deploy, change provider settings, or bypass locks.
 
 ## Proposed PM v3.3 adoption checks (not implemented here)
@@ -21,7 +21,7 @@ Date: 2026-11-10. Repository: `Chappy1740/Lanternmere`. Baseline main: `cebf0828
 ## Verification and acceptance
 
 - This file is a proposed reconciliation plan only. No project agent instructions, runtime code, provider configuration, rulesets or existing PRs are modified by this branch.
-- Next: owner-directed handoff to the current `AGENTS.md` PR writer, independent review of the resulting updated head, and separate owner approval before integration.
+- Next: owner-directed assignment for a future `AGENTS.md` adoption task, independent review of its exact head, and separate owner approval before integration. PR #20 is closed and is not the receiving implementation PR.
 - Evidence stages: Implemented (plan only); Tested (GitHub readback pending); Merged (no); Deployed (no); Owner-accepted (pending).
 
 ## PR #20 retention assessment — 2026-11-10
@@ -30,4 +30,4 @@ Compared draft PR #20's entire `AGENTS.md` patch against governance `EYD-PM-001`
 
 **Retain as a proposed implementation refinement, subject to normal review:** make the review handshake concrete: submit findings in PR review comments with severity, file/line, evidence and a proposed fix; the assigned implementer owns remediation unless the owner explicitly transfers the task. Before beginning overlapping work, check active PRs/branches and active runs to avoid duplicating migrations, hosted tests or deployments. These clarify existing governance rather than creating new permissions. Add them through the existing `AGENTS.md` reconciliation task after assignment; do not silently claim they are already adopted.
 
-**Disposition:** PR #20 is redundant as an integration vehicle, contains an outdated assumption that branch prefix defines ownership, and has a merge conflict. Preserve its GitHub history and this assessment, then close it **without merging**. No deletion of `AGENTS.md` or source branches is needed.
+**Disposition:** PR #20 is redundant as an integration vehicle, contains an outdated assumption that branch prefix defines ownership, and has a merge conflict. Preserve its GitHub history and this assessment, and it was closed **without merging** on 2026-11-10. No deletion of `AGENTS.md` or source branches is needed.
