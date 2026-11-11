@@ -6,9 +6,9 @@
 // This is a seatbelt for honest mistakes, not a security boundary: it cannot
 // see through variables or every tool chain. Pair it with the Bash sandbox.
 
-import { readdirSync, statSync } from "node:fs";
+import { opendirSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
-import { basename, resolve } from "node:path";
+import { basename, isAbsolute, resolve } from "node:path";
 
 const block = (why) => {
   process.stderr.write(
@@ -30,9 +30,12 @@ process.stdin.on("end", () => {
   } catch {
     block("The safety hook could not read the command.");
   }
-  const command = payload?.tool_input?.command ?? "";
+  // Anything but an object envelope with a string command is blocked, including
+  // a null or missing command: there is no safe default for a Bash call.
+  const isObject = (v) => typeof v === "object" && v !== null && !Array.isArray(v);
+  const command = isObject(payload) && isObject(payload.tool_input) ? payload.tool_input.command : undefined;
   if (typeof command !== "string") block("The safety hook could not read the command.");
-  const cwd = typeof payload?.cwd === "string" ? payload.cwd : process.cwd();
+  const cwd = typeof payload.cwd === "string" ? payload.cwd : process.cwd();
 
   // Build output folders that are safe to delete recursively.
   const safeRmTargets =
@@ -124,7 +127,6 @@ const sampleSecretNames = [
   ".env.development.local", ".env.production.local", ".env.test.local", ".env.staging",
   ".env.preview", ".dev.vars", ".dev.vars.local", ".dev.vars.production", ".dev.vars.staging",
 ];
-const SEP = Symbol("separator");
 const REDIR = Symbol("redirect");
 const text = (word) => word.map((x) => x.ch).join("");
 
@@ -166,8 +168,9 @@ function couldNameSecret(literal) {
 // backslash-escaped characters are never wildcards in Bash, but a $( ) or ` `
 // command substitution inside double quotes runs normally, so its contents are
 // split again as separate words. $'...' strings are decoded.
-// With state.marks, command separators become SEP, redirections become REDIR
-// (dropping a leading file-descriptor number), and = does not split words.
+// With state.marks, command separators become { sep: char } (a double-quoted
+// $( ) is bracketed by "$(" and ")"), redirections become REDIR (dropping a
+// leading file-descriptor number), and = does not split words.
 function shellWords(cmd, state = { anomaly: false }) {
   const words = [];
   let word = null;
@@ -180,9 +183,9 @@ function shellWords(cmd, state = { anomaly: false }) {
     word = null;
   };
   const nested = (body) => {
-    if (marks) words.push(SEP);
+    if (marks) words.push({ sep: "$(" });
     words.push(...shellWords(body, state));
-    if (marks) words.push(SEP);
+    if (marks) words.push({ sep: ")" });
   };
   for (let i = 0; i < cmd.length; i++) {
     const ch = cmd[i];
@@ -234,7 +237,7 @@ function shellWords(cmd, state = { anomaly: false }) {
         if (cmd[i + 1] === "&") i++; // 2>&1, >&2
       } else {
         flush();
-        if (marks && /[;&|()`\n]/.test(ch)) words.push(SEP);
+        if (marks && /[;&|()`\n]/.test(ch)) words.push({ sep: ch });
       }
     } else {
       add(ch, false);
@@ -415,29 +418,117 @@ function toolGlobCouldMatchSecret(word) {
   });
 }
 
-// True if every sample secret name is excluded by one of these tool globs.
-function excludesAllSecrets(patterns) {
-  const res = patterns.map((p) =>
-    globToRegExp([...p.replace(/^.*\//, "")].map((ch) => ({ ch, quoted: false })), ".")
-  );
-  return sampleSecretNames.every((s) => res.some((re) => re && re.test(s)));
+// --- Exclusions -------------------------------------------------------------
+// An exclusion proves a whole secret family is skipped only when it is a literal
+// prefix of the family name plus one trailing * (".env*", ".e*", ".*", "*") and
+// has no "/" (so it applies at every depth). Any other exclusion is not trusted;
+// the reader's targets are inspected instead.
+function exclusionCoversFamily(pattern, family) {
+  if (typeof pattern !== "string" || pattern.includes("/")) return false;
+  const m = pattern.match(/^([^*?[\]{}\\]*)\*$/);
+  return !!m && family.startsWith(m[1]);
 }
+function excludesAllSecrets(patterns) {
+  return secretFamilies.every((f) => patterns.some((p) => exclusionCoversFamily(p, f)));
+}
+const chars = (s) => [...s].map((ch) => ({ ch, quoted: false }));
 
-// Split a command into simple commands (arrays of words, redirections removed).
+// --- Simple commands --------------------------------------------------------
+// Split a command into simple commands: { words, before, after, depth }.
+// `before`/`after` are the separators around it ("&&", "|", ";", "(" ...) and
+// `depth` is how many ( or $( groups it sits inside. Redirections are removed.
 function simpleCommands(cmd) {
-  const state = { anomaly: false, marks: true };
-  const all = shellWords(cmd, state);
-  const out = [[]];
+  const all = shellWords(cmd, { anomaly: false, marks: true });
+  const out = [];
+  let words = [];
+  let seps = "";
+  let before = "";
+  let depth = 0;
+  let startDepth = 0;
   for (let k = 0; k < all.length; k++) {
     const w = all[k];
-    if (w === SEP) out.push([]);
-    else if (w === REDIR) {
-      if (all[k + 1] !== SEP && all[k + 1] !== REDIR) k++;
-    } else out.at(-1).push(w);
+    if (w === REDIR) {
+      if (Array.isArray(all[k + 1])) k++; // the redirection's file word
+      continue;
+    }
+    if (!Array.isArray(w)) {
+      if (words.length) out.push({ words, before, depth: startDepth });
+      words = [];
+      seps += w.sep;
+      if (w.sep === "(" || w.sep === "$(") depth++;
+      else if (w.sep === ")") depth = Math.max(0, depth - 1);
+      continue;
+    }
+    if (!words.length) {
+      before = seps;
+      seps = "";
+      startDepth = depth;
+    }
+    words.push(text(w));
   }
-  return { commands: out.filter((c) => c.length), anomaly: state.anomaly };
+  if (words.length) out.push({ words, before, depth: startDepth });
+  out.forEach((c, i) => (c.after = i + 1 < out.length ? out[i + 1].before : seps));
+  return out;
+}
+// True if a separator string puts a command in a pipeline or the background.
+const pipedOrBackground = (s) => /[|&]/.test(s.replace(/&&|\|\|/g, ""));
+
+// --- Command words ----------------------------------------------------------
+// Prefixes that run the next word as the command, with their options that take
+// a value. Shell keywords that start a command list are skipped the same way.
+const wrapperValueOptions = {
+  sudo: ["-u", "-g", "-C", "-h", "-p", "-r", "-t", "-U", "-D", "-R", "-T", "--user", "--group", "--chdir"],
+  doas: ["-u", "-C"],
+  env: ["-u", "-C", "-S", "--unset", "--chdir", "--split-string"],
+  nice: ["-n", "--adjustment"],
+  ionice: ["-c", "-n", "-p"],
+  timeout: ["-s", "-k", "--signal", "--kill-after"],
+  stdbuf: ["-i", "-o", "-e"],
+  xargs: ["-I", "-L", "-n", "-P", "-s", "-d", "-E", "-a", "--max-args", "--max-procs",
+    "--delimiter", "--arg-file", "--replace", "--max-lines", "--eof", "--max-chars"],
+  time: ["-f", "-o", "--format", "--output"],
+  nohup: [], command: [], builtin: [], exec: ["-a"], chronic: [],
+  if: [], then: [], else: [], elif: [], do: [], while: [], until: [], "!": [], "{": [],
+};
+
+// Find the word that runs as the command. Returns { index, chdir, viaXargs },
+// or { index: -1 } when a wrapper hides it (env -S).
+function findCommandWord(words) {
+  let k = 0;
+  let chdir = false;
+  let viaXargs = false;
+  while (k < words.length) {
+    const w = words[k];
+    if (/^[A-Za-z_][A-Za-z0-9_]*(\[[^\]]*\])?\+?=/.test(w)) {
+      k++; // variable assignment
+      continue;
+    }
+    const name = basename(w);
+    if (!Object.hasOwn(wrapperValueOptions, name)) break;
+    const valueOpts = wrapperValueOptions[name];
+    if (name === "xargs") viaXargs = true;
+    k++;
+    while (k < words.length && words[k].startsWith("-") && words[k] !== "-") {
+      const o = words[k];
+      if (o === "--") {
+        k++;
+        break;
+      }
+      const optName = o.startsWith("--") ? o.split("=")[0] : o;
+      if ((name === "env" || name === "sudo" || name === "doas") &&
+        (["--chdir", "-D"].includes(optName) || (name !== "sudo" && /^-[^-]*C/.test(o)))) {
+        chdir = true;
+      }
+      if (name === "env" && (/^-[^-]*S/.test(o) || optName === "--split-string")) return { index: -1 };
+      k += valueOpts.includes(o) ? 2 : 1;
+    }
+    if (name === "env") while (k < words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[k])) k++;
+    if (name === "timeout" && k < words.length) k++; // the duration
+  }
+  return { index: k < words.length ? k : -1, chdir, viaXargs };
 }
 
+// --- Option parsing -----------------------------------------------------------
 const grepValueOptions = new Set([
   "-e", "-f", "-m", "-A", "-B", "-C", "-d", "-D", "--regexp", "--file", "--max-count",
   "--after-context", "--before-context", "--context", "--include", "--exclude",
@@ -452,10 +543,14 @@ const rgValueOptions = new Set([
   "--context-separator", "--field-context-separator", "--field-match-separator",
   "--max-filesize", "--dfa-size-limit", "--regex-size-limit", "--engine",
 ]);
+const agValueOptions = new Set([
+  "-A", "-B", "-C", "-G", "-g", "-m", "-p", "--ignore", "--ignore-dir", "--file-search-regex",
+  "--depth", "--pager", "--workers", "--path-to-ignore", "--max-count", "--context",
+]);
 
-// Parse a grep- or rg-style argument list. Returns options (with values),
+// Parse a grep/rg/ag argument list once. Returns options (with values),
 // positionals, and whether an explicit pattern option (-e/-f) was given.
-function parseSearchArgs(args, valueOptions) {
+function parseSearchArgs(args, valueOptions, patternOptions) {
   const opts = [];
   const positionals = [];
   let explicitPattern = false;
@@ -470,7 +565,7 @@ function parseSearchArgs(args, valueOptions) {
       const name = eq === -1 ? a : a.slice(0, eq);
       const value = eq === -1 ? (valueOptions.has(name) ? args[++k] ?? "" : null) : a.slice(eq + 1);
       opts.push({ name, value });
-      if (name === "--regexp" || name === "--file") explicitPattern = true;
+      if (patternOptions.includes(name)) explicitPattern = true;
     } else if (a.startsWith("-") && a.length > 1) {
       // Short option cluster like -rn or -A3 or -e PATTERN.
       for (let p = 1; p < a.length; p++) {
@@ -478,131 +573,239 @@ function parseSearchArgs(args, valueOptions) {
         if (valueOptions.has(name)) {
           const value = p + 1 < a.length ? a.slice(p + 1) : args[++k] ?? "";
           opts.push({ name, value });
-          if (name === "-e" || name === "-f") explicitPattern = true;
+          if (patternOptions.includes(name)) explicitPattern = true;
           break;
         }
         opts.push({ name, value: null });
       }
     } else positionals.push(a);
   }
-  return { opts, positionals, explicitPattern };
+  const has = (...names) => opts.some((o) => names.includes(o.name));
+  const values = (...names) => opts.filter((o) => names.includes(o.name)).map((o) => o.value ?? "");
+  return { opts, positionals, explicitPattern, has, values };
 }
 
-// True if a command searches or reads recursively into a path that holds a
-// secret file. Uncertain paths (variables, ~user, missing) count as reaching.
-function recursiveReadReachesSecret(cmd, cwd) {
-  const { commands } = simpleCommands(cmd);
-  const hasCd = commands.some((c) => text(c[0]) === "cd" || text(c[0]) === "pushd");
+// Literal directory names (no wildcards) that a reader is told to skip.
+const literalNames = (patterns) =>
+  new Set(patterns.map((p) => p.replace(/\/+$/, "")).filter((p) => p && !/[*?[\]{}/\\]/.test(p)));
+
+// --- Recursive readers --------------------------------------------------------
+const shells = /^(ba|z|da|k|mk)?sh$/;
+const pipesToReader = (cmds, i) =>
+  i + 1 < cmds.length &&
+  /\|/.test(cmds[i].after.replace(/\|\|/g, "")) &&
+  /\b(xargs|parallel|while)\b/.test(cmds[i + 1].words.join(" "));
+
+// True if a command reads (recursively, or through find/xargs) a path that is,
+// or holds, a secret file. Anything that cannot be resolved with certainty
+// counts as reaching one. The working directory is tracked through literal cd
+// commands in the top-level shell; any other directory change makes it unknown.
+function recursiveReadReachesSecret(cmd, cwd, ctx = { budget: { left: walkBudget() }, cache: new Map(), depth: 0 }) {
+  if (ctx.depth > 4) return true;
+  const cmds = simpleCommands(cmd);
   const hasSubstitution = /\$\(|`|[<>]\(/.test(cmd); // $( ), ` `, <( ), >( )
-  for (let i = 0; i < commands.length; i++) {
-    const words = commands[i].map(text);
-    for (let k = 0; k < words.length; k++) {
-      const tool = basename(words[k]);
-      const args = words.slice(k + 1);
-      let targets = null;
-      if (/^[ef]?grep$|^rgrep$/.test(tool) && words[k - 1] !== "git") {
-        const { opts, positionals, explicitPattern } = parseSearchArgs(args, grepValueOptions);
-        const recursive =
-          tool === "rgrep" ||
-          opts.some(
-            (o) =>
-              o.name === "-r" || o.name === "-R" || o.name === "--recursive" ||
-              o.name === "--dereference-recursive" ||
-              ((o.name === "-d" || o.name === "--directories") && o.value === "recurse")
-          );
-        if (!recursive) continue;
-        const excludes = opts.filter((o) => o.name === "--exclude").map((o) => o.value);
-        if (excludesAllSecrets(excludes)) continue;
-        if (opts.some((o) => o.name === "--include")) continue; // matching ones caught by tool-glob rule
-        targets = explicitPattern ? positionals : positionals.slice(1);
-        if (targets.length === 0) targets = ["."];
-      } else if (tool === "rg" || tool === "ag") {
-        const { opts, positionals, explicitPattern } = parseSearchArgs(args, rgValueOptions);
-        const unrestricted = opts.filter((o) => o.name === "-u").length;
-        const hidden =
-          unrestricted >= (tool === "ag" ? 1 : 2) ||
-          opts.some((o) => ["--hidden", "-.", "--unrestricted"].includes(o.name));
-        // --files only lists names; it does not read contents.
-        if (!hidden || opts.some((o) => o.name === "--files")) continue;
-        const globs = opts.filter((o) => ["-g", "--glob", "--iglob"].includes(o.name)).map((o) => o.value);
-        if (globs.some((g) => g && !g.startsWith("!"))) continue; // positive globs: tool-glob rule
-        if (excludesAllSecrets(globs.map((g) => g.slice(1)))) continue;
-        targets = explicitPattern ? positionals : positionals.slice(1);
-        if (targets.length === 0) targets = ["."];
-      } else if (tool === "find") {
-        const reads =
-          hasSubstitution ||
-          args.some((a) => ["-exec", "-execdir", "-ok", "-okdir"].includes(a)) ||
-          (i + 1 < commands.length && /xargs|parallel|while/.test(commands[i + 1].map(text).join(" ")));
-        if (!reads) continue;
-        const tests = [];
-        const negated = [];
-        let orBranch = false;
-        for (let a = 0; a < args.length; a++) {
-          if (["-o", "-or", ","].includes(args[a])) orBranch = true;
-          if (/^-i?(name|path|wholename|regex)$/.test(args[a]) && a + 1 < args.length) {
-            const neg = args[a - 1] === "!" || args[a - 1] === "-not";
-            (neg ? negated : tests).push({ kind: args[a], value: args[a + 1] });
-          }
+  let dir = cwd; // effective working directory; null when unknown
+  for (let i = 0; i < cmds.length; i++) {
+    const c = cmds[i];
+    const { index, chdir, viaXargs } = findCommandWord(c.words);
+    if (index === -1) {
+      if (c.words.some((w) => /^(e|f|r)?grep$|^rg$|^ag$|^find$/.test(basename(w)))) return true;
+      continue;
+    }
+    const tool = basename(c.words[index]);
+    const args = c.words.slice(index + 1);
+
+    if (tool === "cd" || tool === "pushd" || tool === "popd") {
+      const scoped = c.depth > 0 || pipedOrBackground(c.before) || pipedOrBackground(c.after) || /`/.test(cmd);
+      if (scoped || tool === "popd" || dir === null) {
+        dir = null;
+        continue;
+      }
+      const target = args.filter((a) => !/^-[LPe@]+$/.test(a))[0];
+      dir = changeDirectory(dir, target);
+      continue;
+    }
+
+    const here = chdir ? null : dir;
+    const reach = (targets, mode) =>
+      viaXargs || targets.some((t) => pathReachesSecret(t, here, mode, ctx));
+
+    if (shells.test(tool) || tool === "eval") {
+      // Check the text a nested shell runs, from the same directory.
+      let body = null;
+      if (tool === "eval") body = args.join(" ");
+      else {
+        const cAt = args.findIndex((a) => /^-[a-zA-Z]*c[a-zA-Z]*$/.test(a));
+        if (cAt !== -1) body = args.slice(cAt + 1).find((a) => !a.startsWith("-")) ?? "";
+      }
+      if (body !== null && recursiveReadReachesSecret(body, here, { ...ctx, depth: ctx.depth + 1 })) return true;
+      continue;
+    }
+
+    if (/^[ef]?grep$|^rgrep$/.test(tool)) {
+      const p = parseSearchArgs(args, grepValueOptions, ["-e", "-f", "--regexp", "--file"]);
+      const recursive =
+        tool === "rgrep" ||
+        p.has("-r", "-R", "--recursive", "--dereference-recursive") ||
+        p.opts.some((o) => (o.name === "-d" || o.name === "--directories") && o.value === "recurse");
+      if (!recursive) continue;
+      const includes = p.values("--include");
+      if (includes.some((g) => toolGlobCouldMatchSecret(chars(g)))) return true;
+      if (includes.length) continue; // grep reads only files matching a safe --include
+      if (excludesAllSecrets(p.values("--exclude"))) continue;
+      const follow = p.has("-R", "--dereference-recursive");
+      const targets = p.explicitPattern ? p.positionals : p.positionals.slice(1);
+      const mode = { links: follow ? "uncertain" : "skip", prune: literalNames(p.values("--exclude-dir")) };
+      if (reach(targets.length ? targets : ["."], mode)) return true;
+    } else if (tool === "rg" || tool === "ag") {
+      const isRg = tool === "rg";
+      const p = parseSearchArgs(args, isRg ? rgValueOptions : agValueOptions, isRg ? ["-e", "-f", "--regexp", "--file"] : []);
+      const u = p.opts.filter((o) => o.name === "-u").length;
+      const hidden = u >= (isRg ? 2 : 1) || p.has("--hidden", "-.", "--unrestricted");
+      const follow = isRg ? p.has("-L", "--follow") : p.has("-f", "--follow");
+      const listOnly = isRg && p.has("--files");
+      if (!hidden && !follow) continue;
+      if (listOnly && !pipesToReader(cmds, i)) continue; // --files only prints names
+      const globs = isRg ? p.values("-g", "--glob", "--iglob") : p.values("--ignore").map((g) => `!${g}`);
+      const positive = globs.filter((g) => !g.startsWith("!"));
+      const negative = globs.filter((g) => g.startsWith("!")).map((g) => g.slice(1));
+      if (positive.some((g) => toolGlobCouldMatchSecret(chars(g)))) return true;
+      if (positive.length) continue; // rg reads (or lists) only files matching a safe glob
+      if (excludesAllSecrets(negative)) continue;
+      const targets = p.explicitPattern || listOnly ? p.positionals : p.positionals.slice(1);
+      const mode = { links: follow ? "uncertain" : "skip", prune: literalNames(negative) };
+      if (reach(targets.length ? targets : ["."], mode)) return true;
+    } else if (tool === "find") {
+      const reads =
+        hasSubstitution || pipesToReader(cmds, i) ||
+        args.some((a) => ["-exec", "-execdir", "-ok", "-okdir"].includes(a));
+      if (!reads) continue;
+      const orBranch = args.some((a) => ["-o", "-or", ","].includes(a));
+      const positive = [];
+      const negated = [];
+      for (let a = 0; a + 1 < args.length; a++) {
+        if (!/^-i?(name|path|wholename|regex)$/.test(args[a])) continue;
+        const neg = args[a - 1] === "!" || args[a - 1] === "-not";
+        (neg ? negated : positive).push({ kind: args[a], value: args[a + 1] });
+      }
+      // Only -name/-iname exclusions apply to every file in the tree.
+      const nameExclusions = negated.filter((t) => /^-i?name$/.test(t.kind)).map((t) => t.value);
+      if (!orBranch && excludesAllSecrets(nameExclusions)) continue;
+      const safeFilter =
+        !orBranch && positive.length > 0 &&
+        positive.every((t) => !/regex/.test(t.kind) && !toolGlobCouldMatchSecret(chars(t.value)));
+      if (safeFilter) continue;
+      const targets = [];
+      let follow = args.includes("-follow");
+      for (let a = 0; a < args.length; a++) {
+        if (/^-[HLP]$/.test(args[a])) {
+          if (args[a] === "-L") follow = true;
+          continue;
         }
-        if (excludesAllSecrets(negated.filter((t) => !/regex/.test(t.kind)).map((t) => t.value))) continue;
-        const safeFilter =
-          !orBranch && tests.length > 0 &&
-          tests.every((t) => !/regex/.test(t.kind) &&
-            !toolGlobCouldMatchSecret([...t.value].map((ch) => ({ ch, quoted: false }))));
-        if (safeFilter) continue;
-        targets = [];
-        for (const a of args) {
-          if (/^-[HLP]$/.test(a)) continue;
-          if (a.startsWith("-") || a === "!" || a === "(") break;
-          targets.push(a);
+        if (args[a] === "-D") {
+          a++;
+          continue;
         }
-        if (targets.length === 0) targets = ["."];
-      } else continue;
-      if (targets.some((t) => pathReachesSecret(t, cwd, hasCd))) return true;
+        if (/^-O\d$/.test(args[a])) continue;
+        if (args[a].startsWith("-") || args[a] === "!" || args[a] === "(") break;
+        targets.push(args[a]);
+      }
+      // find hands symlinks to -exec unless -type f filters them out.
+      const typeF = !orBranch && args.some((a, j) => a === "-type" && args[j + 1] === "f");
+      const mode = { links: !follow && typeF ? "skip" : "uncertain", prune: new Set() };
+      if (reach(targets.length ? targets : ["."], mode)) return true;
     }
   }
   return false;
 }
 
-// True if `target` (a file or directory) is, or contains, a secret file.
-// Paths that cannot be resolved with certainty count as reaching one.
-function pathReachesSecret(target, cwd, hasCd) {
+// Apply a literal cd target to a known directory. Unknown results return null.
+function changeDirectory(dir, target) {
+  if (target === undefined) return homedir();
+  if (target === "-" || /[$`*?[{]|^~[^/]/.test(target)) return null;
+  const native = toNativePath(target.replace(/^~(?=\/|$)/, homedir()));
+  if (native === null) return null;
+  const next = resolve(dir, native);
+  try {
+    return statSync(next).isDirectory() ? next : null; // CDPATH or a failed cd: unknown
+  } catch {
+    return null;
+  }
+}
+
+// Git Bash spells C:\x as /c/x (or /cygdrive/c/x). The command reaches the hook
+// as JSON, so MSYS never converts it; do that here. Other POSIX-style absolute
+// paths on Windows depend on the MSYS mount table, so they are unknown (null).
+function toNativePath(path) {
+  if (process.platform !== "win32" || !path.startsWith("/")) return path;
+  const m = path.match(/^\/(?:cygdrive\/)?([a-zA-Z])(?=\/|$)(.*)$/);
+  return m ? `${m[1].toUpperCase()}:${m[2] || "/"}` : null;
+}
+
+// True if `target` is, or holds, a secret file. `dir` is the effective working
+// directory (null if unknown). Paths that cannot be resolved count as reaching.
+function pathReachesSecret(target, dir, mode, ctx) {
   if (target === "-") return false;
   if (/[$`]|^~[^/]/.test(target)) return true;
-  let path = target.replace(/^~(?=\/|$)/, homedir());
+  let path = toNativePath(target.replace(/^~(?=\/|$)/, homedir()));
+  if (path === null) return true;
   // A shell wildcard in the path: walk the literal directory above it instead.
   const glob = path.search(/[*?[{]/);
-  if (glob !== -1) path = path.slice(0, path.lastIndexOf("/", glob) + 1) || ".";
-  const full = resolve(cwd, path);
+  if (glob !== -1) path = path.slice(0, Math.max(path.lastIndexOf("/", glob), path.lastIndexOf("\\", glob)) + 1) || ".";
+  if (!isAbsolute(path) && dir === null) return true;
+  const full = dir === null ? resolve(path) : resolve(dir, path);
   let info;
+  let real;
   try {
     info = statSync(full);
+    real = realpathSync(full);
   } catch {
     return true; // missing or unreadable: cannot tell, so block
   }
-  if (!hasCd && !info.isDirectory()) return secretName.test(basename(full));
-  return treeHasSecret(info.isDirectory() ? full : resolve(full, ".."));
+  if (!info.isDirectory()) return secretName.test(basename(full)) || secretName.test(basename(real));
+  const key = `${real}\0${mode.links}\0${[...mode.prune].sort().join("/")}`;
+  if (!ctx.cache.has(key)) ctx.cache.set(key, treeMayHoldSecret(full, mode, ctx.budget));
+  return ctx.cache.get(key);
 }
 
-// Walk a directory (skipping .git and node_modules) looking for secret files.
-// Gives up after 50,000 entries and reports a secret, to stay conservative.
-function treeHasSecret(root) {
+// Entry budget for one hook call, shared by every walk in it. A test may lower
+// it with GUARD_BASH_MAX_ENTRIES; it can never be raised.
+function walkBudget() {
+  const fromEnv = Number.parseInt(process.env.GUARD_BASH_MAX_ENTRIES ?? "", 10);
+  return Number.isInteger(fromEnv) && fromEnv >= 0 ? Math.min(fromEnv, 50000) : 50000;
+}
+
+// Walk a directory one entry at a time. True if it holds a secret file, or if
+// the walk cannot be completed: an unreadable directory, a symlink when the
+// reader may follow it (mode.links "uncertain"), or an exhausted budget.
+// Only directories the reader itself skips (mode.prune) are pruned.
+function treeMayHoldSecret(root, mode, budget) {
   const stack = [root];
-  let budget = 50000;
   while (stack.length) {
-    const dir = stack.pop();
-    let entries;
+    const path = stack.pop();
+    let dir;
     try {
-      entries = readdirSync(dir, { withFileTypes: true });
+      dir = opendirSync(path);
     } catch {
-      continue;
+      return true;
     }
-    for (const e of entries) {
-      if (--budget < 0) return true;
-      if (secretName.test(e.name)) return true;
-      if (e.isDirectory() && e.name !== ".git" && e.name !== "node_modules") {
-        stack.push(resolve(dir, e.name));
+    try {
+      for (let e = dir.readSync(); e !== null; e = dir.readSync()) {
+        if (--budget.left < 0) return true;
+        if (secretName.test(e.name)) return true;
+        if (e.isSymbolicLink()) {
+          if (mode.links === "skip") continue;
+          return true;
+        }
+        if (e.isDirectory() && !mode.prune.has(e.name)) stack.push(resolve(path, e.name));
+      }
+    } catch {
+      return true;
+    } finally {
+      try {
+        dir.closeSync();
+      } catch {
+        // already closed
       }
     }
   }
