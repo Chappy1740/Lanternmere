@@ -24,8 +24,9 @@ export default async function RaidRoomPage({
     !isGuildLeadership(membership.guild_member_roles.map((entry) => entry.role))
   )
     notFound();
-  const canViewAudit = membership.guild_member_roles.some((entry) =>
-    entry.role === 'guild_master' || entry.role === 'officer');
+  const canViewAudit = membership.guild_member_roles.some(
+    (entry) => entry.role === 'guild_master' || entry.role === 'officer',
+  );
   const [operations, guildMembers, workspace, loot, readiness, auditEvents] = await Promise.all([
     loadGuildRaidOperations(membership.guild_id),
     loadGuildMembers(membership.guild_id),

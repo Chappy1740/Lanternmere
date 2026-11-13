@@ -1,5 +1,9 @@
 # Milestone 7 — The Guild Hall: Guild Operations
 
+## October 26 original-requirement reconciliation
+
+CR-030 restores the spreadsheet-style Guild/raid-team weekly progress comparison. A local implementation adds roster targets, reported weekly completions/Vault slots and observed Blizzard details while preserving ownership and sharing. Local SQL preparation is approved; hosted application/release and live acceptance are not. This gap keeps the expanded milestone in progress. See [scope, data-source limits and release tests](guild-weekly-progress-reconciliation.md).
+
 ## Status
 
 Complete.
